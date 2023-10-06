@@ -15,6 +15,53 @@ namespace LamiaSimulation
         UnreadMessages,
 
         // --------------------------------------------------------------------
+        // RESOURCES
+        // --------------------------------------------------------------------
+
+        /*
+         * Display name for a resource
+         *   Result - string: Name of a resource
+         *   Params:
+         *     - string: Resource id to query
+         */
+        ResourceName,
+        
+        /*
+         * Description of a resource
+         *   Result - string: Description of a resource
+         *   Params:
+         *     - string: Resource id to query
+         */
+        ResourceDescription,
+        
+        // --------------------------------------------------------------------
+        // LOCATIONS
+        // --------------------------------------------------------------------
+        
+        /*
+         * All UUIDs of world locations
+         *   Result - string[]: UUIDs
+         */
+        Locations,
+        
+        /*
+         * All resources that are available at a particular location
+         *   Result - string[]: Resource IDs available
+         *   Params:
+         *     - string: uuid of location to query
+         */
+        LocationResources,
+
+        /*
+         * Amount of a particular resource that is available at a location
+         *   Result - float: Amount of resource available
+         *   Params:
+         *     - string: uuid of location to query
+         *     - string: resource ID to query
+         */
+        LocationResourceAmount,
+        
+        // --------------------------------------------------------------------
         // SETTLEMENTS
         // --------------------------------------------------------------------
 
@@ -24,6 +71,14 @@ namespace LamiaSimulation
          */
         Settlements,
 
+        /*
+         * Uuid of the location the settlement is placed at
+         *   Result - string
+         *   Params:
+         *     - string: uuid of settlement to query
+         */
+        SettlementLocation,
+        
         /*
          * Displayable name of the settlement
          *   Result - string
@@ -73,6 +128,31 @@ namespace LamiaSimulation
          */
         SettlementPopulationSpeciesMembers,
         
+        /*
+         * All resources that are being stored in a settlement's inventory
+         *   Result - string[]: Resource IDs being stored
+         *   Params:
+         *     - string: uuid of settlement to query
+         */
+        SettlementInventory,
+
+        /*
+         * Amount of a particular resource that is being stored in a settlement
+         *   Result - float: Amount of resource being stored
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: resource ID to query
+         */
+        SettlementInventoryResourceAmount,
+        
+        /*
+         * Maximum amount of a resource that can be stored in a settlement
+         *   Result - float: Maximum amount of the resource can be stored
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: resource ID to query
+         */
+        SettlementInventoryResourceMax,
 
         // --------------------------------------------------------------------
         // POPULATION
@@ -207,32 +287,6 @@ namespace LamiaSimulation
          *     - string: id of task
          */
         SettlementTaskMaximumCapacity,
-
-        /*
-         * All resources that are being stored in a settlement's inventory
-         *   Result - string[]: Resource IDs being stored
-         *   Params:
-         *     - string: uuid of settlement to query
-         */
-        SettlementInventory,
-
-        /*
-         * Amount of a particular resource that is being stored in a settlement 
-         *   Result - float: Amount of resource being stored
-         *   Params:
-         *     - string: uuid of settlement to query
-         *     - string: resource ID to query
-         */
-        SettlementInventoryResourceAmount,
-        
-        /*
-         * Maximum amount of a resource that can be stored in a settlement
-         *   Result - float: Maximum amount of the resource can be stored
-         *   Params:
-         *     - string: uuid of settlement to query
-         *     - string: resource ID to query
-         */
-        SettlementInventoryResourceMax,
 
     }
 }

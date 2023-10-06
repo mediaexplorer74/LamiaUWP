@@ -27,12 +27,54 @@ public partial class Query: Node
     {
         return Simulation.Instance.Query<string[]>(ClientQuery.UnreadMessages);
     }
+
+    // ----------------------
+    // RESOURCES
+    // ----------------------
+    
+    public string ResourceName(string resourceId)
+    {
+        return Simulation.Instance.Query<string, string>(ClientQuery.ResourceName, resourceId);
+    }
+    
+    public string ResourceDescription(string resourceId)
+    {
+        return Simulation.Instance.Query<string, string>(ClientQuery.ResourceDescription, resourceId);
+    }
+    
+    // ----------------------
+    // LOCATIONS
+    // ----------------------
+
+    public string[] Locations()
+    {
+        return Simulation.Instance.Query<string[]>(ClientQuery.Locations);
+    }
+    
+    public string[] LocationResources(string locationUuid)
+    {
+        return Simulation.Instance.Query<string[], string>(ClientQuery.LocationResources, locationUuid);
+    }
+
+    public float LocationResourceAmount(string locationUuid, string resourceId)
+    {
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.LocationResourceAmount, locationUuid, resourceId );
+    }
+
+    // ----------------------
+    // SETTLEMENTS
+    // ----------------------
     
     public string[] Settlements()
     {
         return Simulation.Instance.Query<string[]>(ClientQuery.Settlements);
     }
 
+    public string SettlementLocation(string uuid)
+    {
+        return Simulation.Instance.Query<string, string>(ClientQuery.SettlementLocation, uuid);
+    }
+    
     public string SettlementName(string uuid)
     {
         return Simulation.Instance.Query<string, string>(ClientQuery.SettlementName, uuid);
@@ -62,6 +104,25 @@ public partial class Query: Node
     {
         return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementPopulationSpeciesMembers, uuid, speciesId);
     }
+
+    public string[] SettlementInventory(string uuid)
+    {
+        return Simulation.Instance.Query<string[], string>(ClientQuery.SettlementInventory, uuid);
+    }
+
+    public float SettlementInventoryResourceAmount(string uuid, string resourceId)
+    {
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, uuid, resourceId);
+    }
+    
+    public float SettlementInventoryResourceMax(string uuid, string resourceId)
+    {
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.SettlementInventoryResourceMax, uuid, resourceId);
+    }
+    
+    // ----------------------
+    // POPULATION
+    // ----------------------
     
     public string PopulationMemberName(string settlementUuid, string populationUuid)
     {
@@ -93,6 +154,10 @@ public partial class Query: Node
         return Simulation.Instance.Query<string, string, string>(ClientQuery.PopulationMemberCurrentActionName, settlementUuid, populationUuid);
     }
     
+    // ----------------------
+    // SPECIES
+    // ----------------------
+    
     public string SpeciesName(string speciesId)
     {
         return Simulation.Instance.Query<string, string>(ClientQuery.SpeciesName, speciesId);
@@ -102,6 +167,10 @@ public partial class Query: Node
     {
         return Simulation.Instance.Query<string[], string>(ClientQuery.SpeciesDescription, speciesId);
     }
+    
+    // ----------------------
+    // TASKS
+    // ----------------------
     
     public string[] SettlementTasks(string uuid)
     {

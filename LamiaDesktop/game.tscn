@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://e6wbtvxigtho"]
+[gd_scene load_steps=11 format=3 uid="uid://e6wbtvxigtho"]
 
 [ext_resource type="Script" path="res://scripts/GameController.cs" id="1_cfsw3"]
 [ext_resource type="Script" path="res://scripts/UI/Global/VersionText.gd" id="2_ohmy4"]
@@ -6,6 +6,9 @@
 [ext_resource type="Script" path="res://scripts/UI/Global/Pages.gd" id="3_fpc7b"]
 [ext_resource type="Script" path="res://scripts/UI/Global/Messages.gd" id="4_5vxlb"]
 [ext_resource type="StyleBox" uid="uid://xxd4m0jineq1" path="res://styles/panel1.tres" id="4_l5owv"]
+[ext_resource type="PackedScene" uid="uid://goa3xwhj1xkd" path="res://scenes/UI/Global/page_button.tscn" id="5_3j2ef"]
+[ext_resource type="Script" path="res://scripts/UI/Global/ResourcesList.gd" id="6_yb6nm"]
+[ext_resource type="PackedScene" uid="uid://dmctleo7i03mh" path="res://scenes/UI/Global/resource.tscn" id="7_6chm1"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1axur"]
 font_size = 30
@@ -62,14 +65,49 @@ theme_override_constants/margin_bottom = 15
 layout_mode = 2
 script = ExtResource("3_fpc7b")
 
-[node name="PageTabsMargin" type="MarginContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper"]
+[node name="PageTabsResources" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="VSplitContainer" type="VSplitContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PageTabsMargin" type="MarginContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer"]
 layout_mode = 2
 theme_override_constants/margin_right = 10
 
-[node name="PageTabs" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsMargin"]
+[node name="PageTabs" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/PageTabsMargin"]
 layout_mode = 2
-size_flags_horizontal = 0
 theme_override_constants/separation = 10
+
+[node name="PageButton" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/PageTabsMargin/PageTabs" instance=ExtResource("5_3j2ef")]
+layout_mode = 2
+
+[node name="ResourcesScrollContainer" type="ScrollContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_bottom = 5
+
+[node name="ResourcesList" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 10
+theme_override_constants/separation = 6
+script = ExtResource("6_yb6nm")
+
+[node name="Resource" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourcesList" instance=ExtResource("7_6chm1")]
+layout_mode = 2
+
+[node name="Resource2" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourcesList" instance=ExtResource("7_6chm1")]
+layout_mode = 2
 
 [node name="PageContainer" type="ScrollContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper"]
 layout_mode = 2

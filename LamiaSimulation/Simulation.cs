@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 
 namespace LamiaSimulation
 {
@@ -29,11 +30,16 @@ namespace LamiaSimulation
             DataType.LoadDataFromJson<LocationType>(Path.Combine(dataDir, Consts.FilenameLocationTypes));
         }
 
+        public void Reset()
+        {
+            globalState = new GlobalState();
+        }
+
         public void Start()
         {
             globalState.PerformAction(ClientAction.AddLocation,  new ClientParameter<string>("origin"));
             globalState.PerformAction(
-                ClientAction.ConvertLocationToSettlement, new ClientParameter<string>(LastID)
+                ClientAction.AddSettlementAtLocation, new ClientParameter<string>(LastID)
             );
             globalState.PerformAction(
                 ClientAction.RenameSettlement, new ClientParameter<string>(LastID),

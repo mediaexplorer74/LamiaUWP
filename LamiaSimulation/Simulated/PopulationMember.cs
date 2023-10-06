@@ -11,16 +11,20 @@ namespace LamiaSimulation
         public string taskAssigment;
         public string currentAction;
 
+        private string settlementUuid;
+        private string currentLocationUuid;
         private float timeToCompleteCurrentAction;
         private float currentActionProgress;
         private Dictionary<ResourceType, float> inventory;
         private float maxInventory;
 
-        public PopulationMember(string speciesID)
+        public PopulationMember(string speciesID, string settlementUuid, string settlementLocationUuid)
         {
             inventory = new Dictionary<ResourceType, float>();
             var species = DataQuery<PopulationSpeciesType>.GetByID(speciesID);
             this.species = species ?? throw new ClientActionException(T._("Species does not exist."));
+            this.settlementUuid = settlementUuid;
+            currentLocationUuid = settlementLocationUuid;
             name = NameGenerator.Instance.GenerateFullName();
             maxInventory = species.maxInventory;
             taskAssigment = "idle";
@@ -128,15 +132,34 @@ namespace LamiaSimulation
             {
                 case "deposit":
                     foreach (var inventoryItem in inventory)
+                    {
+                        Simulation.Instance.PerformAction(
+                            ClientAction.AddResourceToSettlementInventory,
+                            new ClientParameter<string>(settlementUuid),
+                            new ClientParameter<string>(inventoryItem.Key.ID),
+                            new ClientParameter<float>(inventoryItem.Value)
+                        );
                         inventory[inventoryItem.Key] = 0f;
+                    }
                     break;
                 case "extract":
                     var task = Helpers.GetTaskTypeById(taskAssigment);
                     if (task.behaviour != TaskTypeBehaviour.EXTRACT)
                         return;
                     var resource = Helpers.GetResourceTypeById(task.extractResourceType);
-                    if (!inventory.ContainsKey(resource))
-                        inventory[resource] = 0f;
+                    var locationResource = Simulation.Instance.Query<float, string, string>(
+                        ClientQuery.LocationResourceAmount, currentLocationUuid, task.extractResourceType
+                    );
+                    var amountToExtract = Math.Min(locationResource, task.amount);
+                    if (amountToExtract <= 0f)
+                        break;
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SubtractResourceFromLocation,
+                        new ClientParameter<string>(currentLocationUuid), 
+                        new ClientParameter<string>(task.extractResourceType), 
+                        new ClientParameter<float>(amountToExtract)
+                    );
+                    inventory.TryAdd(resource, 0f);
                     inventory[resource] += task.amount;
                     break;
             }

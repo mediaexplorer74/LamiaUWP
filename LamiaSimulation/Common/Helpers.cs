@@ -27,6 +27,23 @@ namespace LamiaSimulation
                 throw new ClientActionException(T._("Resource does not exist."));
             return filtered;
         }
+        
+        public static LocationType GetLocationTypeById(string ID)
+        {
+            var filtered = DataQuery<LocationType>.GetByID(ID);
+            if(filtered == null)
+                throw new ClientActionException(T._("Location type does not exist."));
+            return filtered;
+        }
+        
+        public static T1 GetDataTypeById<T1>(string ID) where T1 : DataType
+        {
+            var filtered = DataQuery<T1>.GetByID(ID);
+            if(filtered == null)
+                throw new ClientActionException(T._("Resource does not exist."));
+            return filtered;
+        }
+        
 
     }
 }

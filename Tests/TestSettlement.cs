@@ -10,7 +10,8 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
-            simulation = new Simulation();
+            simulation = Simulation.Instance;
+            simulation.Reset();
             simulation.Start();
         }
 
@@ -28,6 +29,7 @@ namespace Tests
         public void TestSimulationResourcesAreExtractedFromLocationToSettlement()
         {
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            var locationUuid = simulation.Query<string, string>(ClientQuery.SettlementLocation, settlementUuid);
             var populationUuid = simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
             simulation.PerformAction(
                 ClientAction.PopulationAssignToTask,
@@ -35,9 +37,38 @@ namespace Tests
                 new ClientParameter<string>(populationUuid), 
                 new ClientParameter<string>("forage")
             );
-            for (var i = 0; i <= 17; i++)
+            Assert.AreEqual(
+                new []{"raw_food"},
+                simulation.Query<string[], string>(ClientQuery.LocationResources, locationUuid)
+            );
+            var defaultFoodAtLocation = Helpers.GetDataTypeById<LocationType>("origin").resources["raw_food"];
+            Assert.AreEqual(
+                defaultFoodAtLocation,
+                simulation.Query<float, string, string>(ClientQuery.LocationResourceAmount, locationUuid, "raw_food")
+            );
+            Assert.AreEqual(
+                0,
+                simulation.Query<string[], string>(ClientQuery.SettlementInventory, settlementUuid).Length
+            );
+            Assert.AreEqual(
+                0.0f,
+                simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, "raw_food")
+            );
+            for (var i = 0; i <= 12; i++)
                 simulation.Simulate(.5f);
-            
+            Assert.AreEqual(
+                new []{"raw_food"},
+                simulation.Query<string[], string>(ClientQuery.SettlementInventory, settlementUuid)                
+            );
+            var amountToExtract = Helpers.GetDataTypeById<TaskType>("forage").amount;
+            Assert.AreEqual(
+                amountToExtract * 2,
+                simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, "raw_food")
+            );
+            Assert.AreEqual(
+                defaultFoodAtLocation - (amountToExtract * 2),
+                simulation.Query<float, string, string>(ClientQuery.LocationResourceAmount, locationUuid, "raw_food")
+            );
         }
     }
 }

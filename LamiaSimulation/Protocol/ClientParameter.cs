@@ -1,3 +1,5 @@
+using System;
+
 namespace LamiaSimulation
 {
     public class ClientParameter<T>
@@ -11,5 +13,7 @@ namespace LamiaSimulation
         {
             _value = (T) value;
         }
+
+        public T Coerce<T>() => (T)Convert.ChangeType(_value, typeof(T));
     }
 }

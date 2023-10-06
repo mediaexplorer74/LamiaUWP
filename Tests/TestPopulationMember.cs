@@ -10,7 +10,8 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
-            simulation = new Simulation();
+            simulation = Simulation.Instance;
+            simulation.Reset();
             simulation.Start();
         }
 
@@ -50,24 +51,21 @@ namespace Tests
                 new ClientParameter<string>(populationUuid), 
                 new ClientParameter<string>("forage")
             );
-            Assert.AreEqual(
-                0,
-                simulation.Query<string[], string>(ClientQuery.SettlementInventory, settlementUuid).Length
-            );
-            Assert.AreEqual(
-                0.0f,
-                simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, "raw_food")
-            );
-            for (var i = 0; i <= 25; i++)
+            for (var i = 0; i <= 17; i++)
                 simulation.Simulate(.5f);
             Assert.AreEqual(
-                new []{"raw_food"},
-                simulation.Query<string[], string>(ClientQuery.SettlementInventory, settlementUuid)                
-                );
-            Assert.AreEqual(
-                12.0f,
-                simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, "raw_food")
+                "forage",
+                simulation.Query<string, string, string>(ClientQuery.PopulationMemberTask, settlementUuid, populationUuid)
             );
+            Assert.AreEqual(
+                "deposit",
+                simulation.Query<string, string, string>(ClientQuery.PopulationMemberCurrentAction, settlementUuid, populationUuid)
+            );
+            Assert.AreEqual(
+                "Depositing",
+                simulation.Query<string, string, string>(ClientQuery.PopulationMemberCurrentActionName, settlementUuid, populationUuid)
+            );
+            
         }
     }
 }

@@ -52,15 +52,19 @@ namespace LamiaSimulation
                 case ClientAction.AddLocation:
                     locations.Add(new Location(param1.Get as string));
                     break;
-                // Convert location to player settlement
-                case ClientAction.ConvertLocationToSettlement:
+                // Creates a new settlement at a location
+                case ClientAction.AddSettlementAtLocation:
                     var location = locations.Filter(
                         l => l.ID == param1.Get.ToString()
                     ).FirstOrDefault();
                     if(location == null)
-                        throw new ClientActionException(Text._("Location to convert does not exist."));
-                    var newSettlement = location.CreateSettlementAt(Text._("Unnamed"));
-                    locations.Remove(location);
+                        throw new ClientActionException(Text._("Location to add settlement to does not exist."));
+                    var existingSettlement = playerSettlements.Filter(
+                        s => s.locationUuid == param1.Get.ToString()
+                    ).FirstOrDefault();
+                    if(existingSettlement != null)
+                        throw new ClientActionException(Text._("Settlement already exists at location"));
+                    var newSettlement = new Settlement(Text._("Unnamed"), param1.Get.ToString());
                     playerSettlements.Add(newSettlement);
                     break;
             }
@@ -126,6 +130,10 @@ namespace LamiaSimulation
                     result = new QueryResult<string[]>(unreadMessages.ToArray()) as QueryResult<T>;
                     unreadMessages.Clear();
                     break;
+                // Location IDs
+                case ClientQuery.Locations:
+                    result = new QueryResult<string[]>(locations.Map(s => s.ID).ToArray()) as QueryResult<T>;
+                    break;
                 // Settlement IDs
                 case ClientQuery.Settlements:
                     result = new QueryResult<string[]>(playerSettlements.Map(s => s.ID).ToArray()) as QueryResult<T>;
@@ -150,6 +158,14 @@ namespace LamiaSimulation
                 case ClientQuery.SpeciesDescription:
                     result = new QueryResult<string[]>(Text._(Helpers.GetSpeciesTypeById(param1.Get as string).description)) as QueryResult<T>;
                     break;
+                // Resource name
+                case ClientQuery.ResourceName:
+                    result = new QueryResult<string>(Text._(Helpers.GetResourceTypeById(param1.Get as string).name)) as QueryResult<T>;
+                    break;
+                // Resource description
+                case ClientQuery.ResourceDescription:
+                    result = new QueryResult<string>(Text._(Helpers.GetResourceTypeById(param1.Get as string).description)) as QueryResult<T>;
+                    break;
             }
 
             foreach(var location in locations)
@@ -171,7 +187,7 @@ namespace LamiaSimulation
             ClientParameter<T1> param1, ClientParameter<T2> param2, ClientParameter<T3> param3)
         {
             foreach(var location in locations)
-                location.Query(ref result, query, param3);
+                location.Query(ref result, query, param1, param2, param3);
             foreach(var settlement in playerSettlements)
                 settlement.Query(ref result, query, param1, param2, param3);
         }

@@ -18,7 +18,7 @@ public partial class Action: Node
     public void ConvertLocationToSettlement(string uuid)
     {
         Simulation.Instance.PerformAction(
-            ClientAction.ConvertLocationToSettlement, 
+            ClientAction.AddSettlementAtLocation, 
             new ClientParameter<string>(uuid)
             );
     }
@@ -59,6 +59,16 @@ public partial class Action: Node
             new ClientParameter<string>(settlementUuid),
             new ClientParameter<string>(populationUuid),
             new ClientParameter<string>(taskId)
+        );
+    }
+
+    public void AddResourceToSettlementInventory(string settlementUuid, string resourceId, float amount)
+    {
+        Simulation.Instance.PerformAction(
+            ClientAction.AddResourceToSettlementInventory,
+            new ClientParameter<string>(settlementUuid),
+            new ClientParameter<string>(resourceId),
+            new ClientParameter<System.Single>(amount)
         );
     }
     

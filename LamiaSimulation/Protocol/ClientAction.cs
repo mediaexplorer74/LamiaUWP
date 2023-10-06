@@ -6,9 +6,9 @@ namespace LamiaSimulation
         //   - string: Location type to add
         AddLocation,
 
-        // Converts a location to a player settlement
-        //   - string: uuid of the location to convert
-        ConvertLocationToSettlement,
+        // Creates a new player settlement at a world location
+        //   - string: uuid of the location to add a settlement at
+        AddSettlementAtLocation,
 
         // Add one new population to a settlement
         // params:
@@ -39,5 +39,19 @@ namespace LamiaSimulation
         //   - string: uuid of population member
         //   - string: id of new task
         PopulationAssignToTask,
+
+        // Adds an amount of a resource to a settlement inventory. Any resource that can't be stored is discarded.
+        // params:
+        //   - string: uuid of settlement
+        //   - string: id of resource
+        //   - float: amount of resource to add
+        AddResourceToSettlementInventory,
+        
+        // Reduces an amount of a resource from a location's resources.
+        // params:
+        //   - string: uuid of location
+        //   - string: id of resource
+        //   - float: amount of resource to reduce
+        SubtractResourceFromLocation,
     }
 }

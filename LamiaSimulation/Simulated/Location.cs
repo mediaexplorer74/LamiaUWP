@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LamiaSimulation
 {
@@ -20,16 +21,6 @@ namespace LamiaSimulation
             }
         }
 
-        public Settlement CreateSettlementAt(string name)
-        {
-            var settlement = new Settlement(name)
-            {
-                locationType = locationType,
-                availableResources = new Dictionary<ResourceType, float>(availableResources)
-            };
-            return settlement;
-        }
-
         public void PerformAction(ClientAction action)
         {
         }
@@ -46,19 +37,52 @@ namespace LamiaSimulation
             ClientParameter<T2> param2,
             ClientParameter<T3> param3)
         {
+            if(param1.Get as string != ID)
+                return;
+            switch (action)
+            {
+                // Subtract resource from location
+                case ClientAction.SubtractResourceFromLocation:
+                    var resource = Helpers.GetResourceTypeById(param2.Get as string);
+                    var amount = param3.Coerce<float>();
+                    if (!availableResources.ContainsKey(resource))
+                        throw new ClientActionException(T._("Resource not available at location."));
+                    availableResources[resource] -= amount;
+                    if (availableResources[resource] < 0f)
+                        availableResources[resource] = 0f;
+                    break;
+            }
         }
-
-        public void Query<T1>(ref QueryResult<T1> result, ClientQuery query)
+        
+        public void Query<T>(ref QueryResult<T> result, ClientQuery query)
         {
         }
 
         public void Query<T, T1>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1)
         {
+            if(param1.Get as string != ID)
+                return;
+            switch (query)
+            {
+                // Location resources available
+                case ClientQuery.LocationResources:
+                    result = new QueryResult<string[]>(GetResourceList()) as QueryResult<T>;
+                    break;
+            }
         }
 
         public void Query<T, T1, T2>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1,
             ClientParameter<T2> param2)
         {
+            if(param1.Get as string != ID)
+                return;
+            switch (query)
+            {
+                // Location resource amount
+                case ClientQuery.LocationResourceAmount:
+                    result = new QueryResult<float>(GetResourceAmount(param2.Get as string)) as QueryResult<T>;
+                    break;
+            }
         }
 
         public void Query<T, T1, T2, T3>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1,
@@ -69,5 +93,18 @@ namespace LamiaSimulation
         public void Simulate(float deltaTime)
         {
         }
+        
+        private string[] GetResourceList()
+        {
+            var resources = availableResources.Keys.Select(resource => resource.ID).Distinct().ToList();
+            return resources.ToArray();
+        }
+
+        private float GetResourceAmount(string resourceId)
+        {
+            var resource = Helpers.GetResourceTypeById(resourceId);
+            return !availableResources.ContainsKey(resource) ? 0f : availableResources[resource];
+        }
+        
     }
 }

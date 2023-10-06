@@ -5,22 +5,24 @@ using System.Linq;
 namespace LamiaSimulation
 {
     [Serializable]
-    internal class Settlement: Location, IActionReceiver, IQueryable, ISimulated
+    internal class Settlement: SimulationObject, IActionReceiver, IQueryable, ISimulated
     {
         private string name;
         private List<PopulationMember> populationMembers;
         private int maxPopulationMember = Consts.InitialSettlementPopulationCapacity;
         private List<string> availableTasks;
         private Dictionary<ResourceType, float> inventory;
-
+        
+        public string locationUuid;
         public static string simulatingSettlement;
 
-        public Settlement(string name): base("void")
+        public Settlement(string name, string locationUuid)
         {
             inventory = new Dictionary<ResourceType, float>();
             populationMembers = new List<PopulationMember>();
             availableTasks = new List<string>();
             this.name = name;
+            this.locationUuid = locationUuid;
             UnlockTask("idle");
             UnlockTask("forage");
         }
@@ -29,20 +31,20 @@ namespace LamiaSimulation
         // IActionReceiver
         // ---------------------------------------------------
 
-        public new void PerformAction(ClientAction action)
+        public void PerformAction(ClientAction action)
         {
             foreach(var pop in populationMembers)
                 pop.PerformAction(action);
         }
 
         // param1 is always settlement ID
-        public new void PerformAction<T>(ClientAction action, ClientParameter<T> param1)
+        public void PerformAction<T>(ClientAction action, ClientParameter<T> param1)
         {
             foreach(var pop in populationMembers)
                 pop.PerformAction(action, param1);
         }
 
-        public new void PerformAction<T1, T2>(ClientAction action, ClientParameter<T1> param1, ClientParameter<T2> param2)
+        public void PerformAction<T1, T2>(ClientAction action, ClientParameter<T1> param1, ClientParameter<T2> param2)
         {
             if(param1.Get as string != ID)
                 return;
@@ -58,7 +60,7 @@ namespace LamiaSimulation
                     break;
                 // Add population member
                 case ClientAction.AddPopulation:
-                    var newMember = new PopulationMember(param2.Get as string);
+                    var newMember = new PopulationMember(param2.Get as string, ID, locationUuid);
                     AddToPopulation(newMember);
                     break;
             }
@@ -66,18 +68,28 @@ namespace LamiaSimulation
                 pop.PerformAction(action, param1, param2);
         }
 
-        public new void PerformAction<T1, T2, T3>(ClientAction action, ClientParameter<T1> param1,
+        public void PerformAction<T1, T2, T3>(ClientAction action, ClientParameter<T1> param1,
             ClientParameter<T2> param2, ClientParameter<T3> param3)
         {
             if(param1.Get as string != ID)
                 return;
-            if(action == ClientAction.PopulationAssignToTask)
+            switch(action)
             {
-                var taskToAssignTo = param3.Get as string;
-                if(DataQuery<TaskType>.GetByID(taskToAssignTo) == null)
-                    throw new ClientActionException(T._("Task does not exist."));
-                if(!availableTasks.Contains(taskToAssignTo))
-                    throw new ClientActionException(T._("Task not unlocked in settlement."));
+                // Assign pop to task
+                case ClientAction.PopulationAssignToTask:
+                    var taskToAssignTo = param3.Get as string;
+                    if(DataQuery<TaskType>.GetByID(taskToAssignTo) == null)
+                        throw new ClientActionException(T._("Task does not exist."));
+                    if(!availableTasks.Contains(taskToAssignTo))
+                        throw new ClientActionException(T._("Task not unlocked in settlement."));
+                    break;
+                // Add resource to inventory
+                case ClientAction.AddResourceToSettlementInventory:
+                    var resource = Helpers.GetResourceTypeById(param2.Get as string);
+                    var amount = param3.Coerce<float>();
+                    inventory.TryAdd(resource, 0.0f);
+                    inventory[resource] += amount;
+                    break;
             }
 
             foreach(var pop in populationMembers)
@@ -88,19 +100,23 @@ namespace LamiaSimulation
         // IQueryable
         // ---------------------------------------------------
 
-        public new void Query<T>(ref QueryResult<T> result, ClientQuery query)
+        public void Query<T>(ref QueryResult<T> result, ClientQuery query)
         {
             foreach(var pop in populationMembers)
                 pop.Query(ref result, query);
         }
 
         // Param 1 is always the settlement ID
-        public new void Query<T, T1>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1)
+        public void Query<T, T1>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1)
         {
             if(param1.Get as string != ID)
                 return;
             switch(query)
             {
+                // Settlement location
+                case ClientQuery.SettlementLocation:
+                    result = new QueryResult<string>(locationUuid) as QueryResult<T>;
+                    break;
                 // Settlement name
                 case ClientQuery.SettlementName:
                     result = new QueryResult<string>(name) as QueryResult<T>;
@@ -134,7 +150,7 @@ namespace LamiaSimulation
                 pop.Query(ref result, query, param1);
         }
 
-        public new void Query<T, T1, T2>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1,
+        public void Query<T, T1, T2>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1,
             ClientParameter<T2> param2)
         {
             if(param1.Get as string != ID)
@@ -192,7 +208,7 @@ namespace LamiaSimulation
                 pop.Query(ref result, query, param1, param2);
         }
 
-        public new void Query<T, T1, T2, T3>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1,
+        public void Query<T, T1, T2, T3>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1,
             ClientParameter<T2> param2, ClientParameter<T3> param3)
         {
             foreach(var pop in populationMembers)
@@ -203,7 +219,7 @@ namespace LamiaSimulation
         // ISimulated
         // ---------------------------------------------------
 
-        public new void Simulate(float deltaTime)
+        public void Simulate(float deltaTime)
         {
             simulatingSettlement = ID;
             populationMembers.Apply(pop => pop.Simulate(deltaTime));

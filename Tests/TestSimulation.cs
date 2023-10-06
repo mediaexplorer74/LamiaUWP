@@ -10,10 +10,19 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
-            simulation = new Simulation();
+            simulation = Simulation.Instance;
+            simulation.Reset();
             simulation.Start();
         }
 
+        [Test]
+        public void TestSimulationBeginsWithOriginLocation()
+        {
+            var locations = simulation.Query<string[]>(ClientQuery.Locations);
+            Assert.IsNotEmpty(locations);
+            Assert.AreEqual(locations.Length, 1);
+        }
+        
         [Test]
         public void TestSimulationBeginsWithSettlement()
         {
