@@ -1,0 +1,7 @@
+{
+  "lamia": {
+    "name": "Lamia",
+    "description": ["A huge snek that slithers upright. They're super cute. They also each have humanoid arms."],
+    "maxInventory": 10.0
+  }
+}

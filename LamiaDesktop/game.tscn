@@ -1,0 +1,110 @@
+[gd_scene load_steps=8 format=3 uid="uid://e6wbtvxigtho"]
+
+[ext_resource type="Script" path="res://scripts/GameController.cs" id="1_cfsw3"]
+[ext_resource type="Script" path="res://scripts/UI/Global/VersionText.gd" id="2_ohmy4"]
+[ext_resource type="Theme" uid="uid://bnv8uaqyik3sg" path="res://styles/main_theme.tres" id="2_v40hy"]
+[ext_resource type="Script" path="res://scripts/UI/Global/Pages.gd" id="3_fpc7b"]
+[ext_resource type="Script" path="res://scripts/UI/Global/Messages.gd" id="4_5vxlb"]
+[ext_resource type="StyleBox" uid="uid://xxd4m0jineq1" path="res://styles/panel1.tres" id="4_l5owv"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_1axur"]
+font_size = 30
+
+[node name="GameController" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_cfsw3")
+
+[node name="TopLevelContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_v40hy")
+
+[node name="Header" type="Control" parent="TopLevelContainer"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="TopLevelContainer/Header"]
+layout_mode = 2
+offset_left = 10.0
+offset_top = 4.0
+offset_right = 1162.0
+offset_bottom = 49.0
+text = "Lamia"
+label_settings = SubResource("LabelSettings_1axur")
+
+[node name="Version" type="Label" parent="TopLevelContainer/Header"]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 6.0
+offset_right = 159.0
+offset_bottom = 32.0
+text = "v 0.0.0"
+script = ExtResource("2_ohmy4")
+
+[node name="MarginContainer" type="MarginContainer" parent="TopLevelContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="PagesWrapper" type="HBoxContainer" parent="TopLevelContainer/MarginContainer"]
+layout_mode = 2
+script = ExtResource("3_fpc7b")
+
+[node name="PageTabsMargin" type="MarginContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper"]
+layout_mode = 2
+theme_override_constants/margin_right = 10
+
+[node name="PageTabs" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsMargin"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 10
+
+[node name="PageContainer" type="ScrollContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PageContainerPanel" type="PanelContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("4_l5owv")
+
+[node name="PageHolder" type="MarginContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageContainer/PageContainerPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="Messages" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -222.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 36.0
+grow_horizontal = 0
+mouse_default_cursor_shape = 6
+theme_override_styles/panel = ExtResource("4_l5owv")
+script = ExtResource("4_5vxlb")
+metadata/_edit_use_anchors_ = true
+
+[node name="MessageList" type="VBoxContainer" parent="Messages"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = -3

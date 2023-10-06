@@ -1,0 +1,16 @@
+{
+  "idle": {
+    "name": "Idle",
+    "description": "Just hanging out.",
+    "behaviour": "IDLE"
+  },
+
+  "forage": {
+    "name": "Forage",
+    "description": "Wander around the surrounding area picking berries and other various bits of edible flora.",
+    "behaviour": "EXTRACT",
+    "extractResourceType": "raw_food",
+    "amount": 6.0,
+    "timeToComplete": 2.0
+  }
+}

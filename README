@@ -1,0 +1,10 @@
+Lamia
+=====
+
+This is an idle/incremental game I'm working on. It's inspired by Kitten's Game.
+
+It has a front-end independent simulation layer that actually does the game logic written in plain-ass C# running on .Net 6.0.
+
+The front end sends action requests and queries data. The current one is written with Godot. It has a paper-thin C# layer to communicate with the C# simulation, the rest of the front-end is GDScript.
+
+(I initially started writing it with a C# front-end using ImGui, so this separation let me switch to Godot really quickly, it rules honestly. Can see myself doing a web-based front end one day.)

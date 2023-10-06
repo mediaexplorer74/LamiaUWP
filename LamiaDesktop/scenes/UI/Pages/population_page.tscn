@@ -1,0 +1,104 @@
+[gd_scene load_steps=9 format=3 uid="uid://dw11217bc80oi"]
+
+[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="1_75nq3"]
+[ext_resource type="Script" path="res://scripts/UI/Pages/Population/DemographicsList.gd" id="2_2k0ga"]
+[ext_resource type="Script" path="res://scripts/UI/Pages/Population/TasksList.gd" id="2_alug7"]
+[ext_resource type="PackedScene" uid="uid://dqnvx61s43lhh" path="res://scenes/UI/Pages/Population/task.tscn" id="2_rwk33"]
+[ext_resource type="PackedScene" uid="uid://mnydnmu8agxp" path="res://scenes/UI/Pages/Population/demographic.tscn" id="3_pa7vo"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgllo"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_lettk"]
+font = ExtResource("1_75nq3")
+font_size = 35
+outline_size = 4
+outline_color = Color(0.207843, 0.207843, 0.207843, 1)
+shadow_size = 4
+shadow_color = Color(0, 0, 0, 0.278431)
+shadow_offset = Vector2(2, 2)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jhloo"]
+
+[node name="PopulationPage" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_sgllo")
+
+[node name="PanelsContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="TasksContainer" type="VBoxContainer" parent="PanelsContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TasksHeader" type="Label" parent="PanelsContainer/MarginContainer/TasksContainer"]
+layout_mode = 2
+text = "Tasks"
+label_settings = SubResource("LabelSettings_lettk")
+
+[node name="-" type="HSeparator" parent="PanelsContainer/MarginContainer/TasksContainer"]
+layout_mode = 2
+
+[node name="TasksList" type="ScrollContainer" parent="PanelsContainer/MarginContainer/TasksContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+script = ExtResource("2_alug7")
+
+[node name="TaskContainer" type="VBoxContainer" parent="PanelsContainer/MarginContainer/TasksContainer/TasksList"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Task" parent="PanelsContainer/MarginContainer/TasksContainer/TasksList/TaskContainer" instance=ExtResource("2_rwk33")]
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="PanelsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="DemographicsContainer" type="VBoxContainer" parent="PanelsContainer/MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DemographicsHeader" type="Label" parent="PanelsContainer/MarginContainer2/DemographicsContainer"]
+layout_mode = 2
+text = "Demographics"
+label_settings = SubResource("LabelSettings_lettk")
+
+[node name="-" type="HSeparator" parent="PanelsContainer/MarginContainer2/DemographicsContainer"]
+layout_mode = 2
+
+[node name="DemographicsList" type="PanelContainer" parent="PanelsContainer/MarginContainer2/DemographicsContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_jhloo")
+script = ExtResource("2_2k0ga")
+
+[node name="DemographicContainer" type="VBoxContainer" parent="PanelsContainer/MarginContainer2/DemographicsContainer/DemographicsList"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Demographic" parent="PanelsContainer/MarginContainer2/DemographicsContainer/DemographicsList/DemographicContainer" instance=ExtResource("3_pa7vo")]
+layout_mode = 2

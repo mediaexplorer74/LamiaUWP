@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://w1jwdq6w0r7y"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_jx5c1"]
+font_size = 12
+
+[node name="Message" type="Label"]
+size_flags_vertical = 0
+text = "Test Message Test Message"
+label_settings = SubResource("LabelSettings_jx5c1")

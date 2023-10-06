@@ -1,0 +1,12 @@
+{
+  "void": {
+    "name": "Void",
+    "resources": {}
+  },
+  "origin": {
+    "name": "Origin",
+    "resources": {
+      "raw_food": 40000
+    }
+  }
+}

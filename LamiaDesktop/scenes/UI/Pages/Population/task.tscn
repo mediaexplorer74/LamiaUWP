@@ -1,0 +1,69 @@
+[gd_scene load_steps=8 format=3 uid="uid://dqnvx61s43lhh"]
+
+[ext_resource type="Texture2D" uid="uid://cejtorqjwaj7c" path="res://media/icons/icon_task_idle.png" id="1_0lfcf"]
+[ext_resource type="Script" path="res://scripts/UI/Pages/Population/Task.gd" id="1_fr1gb"]
+[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="2_3hm6w"]
+[ext_resource type="Texture2D" uid="uid://bmenrhu8088cv" path="res://media/icons/icon_question.png" id="2_53rbt"]
+[ext_resource type="PackedScene" uid="uid://cg5j857nshce0" path="res://scenes/UI/Pages/Population/task_population.tscn" id="3_gl8hu"]
+[ext_resource type="PackedScene" uid="uid://bt82ve604ccni" path="res://scenes/UI/Global/tooltip_shower.tscn" id="3_o4b4w"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7w4pf"]
+
+[node name="Task" type="PanelContainer"]
+theme_override_styles/panel = SubResource("StyleBoxEmpty_7w4pf")
+script = ExtResource("1_fr1gb")
+
+[node name="HeaderPopHolder" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="HeaderPopHolder"]
+layout_mode = 2
+
+[node name="Info" type="Button" parent="HeaderPopHolder/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_type_variation = &"QuestionMarkButton"
+theme_override_constants/icon_max_width = 19
+button_mask = 0
+text = " "
+icon = ExtResource("2_53rbt")
+icon_alignment = 1
+
+[node name="TooltipShower" parent="HeaderPopHolder/Header/Info" instance=ExtResource("3_o4b4w")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -435.0
+offset_right = 0.0
+grow_horizontal = 0
+
+[node name="HeaderIcon" type="TextureRect" parent="HeaderPopHolder/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("1_0lfcf")
+expand_mode = 3
+
+[node name="HeaderLabel" type="Label" parent="HeaderPopHolder/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_3hm6w")
+theme_override_font_sizes/font_size = 24
+text = "Task Name"
+
+[node name="PopulationContainer" type="HFlowContainer" parent="HeaderPopHolder"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TaskPopulation" parent="HeaderPopHolder/PopulationContainer" instance=ExtResource("3_gl8hu")]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="HeaderPopHolder"]
+layout_mode = 2
+mouse_filter = 2
+
+[connection signal="mouse_entered" from="HeaderPopHolder/Header/Info" to="HeaderPopHolder/Header/Info/TooltipShower" method="_on_show_tooltip"]
+[connection signal="mouse_exited" from="HeaderPopHolder/Header/Info" to="HeaderPopHolder/Header/Info/TooltipShower" method="_on_hide_tooltip"]

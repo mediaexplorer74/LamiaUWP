@@ -1,0 +1,38 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Lamia"
+run/main_scene="res://game.tscn"
+config/features=PackedStringArray("4.1", "C#", "Mobile")
+config/icon="res://icon.svg"
+
+[autoload]
+
+Query="*res://scripts/Query.cs"
+Action="*res://scripts/Action.cs"
+Globals="*res://scripts/Globals.gd"
+
+[debug]
+
+gdscript/warnings/unused_parameter=0
+
+[dotnet]
+
+project/assembly_name="Lamia"
+
+[gui]
+
+theme/custom="res://styles/main_theme.tres"
+
+[rendering]
+
+renderer/rendering_method="mobile"
