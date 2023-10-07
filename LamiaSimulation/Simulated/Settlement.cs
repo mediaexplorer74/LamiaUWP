@@ -12,6 +12,9 @@ namespace LamiaSimulation
         private int maxPopulationMember = Consts.InitialSettlementPopulationCapacity;
         private List<string> availableTasks;
         private Dictionary<ResourceType, float> inventory;
+        private Dictionary<ResourceType, float> inventoryMemory;
+        private Dictionary<ResourceType, float> inventoryDelta;
+        private float inventoryMemoryTime;
         
         public string locationUuid;
         public static string simulatingSettlement;
@@ -19,6 +22,9 @@ namespace LamiaSimulation
         public Settlement(string name, string locationUuid)
         {
             inventory = new Dictionary<ResourceType, float>();
+            inventoryMemory = new Dictionary<ResourceType, float>();
+            inventoryDelta = new Dictionary<ResourceType, float>();
+            inventoryMemoryTime = 1.0f;
             populationMembers = new List<PopulationMember>();
             availableTasks = new List<string>();
             this.name = name;
@@ -89,6 +95,9 @@ namespace LamiaSimulation
                     var amount = param3.Coerce<float>();
                     inventory.TryAdd(resource, 0.0f);
                     inventory[resource] += amount;
+                    var cap = GetInventoryResourceCapacity(resource.ID);
+                    if (inventory[resource] > cap)
+                        inventory[resource] = cap;
                     break;
             }
 
@@ -161,6 +170,10 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementTaskName:
                     result = new QueryResult<string>(GetTaskName(param2.Get as string)) as QueryResult<T>;
                     break;
+                // Is task unlocked
+                case ClientQuery.SettlementTaskUnlocked:
+                    result = new QueryResult<bool>(HasTaskUnlocked(param2.Get as string)) as QueryResult<T>;
+                    break;
                 // Task descriptions
                 case ClientQuery.SettlementTaskDescription:
                     result = new QueryResult<string[]>(GetTaskDescription(param2.Get as string)) as QueryResult<T>;
@@ -200,8 +213,12 @@ namespace LamiaSimulation
                     result = new QueryResult<float>(GetInventoryResourceAmount(param2.Get as string)) as QueryResult<T>;
                     break;
                 // Inventory resource maximum amount
-                case ClientQuery.SettlementInventoryResourceMax:
-                    result = new QueryResult<float>(GetInventoryResourceMax(param2.Get as string)) as QueryResult<T>;
+                case ClientQuery.SettlementInventoryResourceCapacity:
+                    result = new QueryResult<float>(GetInventoryResourceCapacity(param2.Get as string)) as QueryResult<T>;
+                    break;
+                // Inventory resource delta
+                case ClientQuery.SettlementInventoryResourceDelta:
+                    result = new QueryResult<float>(GetInventoryResourceDelta(param2.Get as string)) as QueryResult<T>;
                     break;
             }
             foreach(var pop in populationMembers)
@@ -222,7 +239,43 @@ namespace LamiaSimulation
         public void Simulate(float deltaTime)
         {
             simulatingSettlement = ID;
+            // Task unlocks
+            if (!HasTaskUnlocked("cut_trees"))
+            {
+                if (inventory.ContainsKey(Helpers.GetResourceTypeById("raw_food")))
+                {
+                    UnlockTask("cut_trees");
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("With food available, it's time to find some better building materials."))
+                    );
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("The trees around here will take some work to fell, but they are the only option."))
+                        );
+                }
+            }
+            // Simulate pop
             populationMembers.Apply(pop => pop.Simulate(deltaTime));
+            // Determine inventory deltas
+            inventoryMemoryTime -= deltaTime;
+            if (inventoryMemoryTime <= 0f)
+            {
+                inventoryMemoryTime = 1.0f;
+                foreach (var resource in inventory)
+                {
+                    if (inventoryMemory.ContainsKey(resource.Key))
+                    {
+                        inventoryDelta[resource.Key] = resource.Value - inventoryMemory[resource.Key];
+                        inventoryMemory[resource.Key] = resource.Value;
+                    }
+                    else
+                    {
+                        inventoryMemory[resource.Key] = resource.Value;
+                        inventoryDelta[resource.Key] = resource.Value;
+                    }
+                }
+            }
         }
 
         // ---------------------------------------------------
@@ -235,10 +288,10 @@ namespace LamiaSimulation
                 throw new ClientActionException(T._("Population at capacity."));
             populationMembers.Add(newMember);
         }
-
+        
         private void UnlockTask(string taskID)
         {
-            if(availableTasks.Contains(taskID))
+            if(HasTaskUnlocked(taskID))
                 throw new ClientActionException(T._("Task already unlocked."));
             if(DataQuery<TaskType>.GetByID(taskID) == null)
                 throw new ClientActionException(T._("Task does not exist."));
@@ -249,6 +302,11 @@ namespace LamiaSimulation
         // Query behaviours
         // ---------------------------------------------------
 
+        private bool HasTaskUnlocked(string taskID)
+        {
+            return availableTasks.Contains(taskID);
+        }
+        
         private int GetNumPopulation()
         {
             return populationMembers.Count;
@@ -338,9 +396,15 @@ namespace LamiaSimulation
             return !inventory.ContainsKey(resource) ? 0f : inventory[resource];
         }
 
-        private float GetInventoryResourceMax(string resourceId)
+        private float GetInventoryResourceCapacity(string resourceId)
         {
-            throw new NotImplementedException("Not implemented max resource.");
+            return Consts.InitialSettlementResourceCapacity;
+        }
+        
+        private float GetInventoryResourceDelta(string resourceId)
+        {
+            var resource = Helpers.GetResourceTypeById(resourceId);
+            return !inventoryDelta.ContainsKey(resource) ? 0f : inventoryDelta[resource];
         }
     }
 }

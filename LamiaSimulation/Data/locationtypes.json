@@ -6,7 +6,8 @@
   "origin": {
     "name": "Origin",
     "resources": {
-      "raw_food": 40000
+      "raw_food": 40000,
+      "logs": 1000
     }
   }
 }

@@ -7,6 +7,7 @@ namespace LamiaSimulation
     internal class PopulationMember: SimulationObject, IActionReceiver, IQueryable, ISimulated
     {
         public PopulationSpeciesType species;
+        public string state;
         public string name;
         public string taskAssigment;
         public string currentAction;
@@ -17,6 +18,7 @@ namespace LamiaSimulation
         private float currentActionProgress;
         private Dictionary<ResourceType, float> inventory;
         private float maxInventory;
+        private string waitMessage = "";
 
         public PopulationMember(string speciesID, string settlementUuid, string settlementLocationUuid)
         {
@@ -29,6 +31,7 @@ namespace LamiaSimulation
             maxInventory = species.maxInventory;
             taskAssigment = "idle";
             currentAction = "idle";
+            state = "task";
         }
 
         // ---------------------------------------------------
@@ -88,6 +91,15 @@ namespace LamiaSimulation
                 case ClientQuery.PopulationMemberCurrentActionName:
                     result = new QueryResult<string>(CurrentActionName()) as QueryResult<T>;
                     break;
+                case ClientQuery.PopulationMemberState:
+                    result = new QueryResult<string>(state) as QueryResult<T>;
+                    break;
+                case ClientQuery.PopulationMemberWaitMessage:
+                    result = new QueryResult<string>(waitMessage) as QueryResult<T>;
+                    break;
+                case ClientQuery.PopulationMemberInventoryProgress:
+                    result = new QueryResult<float>(CurrentInventoryProgress()) as QueryResult<T>;
+                    break;
             }
         }
 
@@ -102,7 +114,26 @@ namespace LamiaSimulation
 
         public void Simulate(float deltaTime)
         {
-            PerformCurrentAction(deltaTime);
+            var waitSate = DetermineWaitState();
+            if (waitSate.doWait)
+            {
+                timeToCompleteCurrentAction = 0f;
+                currentActionProgress = 0f;
+                state = "wait";
+                waitMessage = waitSate.waitMessage;
+            }
+            else
+            {
+                if(state == "wait")
+                    StartNewAction();
+            }
+
+            switch (state)
+            {
+                case "task":
+                    PerformCurrentAction(deltaTime);
+                    break;
+            }
         }
 
         private void AssignToTask(string newTaskId)
@@ -110,8 +141,8 @@ namespace LamiaSimulation
             if(taskAssigment == newTaskId)
                 throw new ClientActionException(T._("Population member already assigned to task."));
             taskAssigment = newTaskId;
-            if(currentAction == "idle")
-                StartNewAction();
+            currentActionProgress = 0f;
+            StartNewAction();
         }
 
         private void PerformCurrentAction(float deltaTime)
@@ -121,6 +152,7 @@ namespace LamiaSimulation
             currentActionProgress += deltaTime;
             if (currentActionProgress >= timeToCompleteCurrentAction)
             {
+                currentActionProgress = 0f;
                 CompleteCurrentAction();
                 StartNewAction();
             }
@@ -167,7 +199,7 @@ namespace LamiaSimulation
 
         private void StartNewAction()
         {
-            currentActionProgress = 0.0f;
+            state = "task";
             if (InventoryFull())
             {
                 currentAction = "deposit";
@@ -181,14 +213,44 @@ namespace LamiaSimulation
                     timeToCompleteCurrentAction = 0.0f;
                     break;
                 case "forage":
+                case "cut_trees":
                     currentAction = "extract";
-                    timeToCompleteCurrentAction =  Helpers.GetTaskTypeById(taskAssigment).timeToComplete;                    
+                    timeToCompleteCurrentAction =  Helpers.GetTaskTypeById(taskAssigment).timeToComplete;
                     break;
+                default:
+                    throw new ClientActionException(T._("Current task not supported properly.")); 
             }
         }
 
+        private (bool doWait, string waitMessage) DetermineWaitState()
+        {
+            if (currentAction == "extract")
+            {
+                var task = Helpers.GetTaskTypeById(taskAssigment);
+                if (task.behaviour != TaskTypeBehaviour.EXTRACT)
+                    return (false, "");
+                var locationResourceAmount = Simulation.Instance.Query<float, string, string>(
+                    ClientQuery.LocationResourceAmount, currentLocationUuid, task.extractResourceType
+                );
+                if (locationResourceAmount == 0f)
+                    return (true, T._("No resource remaining at location.")); 
+                var settlementResourceAmount = Simulation.Instance.Query<float, string, string>(
+                    ClientQuery.SettlementInventoryResourceAmount, settlementUuid, task.extractResourceType
+                );
+                var settlementResourceCapacity = Simulation.Instance.Query<float, string, string>(
+                    ClientQuery.SettlementInventoryResourceCapacity, settlementUuid, task.extractResourceType
+                );
+                if (settlementResourceAmount >= settlementResourceCapacity)
+                    return (true, T._("No space left to store resource.")); 
+            }
+
+            return (false, "");
+        }
+        
         private string CurrentActionName()
         {
+            if (state == "wait")
+                return T._("Waiting");
             switch (currentAction)
             {
                 case "idle":
@@ -200,6 +262,8 @@ namespace LamiaSimulation
                     {
                         case "forage":
                             return T._("Foraging");
+                        case "cut_trees":
+                            return T._("Cutting Trees");
                         default:
                             return T._("Extracting");
                     }
@@ -215,12 +279,17 @@ namespace LamiaSimulation
             return currentActionProgress / timeToCompleteCurrentAction;
         }
 
-        private bool InventoryFull()
+        private float CurrentInventoryProgress()
         {
             var currentAmount = 0f;
             foreach (var inventoryItem in inventory)
                 currentAmount += inventory[inventoryItem.Key];
-            return currentAmount >= maxInventory;
+            return Math.Min(1f, currentAmount / maxInventory);
+        }
+        
+        private bool InventoryFull()
+        {
+            return Math.Abs(CurrentInventoryProgress() - 1f) < .01f;
         }
         
     }

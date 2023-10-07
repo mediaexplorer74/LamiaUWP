@@ -14,6 +14,9 @@ namespace LamiaSimulation
 
         // Number of pops that initial settlements can sustain
         public static int InitialSettlementPopulationCapacity = 2;
+
+        // How much of each resource a settlement can hold by default
+        public static float InitialSettlementResourceCapacity = 100f;
         
         // How long it takes for a population to deposit their inventory
         public static float depositInventoryTime = 1.0f;

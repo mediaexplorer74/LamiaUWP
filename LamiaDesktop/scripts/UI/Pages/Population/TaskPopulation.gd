@@ -1,6 +1,9 @@
 extends PanelContainer
 class_name TaskPopulation
 
+@export var color_normal: Color
+@export var color_wait: Color
+
 @onready var population_icon = %PopulationIcon
 @onready var poplation_name_label = %PopulationNameLabel
 @onready var task_list = %TaskList
@@ -8,6 +11,9 @@ class_name TaskPopulation
 @onready var assign_task_holder = %AssignTaskHolder
 @onready var current_action_progress = %CurrentActionProgress
 @onready var current_action_label = %CurrentActionLabel
+@onready var wait_message = %WaitMessage
+@onready var inventory_progress = %InventoryProgress
+@onready var hunger_progress = %HungerProgress
 @onready var game_controller = $/root/GameController
 
 @export var population_uuid = "xxxx":
@@ -21,9 +27,21 @@ class_name TaskPopulation
 func _process(_delta):
     if not population_uuid:
         return
+    # state
+    if Query.PopulationMemberState(game_controller.currentSettlementUuid, population_uuid) == "wait" :
+        wait_message.show()
+        find_child("TooltipShower").tooltip_label_text = Query.PopulationMemberWaitMessage(game_controller.currentSettlementUuid, population_uuid)
+        get_theme_stylebox("panel", "PanelContainer").border_color = color_wait
+    else:
+        wait_message.hide()
+        get_theme_stylebox("panel", "PanelContainer").border_color = color_normal
+    # Inventory 
+    inventory_progress.set_value_no_signal(Query.PopulationMemberInventoryProgress(game_controller.currentSettlementUuid, population_uuid))
+    # task
     var current_task = Query.PopulationMemberTask(game_controller.currentSettlementUuid, population_uuid)
     current_action_label.text = Query.PopulationMemberCurrentActionName(game_controller.currentSettlementUuid, population_uuid)
     var current_action = Query.PopulationMemberCurrentAction(game_controller.currentSettlementUuid, population_uuid)
+    # task progress
     if current_action == "idle":
         current_action_progress.hide()
         return

@@ -2,6 +2,11 @@
   "raw_food": {
     "name": "Raw Food",
     "description": "Uncooked and unprocessed but still nommable. Almost.",
-    "category": "Basic"
+    "category": "food"
+  },
+  "logs": {
+    "name": "Wooden Logs",
+    "description": "Felled trees, requires further processing to make full use of.",
+    "category": "construction"
   }
 }

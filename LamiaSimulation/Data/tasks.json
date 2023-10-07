@@ -12,5 +12,14 @@
     "extractResourceType": "raw_food",
     "amount": 6.0,
     "timeToComplete": 2.0
+  },
+  
+  "cut_trees": {
+    "name": "Cut Trees",
+    "description": "Cut down trees to harvest wood for construction.",
+    "behaviour": "EXTRACT",
+    "extractResourceType": "logs",
+    "amount": 10.0,
+    "timeToComplete": 10.0
   }
 }

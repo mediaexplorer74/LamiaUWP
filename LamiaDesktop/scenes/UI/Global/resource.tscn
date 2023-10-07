@@ -37,21 +37,24 @@ theme_override_font_sizes/font_size = 14
 text = "1k"
 horizontal_alignment = 2
 
-[node name="ChangeMaxContainer" type="HBoxContainer" parent="."]
+[node name="DeltaMaxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="ChangeLabel" type="Label" parent="ChangeMaxContainer"]
+[node name="DeltaLabel" type="Label" parent="DeltaMaxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "+5/s"
 
-[node name="MaxLabel" type="Label" parent="ChangeMaxContainer"]
+[node name="CapacityLabel" type="Label" parent="DeltaMaxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 10
 theme_override_font_sizes/font_size = 10
 text = "/10k"
 
 [node name="AmountProgress" type="ProgressBar" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxLine_mwdsf")
 theme_override_styles/fill = SubResource("StyleBoxLine_g73sm")

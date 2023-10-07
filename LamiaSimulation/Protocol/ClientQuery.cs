@@ -152,8 +152,18 @@ namespace LamiaSimulation
          *     - string: uuid of settlement to query
          *     - string: resource ID to query
          */
-        SettlementInventoryResourceMax,
-
+        SettlementInventoryResourceCapacity,
+        
+        /*
+         * Amount that the resource in the settlement changed in the last second
+         *   Result - float: Resource change in last second
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: resource ID to query
+         */
+        SettlementInventoryResourceDelta,
+        
+        
         // --------------------------------------------------------------------
         // POPULATION
         // --------------------------------------------------------------------
@@ -204,12 +214,48 @@ namespace LamiaSimulation
 
         /*
          * The display name for the current action that the pop member is doing right now
-         *   Result - float: Number between 0 and 1 representing the action progress
+         *   Result - string: Name of the current action to display to the user
          *   Params:
          *     - string: uuid of settlement to query
          *     - string: uuid of population to query
          */
         PopulationMemberCurrentActionName,
+        
+        /*
+         * Get the top-level state of the population ("task", "wait" etc)
+         *   Result - string: State name
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: uuid of population to query
+         */
+        PopulationMemberState,
+
+        /*
+         * Gives back the message to display if the population is in a "wait" state
+         *   Result - string: Wait message
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: uuid of population to query
+         */
+        PopulationMemberWaitMessage,
+        
+        /*
+         * Progress number representing how full the population's inventory is
+         *   Result - float: Number between 0 and 1 representing how full their inventory is
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: uuid of population to query
+         */
+        PopulationMemberInventoryProgress,
+
+        /*
+         * How full the population's stomach is
+         *   Result - float: Number between 0 and 1 representing how full their stomach is
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: uuid of population to query
+         */
+        PopulationMemberHunger,
         
         
         // --------------------------------------------------------------------
@@ -242,6 +288,15 @@ namespace LamiaSimulation
          *     - string: uuid of settlement to query
          */
         SettlementTasks,
+        
+        /*
+         * If a task has been unlocked
+         *   Result - bool
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: task ID to query
+         */
+        SettlementTaskUnlocked,
 
         /*
          * Ids of population members assigned to a task

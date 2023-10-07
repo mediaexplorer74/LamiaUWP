@@ -115,9 +115,14 @@ public partial class Query: Node
         return Simulation.Instance.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, uuid, resourceId);
     }
     
-    public float SettlementInventoryResourceMax(string uuid, string resourceId)
+    public float SettlementInventoryResourceCapacity(string uuid, string resourceId)
     {
-        return Simulation.Instance.Query<float, string, string>(ClientQuery.SettlementInventoryResourceMax, uuid, resourceId);
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.SettlementInventoryResourceCapacity, uuid, resourceId);
+    }
+    
+    public float SettlementInventoryResourceDelta(string uuid, string resourceId)
+    {
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.SettlementInventoryResourceDelta, uuid, resourceId);
     }
     
     // ----------------------
@@ -154,6 +159,26 @@ public partial class Query: Node
         return Simulation.Instance.Query<string, string, string>(ClientQuery.PopulationMemberCurrentActionName, settlementUuid, populationUuid);
     }
     
+    public string PopulationMemberState(string settlementUuid, string populationUuid)
+    {
+        return Simulation.Instance.Query<string, string, string>(ClientQuery.PopulationMemberState, settlementUuid, populationUuid);
+    }
+
+    public string PopulationMemberWaitMessage(string settlementUuid, string populationUuid)
+    {
+        return Simulation.Instance.Query<string, string, string>(ClientQuery.PopulationMemberWaitMessage, settlementUuid, populationUuid);
+    }
+    
+    public float PopulationMemberInventoryProgress(string settlementUuid, string populationUuid)
+    {
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.PopulationMemberInventoryProgress, settlementUuid, populationUuid);
+    }
+
+    public float PopulationMemberHunger(string settlementUuid, string populationUuid)
+    {
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.PopulationMemberHunger, settlementUuid, populationUuid);
+    }
+    
     // ----------------------
     // SPECIES
     // ----------------------
@@ -176,7 +201,12 @@ public partial class Query: Node
     {
         return Simulation.Instance.Query<string[], string>(ClientQuery.SettlementTasks, uuid);
     }
-
+  
+    public bool SettlementTaskUnlocked(string settlementUuid, string taskId)
+    {
+        return Simulation.Instance.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, taskId);
+    }
+    
     public string[] SettlementTaskAssignments(string settlementUuid, string taskId)
     {
         return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementTaskAssignments, settlementUuid, taskId);

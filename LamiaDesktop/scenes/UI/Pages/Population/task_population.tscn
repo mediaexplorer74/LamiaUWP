@@ -1,18 +1,21 @@
-[gd_scene load_steps=9 format=3 uid="uid://cg5j857nshce0"]
+[gd_scene load_steps=15 format=3 uid="uid://cg5j857nshce0"]
 
 [ext_resource type="Texture2D" uid="uid://cqjonhe0nj8vw" path="res://media/icons/icon_species_lamia.png" id="1_758d7"]
 [ext_resource type="Script" path="res://scripts/UI/Pages/Population/TaskPopulation.gd" id="1_gpexy"]
 [ext_resource type="Texture2D" uid="uid://b2p3sduhni0o5" path="res://media/icons/icon_task.png" id="2_4rbqi"]
 [ext_resource type="Texture2D" uid="uid://cejtorqjwaj7c" path="res://media/icons/icon_task_idle.png" id="2_hfwrx"]
+[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="4_u1j3g"]
 [ext_resource type="PackedScene" uid="uid://bt82ve604ccni" path="res://scenes/UI/Global/tooltip_shower.tscn" id="5_hvmaj"]
+[ext_resource type="Texture2D" uid="uid://ci7rlaivqoyop" path="res://media/icons/icon_inventory_small.png" id="7_5mesa"]
+[ext_resource type="Texture2D" uid="uid://p41d5lq448r6" path="res://media/icons/icon_food_small.png" id="8_6t8lm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jofwl"]
 bg_color = Color(0.243137, 0.243137, 0.243137, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.390075, 0.45, 0.2385, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.396078, 0.458824, 0.243137, 1)
 border_blend = true
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5juvu"]
@@ -26,10 +29,40 @@ border_width_bottom = 2
 border_color = Color(0.529412, 0.392157, 0.172549, 1)
 border_blend = true
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a1ydb"]
+bg_color = Color(0.721569, 0.682353, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4d2e0"]
+bg_color = Color(0.188235, 0.188235, 0.188235, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+expand_margin_bottom = 3.0
+anti_aliasing_size = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4vtyg"]
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+expand_margin_bottom = 3.0
+
 [node name="TaskPopulation" type="PanelContainer"]
 custom_minimum_size = Vector2(225, 0)
 theme_override_styles/panel = SubResource("StyleBoxFlat_jofwl")
 script = ExtResource("1_gpexy")
+color_normal = Color(0.396648, 0.457361, 0.243181, 1)
+color_wait = Color(0.690196, 0.654902, 0.27451, 1)
 
 [node name="Control" type="Control" parent="."]
 top_level = true
@@ -65,9 +98,9 @@ item_0/icon = ExtResource("2_hfwrx")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/margin_left = 5
+theme_override_constants/margin_left = 3
 theme_override_constants/margin_top = 3
-theme_override_constants/margin_right = 10
+theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 3
 
 [node name="TaskPopulationInfo" type="HBoxContainer" parent="MarginContainer"]
@@ -88,11 +121,35 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = -2
 
-[node name="PopulationNameLabel" type="Label" parent="MarginContainer/TaskPopulationInfo/NameActionContainer"]
+[node name="NameWaitMessageContainer" type="HBoxContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer"]
+layout_mode = 2
+
+[node name="PopulationNameLabel" type="Label" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Cool Snake Guy"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = -5
+theme_override_constants/margin_right = 5
+
+[node name="WaitMessage" type="Button" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_fonts/font = ExtResource("4_u1j3g")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_a1ydb")
+theme_override_styles/hover = SubResource("StyleBoxFlat_a1ydb")
+button_mask = 0
+text = " ! "
+
+[node name="TooltipShower" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer/MarginContainer/WaitMessage" instance=ExtResource("5_hvmaj")]
+layout_mode = 0
+offset_right = 283.0
 
 [node name="ActionContainer" type="HBoxContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer"]
 layout_mode = 2
@@ -130,8 +187,44 @@ max_value = 1.0
 value = 0.5
 show_percentage = false
 
+[node name="InventoryContainer" type="VBoxContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryContainer"]
+layout_mode = 2
+texture = ExtResource("7_5mesa")
+
+[node name="InventoryProgress" type="ProgressBar" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_4d2e0")
+theme_override_styles/fill = SubResource("StyleBoxFlat_4vtyg")
+max_value = 1.0
+value = 0.5
+show_percentage = false
+
+[node name="HungerContainer" type="VBoxContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerContainer"]
+layout_mode = 2
+texture = ExtResource("8_6t8lm")
+
+[node name="HungerProgress" type="ProgressBar" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_4d2e0")
+theme_override_styles/fill = SubResource("StyleBoxFlat_4vtyg")
+max_value = 1.0
+value = 0.5
+show_percentage = false
+
 [connection signal="item_clicked" from="Control/AssignTaskHolder/PanelContainer/TaskList" to="." method="_on_task_list_item_clicked"]
 [connection signal="mouse_exited" from="Control/AssignTaskHolder/PanelContainer/TaskList" to="." method="_on_assign_task_holder_mouse_exited"]
+[connection signal="mouse_entered" from="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer/MarginContainer/WaitMessage" to="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer/MarginContainer/WaitMessage/TooltipShower" method="_on_show_tooltip"]
+[connection signal="mouse_exited" from="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer/MarginContainer/WaitMessage" to="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer/MarginContainer/WaitMessage/TooltipShower" method="_on_hide_tooltip"]
 [connection signal="mouse_entered" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton" to="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton/TooltipShower" method="_on_show_tooltip"]
 [connection signal="mouse_exited" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton" to="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton/TooltipShower" method="_on_hide_tooltip"]
 [connection signal="pressed" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton" to="." method="_on_assign_task_button_pressed"]
