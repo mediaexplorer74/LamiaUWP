@@ -11,6 +11,7 @@ namespace LamiaSimulation
         public string name;
         public string taskAssigment;
         public string currentAction;
+        public float hunger;
 
         private string settlementUuid;
         private string currentLocationUuid;
@@ -29,6 +30,7 @@ namespace LamiaSimulation
             currentLocationUuid = settlementLocationUuid;
             name = NameGenerator.Instance.GenerateFullName();
             maxInventory = species.maxInventory;
+            hunger = 1.0f;
             taskAssigment = "idle";
             currentAction = "idle";
             state = "task";
@@ -100,6 +102,9 @@ namespace LamiaSimulation
                 case ClientQuery.PopulationMemberInventoryProgress:
                     result = new QueryResult<float>(CurrentInventoryProgress()) as QueryResult<T>;
                     break;
+                case ClientQuery.PopulationMemberHunger:
+                    result = new QueryResult<float>(hunger) as QueryResult<T>;
+                    break;
             }
         }
 
@@ -114,6 +119,12 @@ namespace LamiaSimulation
 
         public void Simulate(float deltaTime)
         {
+            var starvingState = DetermineStarvingState();
+            if (starvingState.isStarving)
+            {
+                state = starvingState.foodAvailable ? "eating" : "starving";
+                currentAction = "eating";
+            }
             var waitSate = DetermineWaitState();
             if (waitSate.doWait)
             {
@@ -131,6 +142,7 @@ namespace LamiaSimulation
             switch (state)
             {
                 case "task":
+                case "eating":
                     PerformCurrentAction(deltaTime);
                     break;
             }
@@ -173,6 +185,7 @@ namespace LamiaSimulation
                         );
                         inventory[inventoryItem.Key] = 0f;
                     }
+                    hunger -= Consts.depositInventoryHungerReduction;
                     break;
                 case "extract":
                     var task = Helpers.GetTaskTypeById(taskAssigment);
@@ -193,12 +206,40 @@ namespace LamiaSimulation
                     );
                     inventory.TryAdd(resource, 0f);
                     inventory[resource] += task.amount;
+                    hunger -= task.hungerReduction;
+                    break;
+                case "eating":
+                    var availableFood = Simulation.Instance.Query<float, string>(
+                        ClientQuery.SettlementAvailableFoodPortion, settlementUuid
+                    );
+                    if (availableFood > 0f)
+                    {
+                        Simulation.Instance.PerformAction(
+                            ClientAction.SettlementTakeAvailableFoodPortion, new ClientParameter<string>(settlementUuid)
+                            );
+                        hunger += availableFood;
+                        hunger = Math.Min(hunger, 1f);
+                    }
                     break;
             }
+
+            hunger = Math.Max(0f, hunger);
         }
 
         private void StartNewAction()
         {
+            if (state == "eating")
+            {
+                var availableFood = Simulation.Instance.Query<float, string>(
+                    ClientQuery.SettlementAvailableFoodPortion, settlementUuid
+                );
+                if (availableFood > 0f && hunger < 1f)
+                {
+                    currentAction = "eating";
+                    timeToCompleteCurrentAction = Consts.populationEatingTime;
+                    return;
+                }
+            }
             state = "task";
             if (InventoryFull())
             {
@@ -222,8 +263,20 @@ namespace LamiaSimulation
             }
         }
 
+        private (bool isStarving, bool foodAvailable) DetermineStarvingState()
+        {
+            if (hunger > 0f)
+                return (false, false);
+            var availableFood = Simulation.Instance.Query<float, string>(
+                ClientQuery.SettlementAvailableFoodPortion, settlementUuid
+            );
+            return (true, availableFood > 0f);
+        }
+        
         private (bool doWait, string waitMessage) DetermineWaitState()
         {
+            if (state == "starving" || state == "eating")
+                return (false, "");
             if (currentAction == "extract")
             {
                 var task = Helpers.GetTaskTypeById(taskAssigment);
@@ -249,8 +302,16 @@ namespace LamiaSimulation
         
         private string CurrentActionName()
         {
-            if (state == "wait")
-                return T._("Waiting");
+            switch (state)
+            {
+                case "wait":
+                    return T._("Waiting");
+                case "starving":
+                    return T._("Starving!!!");
+                case "eating":
+                    return T._("Eating");
+            }
+
             switch (currentAction)
             {
                 case "idle":
@@ -283,7 +344,7 @@ namespace LamiaSimulation
         {
             var currentAmount = 0f;
             foreach (var inventoryItem in inventory)
-                currentAmount += inventory[inventoryItem.Key];
+                currentAmount += inventory[inventoryItem.Key] * inventoryItem.Key.weight;
             return Math.Min(1f, currentAmount / maxInventory);
         }
         

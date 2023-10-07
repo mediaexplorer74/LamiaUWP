@@ -17,9 +17,15 @@ namespace LamiaSimulation
 
         // How much of each resource a settlement can hold by default
         public static float InitialSettlementResourceCapacity = 100f;
-        
+
         // How long it takes for a population to deposit their inventory
         public static float depositInventoryTime = 1.0f;
+        
+        // How much hunger is reduced from depositing items
+        public static float depositInventoryHungerReduction = .1f;
+        
+        // How long it takes for a population to eat something
+        public static float populationEatingTime = .4f;
 
         // Locations of data definition files
         public const string FilenameDataDirectory = "Data";

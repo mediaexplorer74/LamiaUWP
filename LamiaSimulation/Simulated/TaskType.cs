@@ -16,6 +16,7 @@ namespace LamiaSimulation
         public string extractResourceType;
         public float amount;
         public float timeToComplete;
+        public float hungerReduction;
 
         public string[] GetDescriptionDisplay()
         {

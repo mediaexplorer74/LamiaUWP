@@ -3,6 +3,8 @@ class_name TaskPopulation
 
 @export var color_normal: Color
 @export var color_wait: Color
+@export var color_starving: Color
+@export var color_eating: Color
 
 @onready var population_icon = %PopulationIcon
 @onready var poplation_name_label = %PopulationNameLabel
@@ -23,20 +25,26 @@ class_name TaskPopulation
         var species = Query.PopulationMemberSpecies(game_controller.currentSettlementUuid, population_uuid)
         population_icon.texture = load("res://media/icons/icon_species_%s.png" % species)
 
-
 func _process(_delta):
     if not population_uuid:
         return
     # state
-    if Query.PopulationMemberState(game_controller.currentSettlementUuid, population_uuid) == "wait" :
+    var state = Query.PopulationMemberState(game_controller.currentSettlementUuid, population_uuid)     
+    if state == "wait" :
         wait_message.show()
         find_child("TooltipShower").tooltip_label_text = Query.PopulationMemberWaitMessage(game_controller.currentSettlementUuid, population_uuid)
         get_theme_stylebox("panel", "PanelContainer").border_color = color_wait
+    elif state == "eating":
+        get_theme_stylebox("panel", "PanelContainer").border_color = color_eating
+    elif state == "starving":
+        get_theme_stylebox("panel", "PanelContainer").border_color = color_starving
     else:
         wait_message.hide()
         get_theme_stylebox("panel", "PanelContainer").border_color = color_normal
     # Inventory 
     inventory_progress.set_value_no_signal(Query.PopulationMemberInventoryProgress(game_controller.currentSettlementUuid, population_uuid))
+    # Hunger
+    hunger_progress.set_value_no_signal(Query.PopulationMemberHunger(game_controller.currentSettlementUuid, population_uuid))
     # task
     var current_task = Query.PopulationMemberTask(game_controller.currentSettlementUuid, population_uuid)
     current_action_label.text = Query.PopulationMemberCurrentActionName(game_controller.currentSettlementUuid, population_uuid)

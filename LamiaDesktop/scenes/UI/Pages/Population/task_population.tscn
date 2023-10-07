@@ -63,6 +63,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_jofwl")
 script = ExtResource("1_gpexy")
 color_normal = Color(0.396648, 0.457361, 0.243181, 1)
 color_wait = Color(0.690196, 0.654902, 0.27451, 1)
+color_starving = Color(0.670588, 0, 0, 1)
+color_eating = Color(0.478431, 0.478431, 0.478431, 1)
 
 [node name="Control" type="Control" parent="."]
 top_level = true
@@ -137,6 +139,7 @@ theme_override_constants/margin_right = 5
 
 [node name="WaitMessage" type="Button" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/NameWaitMessageContainer/MarginContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4

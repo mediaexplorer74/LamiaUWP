@@ -342,6 +342,14 @@ namespace LamiaSimulation
          *     - string: id of task
          */
         SettlementTaskMaximumCapacity,
+        
+        /*
+         * How much hunger the next available food portion would heal.
+         *   Result - float: Value between 0 and 1 indicating how much hunger would be healed when eating next
+         *   Params:
+         *     - string: uuid of settlement to query
+         */
+        SettlementAvailableFoodPortion,
 
     }
 }

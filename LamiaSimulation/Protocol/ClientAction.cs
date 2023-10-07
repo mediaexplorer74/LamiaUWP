@@ -46,12 +46,18 @@ namespace LamiaSimulation
         //   - string: id of resource
         //   - float: amount of resource to add
         AddResourceToSettlementInventory,
-        
+
         // Reduces an amount of a resource from a location's resources.
         // params:
         //   - string: uuid of location
         //   - string: id of resource
         //   - float: amount of resource to reduce
         SubtractResourceFromLocation,
+        
+        // Takes the next available food portion from settlement inventory
+        // params:
+        //   - string: uuid of settlement
+        SettlementTakeAvailableFoodPortion,
+        
     }
 }

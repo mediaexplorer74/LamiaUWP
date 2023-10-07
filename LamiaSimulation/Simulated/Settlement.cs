@@ -46,6 +46,15 @@ namespace LamiaSimulation
         // param1 is always settlement ID
         public void PerformAction<T>(ClientAction action, ClientParameter<T> param1)
         {
+            if(param1.Get as string != ID)
+                return;
+            switch (action)
+            {
+                // Take next available food
+                case ClientAction.SettlementTakeAvailableFoodPortion:
+                    TakeNextAvailableFoodPortion();
+                    break;
+            }
             foreach(var pop in populationMembers)
                 pop.PerformAction(action, param1);
         }
@@ -154,6 +163,11 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementInventory:
                     result = new QueryResult<string[]>(GetInventoryList()) as QueryResult<T>;
                     break;
+                // Next available food portion 
+                case ClientQuery.SettlementAvailableFoodPortion:
+                    result = new QueryResult<float>(GetNextAvailableFoodPortion().hungerRecoveryFactor) as QueryResult<T>;
+                    break;
+                
             }
             foreach(var pop in populationMembers)
                 pop.Query(ref result, query, param1);
@@ -405,6 +419,29 @@ namespace LamiaSimulation
         {
             var resource = Helpers.GetResourceTypeById(resourceId);
             return !inventoryDelta.ContainsKey(resource) ? 0f : inventoryDelta[resource];
+        }
+
+        private (ResourceType resourceType, float hungerRecoveryFactor) GetNextAvailableFoodPortion()
+        {
+            var highestFactor = 0f;
+            ResourceType highestFood = null;
+            foreach (var inventoryItem in inventory)
+            {
+                if (inventoryItem.Key.hungerRecoveryFactor > highestFactor && inventoryItem.Value > 0f)
+                {
+                    highestFactor = inventoryItem.Key.hungerRecoveryFactor;
+                    highestFood = inventoryItem.Key;
+                }
+            }
+            return (highestFood, highestFactor);
+        }
+
+        private void TakeNextAvailableFoodPortion()
+        {
+            var nextAvailableFood = GetNextAvailableFoodPortion();
+            if(nextAvailableFood.resourceType == null)
+                throw new ClientActionException(T._("No food available to take."));
+            inventory[nextAvailableFood.resourceType] -= 1f;
         }
     }
 }

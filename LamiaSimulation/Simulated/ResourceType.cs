@@ -5,5 +5,7 @@ namespace LamiaSimulation
         public string name;
         public string description;
         public string category;
+        public float weight;
+        public float hungerRecoveryFactor;
     }
 }

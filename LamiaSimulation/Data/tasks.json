@@ -10,8 +10,9 @@
     "description": "Wander around the surrounding area picking berries and other various bits of edible flora.",
     "behaviour": "EXTRACT",
     "extractResourceType": "raw_food",
-    "amount": 6.0,
-    "timeToComplete": 2.0
+    "amount": 3.0,
+    "timeToComplete": 2.0,
+    "hungerReduction": 0.2
   },
   
   "cut_trees": {
@@ -19,7 +20,8 @@
     "description": "Cut down trees to harvest wood for construction.",
     "behaviour": "EXTRACT",
     "extractResourceType": "logs",
-    "amount": 10.0,
-    "timeToComplete": 10.0
+    "amount": 1.0,
+    "timeToComplete": 8.0,
+    "hungerReduction": 0.5
   }
 }
