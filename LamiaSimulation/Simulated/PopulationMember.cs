@@ -20,6 +20,7 @@ namespace LamiaSimulation
         private Dictionary<ResourceType, float> inventory;
         private float maxInventory;
         private string waitMessage = "";
+        private float deathTimer = 0f;
 
         public PopulationMember(string speciesID, string settlementUuid, string settlementLocationUuid)
         {
@@ -122,6 +123,11 @@ namespace LamiaSimulation
             var starvingState = DetermineStarvingState();
             if (starvingState.isStarving)
             {
+                if (state != "starving" && !starvingState.foodAvailable)
+                {
+                    deathTimer = Consts.populationStarvationDeathTime;
+                    state = "starving";
+                }
                 state = starvingState.foodAvailable ? "eating" : "starving";
                 currentAction = "eating";
             }
@@ -141,6 +147,23 @@ namespace LamiaSimulation
 
             switch (state)
             {
+                case "starving":
+                    deathTimer -= deltaTime;
+                    if (deathTimer <= 0f)
+                    {
+                        Simulation.Instance.PerformAction(
+                            ClientAction.SendMessage,
+                            new ClientParameter<string>(
+                                string.Format(T._("{0} has starved to death!"), name)
+                            )
+                        );
+                        Simulation.Instance.PerformAction(
+                            ClientAction.SettlementRemovePopulation,
+                            new ClientParameter<string>(settlementUuid),
+                            new ClientParameter<string>(ID)
+                        );
+                    }
+                    break;
                 case "task":
                 case "eating":
                     PerformCurrentAction(deltaTime);

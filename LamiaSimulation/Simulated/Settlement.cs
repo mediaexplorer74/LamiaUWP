@@ -15,6 +15,9 @@ namespace LamiaSimulation
         private Dictionary<ResourceType, float> inventoryMemory;
         private Dictionary<ResourceType, float> inventoryDelta;
         private float inventoryMemoryTime;
+        private List<PopulationMember> populationToRemove;
+        private float spawnTimer;
+        private bool spawnEnabled;
         
         public string locationUuid;
         public static string simulatingSettlement;
@@ -27,6 +30,9 @@ namespace LamiaSimulation
             inventoryMemoryTime = 1.0f;
             populationMembers = new List<PopulationMember>();
             availableTasks = new List<string>();
+            populationToRemove = new List<PopulationMember>();
+            spawnTimer = Consts.populationSpawnTime;
+            spawnEnabled = false;
             this.name = name;
             this.locationUuid = locationUuid;
             UnlockTask("idle");
@@ -77,6 +83,10 @@ namespace LamiaSimulation
                 case ClientAction.AddPopulation:
                     var newMember = new PopulationMember(param2.Get as string, ID, locationUuid);
                     AddToPopulation(newMember);
+                    break;
+                // Remove population from settlement
+                case ClientAction.SettlementRemovePopulation:
+                    populationToRemove.Add(GetPopulationMemberById(param2.Get as string));
                     break;
             }
             foreach(var pop in populationMembers)
@@ -267,10 +277,31 @@ namespace LamiaSimulation
                         ClientAction.SendMessage,
                         new ClientParameter<string>(T._("The trees around here will take some work to fell, but they are the only option."))
                         );
+                    spawnEnabled = true;
+                }
+            }
+            // Spawning population
+            if (spawnEnabled && GetNumPopulation() < GetPopulationMemberCapacity())
+            {
+                spawnTimer -= deltaTime;
+                if (spawnTimer <= 0f)
+                {
+                    var newMember = new PopulationMember("lamia", ID, locationUuid);
+                    AddToPopulation(newMember);
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(
+                            string.Format(T._("{0} has joined your settlement."), newMember.name)
+                        )
+                    );
+                    spawnTimer = Consts.populationSpawnTime;
                 }
             }
             // Simulate pop
             populationMembers.Apply(pop => pop.Simulate(deltaTime));
+            foreach(var pop in populationToRemove)
+                RemoveFromPopulation(pop);
+            populationToRemove.Clear();
             // Determine inventory deltas
             inventoryMemoryTime -= deltaTime;
             if (inventoryMemoryTime <= 0f)
@@ -302,7 +333,12 @@ namespace LamiaSimulation
                 throw new ClientActionException(T._("Population at capacity."));
             populationMembers.Add(newMember);
         }
-        
+
+        private void RemoveFromPopulation(PopulationMember population)
+        {
+            populationMembers.Remove(population);
+        }
+
         private void UnlockTask(string taskID)
         {
             if(HasTaskUnlocked(taskID))

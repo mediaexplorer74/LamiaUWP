@@ -71,5 +71,21 @@ public partial class Action: Node
             new ClientParameter<System.Single>(amount)
         );
     }
+
+    public void SettlementTakeAvailableFoodPortion(string settlementUuid)
+    {
+        Simulation.Instance.PerformAction(
+            ClientAction.SettlementTakeAvailableFoodPortion,
+            new ClientParameter<string>(settlementUuid)
+        );
+    }
     
+    public void SettlementRemovePopulation(string settlementUuid, string populationUuid)
+    {
+        Simulation.Instance.PerformAction(
+            ClientAction.SettlementRemovePopulation,
+            new ClientParameter<string>(settlementUuid),
+            new ClientParameter<string>(populationUuid)
+        );
+    }
 }

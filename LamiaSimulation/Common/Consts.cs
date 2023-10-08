@@ -26,6 +26,12 @@ namespace LamiaSimulation
         
         // How long it takes for a population to eat something
         public static float populationEatingTime = .4f;
+        
+        // How long it takes for a population to die if they are starving
+        public static float populationStarvationDeathTime = 20f;
+
+        // How long it takes for a population to spawn if there's room
+        public static float populationSpawnTime = 20f;
 
         // Locations of data definition files
         public const string FilenameDataDirectory = "Data";

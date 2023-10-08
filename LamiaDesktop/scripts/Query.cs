@@ -119,10 +119,15 @@ public partial class Query: Node
     {
         return Simulation.Instance.Query<float, string, string>(ClientQuery.SettlementInventoryResourceCapacity, uuid, resourceId);
     }
-    
+
     public float SettlementInventoryResourceDelta(string uuid, string resourceId)
     {
         return Simulation.Instance.Query<float, string, string>(ClientQuery.SettlementInventoryResourceDelta, uuid, resourceId);
+    }
+    
+    public float SettlementAvailableFoodPortion(string uuid)
+    {
+        return Simulation.Instance.Query<float, string>(ClientQuery.SettlementAvailableFoodPortion, uuid);
     }
     
     // ----------------------

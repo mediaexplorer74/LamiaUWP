@@ -25,6 +25,11 @@ class_name TaskPopulation
         var species = Query.PopulationMemberSpecies(game_controller.currentSettlementUuid, population_uuid)
         population_icon.texture = load("res://media/icons/icon_species_%s.png" % species)
 
+var style_box: StyleBox
+
+func _ready():
+    style_box = get_theme_stylebox("panel", "PanelContainer").duplicate()
+
 func _process(_delta):
     if not population_uuid:
         return
@@ -33,14 +38,15 @@ func _process(_delta):
     if state == "wait" :
         wait_message.show()
         find_child("TooltipShower").tooltip_label_text = Query.PopulationMemberWaitMessage(game_controller.currentSettlementUuid, population_uuid)
-        get_theme_stylebox("panel", "PanelContainer").border_color = color_wait
+        style_box.border_color = color_wait
     elif state == "eating":
-        get_theme_stylebox("panel", "PanelContainer").border_color = color_eating
+        style_box.border_color = color_eating
     elif state == "starving":
-        get_theme_stylebox("panel", "PanelContainer").border_color = color_starving
+        style_box.border_color = color_starving
     else:
         wait_message.hide()
-        get_theme_stylebox("panel", "PanelContainer").border_color = color_normal
+        style_box.border_color = color_normal
+    add_theme_stylebox_override("panel", style_box)
     # Inventory 
     inventory_progress.set_value_no_signal(Query.PopulationMemberInventoryProgress(game_controller.currentSettlementUuid, population_uuid))
     # Hunger

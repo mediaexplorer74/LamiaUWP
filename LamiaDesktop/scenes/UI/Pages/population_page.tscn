@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://dw11217bc80oi"]
+[gd_scene load_steps=10 format=3 uid="uid://dw11217bc80oi"]
 
 [ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="1_75nq3"]
+[ext_resource type="Script" path="res://scripts/UI/Pages/Population/PopulationPage.gd" id="1_nq4n7"]
 [ext_resource type="Script" path="res://scripts/UI/Pages/Population/DemographicsList.gd" id="2_2k0ga"]
 [ext_resource type="Script" path="res://scripts/UI/Pages/Population/TasksList.gd" id="2_alug7"]
 [ext_resource type="PackedScene" uid="uid://dqnvx61s43lhh" path="res://scenes/UI/Pages/Population/task.tscn" id="2_rwk33"]
@@ -29,6 +30,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxEmpty_sgllo")
+script = ExtResource("1_nq4n7")
 
 [node name="PanelsContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
@@ -87,6 +89,14 @@ label_settings = SubResource("LabelSettings_lettk")
 
 [node name="-" type="HSeparator" parent="PanelsContainer/MarginContainer2/DemographicsContainer"]
 layout_mode = 2
+
+[node name="PopulationTotal" type="Label" parent="PanelsContainer/MarginContainer2/DemographicsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_75nq3")
+theme_override_font_sizes/font_size = 20
+text = "Total 1/2"
+horizontal_alignment = 1
 
 [node name="DemographicsList" type="PanelContainer" parent="PanelsContainer/MarginContainer2/DemographicsContainer"]
 layout_mode = 2

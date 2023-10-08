@@ -59,5 +59,11 @@ namespace LamiaSimulation
         //   - string: uuid of settlement
         SettlementTakeAvailableFoodPortion,
         
+        // Permanently removes a population from a settlement, essentially killing them
+        // params:
+        //   - string: uuid of settlement
+        //   - string: uuid of population member
+        SettlementRemovePopulation,
+        
     }
 }
