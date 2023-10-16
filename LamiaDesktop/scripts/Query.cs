@@ -28,6 +28,11 @@ public partial class Query: Node
         return Simulation.Instance.Query<string[]>(ClientQuery.UnreadMessages);
     }
 
+    public bool HasUnlockedPage(string pageId)
+    {
+        return Simulation.Instance.Query<bool, string>(ClientQuery.HasUnlockedPage, pageId);
+    }
+
     // ----------------------
     // RESOURCES
     // ----------------------
@@ -129,6 +134,42 @@ public partial class Query: Node
     {
         return Simulation.Instance.Query<float, string>(ClientQuery.SettlementAvailableFoodPortion, uuid);
     }
+    
+    public string[] SettlementBuildings(string uuid)
+    {
+        return Simulation.Instance.Query<string[], string>(ClientQuery.SettlementBuildings, uuid);
+    }
+
+    public int SettlementBuildingsAmount(string uuid, string buildingId)
+    {
+        return Simulation.Instance.Query<int, string, string>(ClientQuery.SettlementBuildingsAmount, uuid, buildingId);
+    }
+    
+    public string SettlementBuildingDisplayName(string uuid, string buildingId)
+    {
+        return Simulation.Instance.Query<string, string, string>(ClientQuery.SettlementBuildingDisplayName, uuid, buildingId);
+    }
+    
+    public string[] SettlementBuildingDescription(string uuid, string buildingId)
+    {
+        return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementBuildingDescription, uuid, buildingId);
+    }
+
+    public bool SettlementBuildingCanAfford(string uuid, string buildingId)
+    {
+        return Simulation.Instance.Query<bool, string, string>(ClientQuery.SettlementBuildingCanAfford, uuid, buildingId);
+    }
+    
+    public string[] SettlementBuildingResourceList(string uuid, string buildingId)
+    {
+        return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementBuildingResourceList, uuid, buildingId);
+    }
+
+    public float SettlementBuildingSingleResourceCost(string uuid, string buildingId, string resourceId)
+    {
+        return Simulation.Instance.Query<float, string, string, string>(ClientQuery.SettlementBuildingSingleResourceCost, uuid, buildingId, resourceId);
+    }
+    
     
     // ----------------------
     // POPULATION

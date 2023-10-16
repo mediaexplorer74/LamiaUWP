@@ -1,0 +1,13 @@
+﻿{
+  "log_hut": {
+    "name": "Log Hut",
+    "description": "Really basic housing, keeps the rain off at least.",
+    "category": "housing",
+    "behaviour": "POPULATION_CAPACITY",
+    "behaviourValue": 1.0,
+    "cost": {
+      "logs": 4
+    },
+    "costGrowth": 1.5
+  }
+}

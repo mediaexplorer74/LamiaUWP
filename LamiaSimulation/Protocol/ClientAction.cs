@@ -2,6 +2,10 @@ namespace LamiaSimulation
 {
     public enum ClientAction
     {
+        // Unlocks a page for the client
+        //   - string: Page ID to unlock
+        UnlockPage,
+        
         // Adds a location to the simulation
         //   - string: Location type to add
         AddLocation,
@@ -65,5 +69,16 @@ namespace LamiaSimulation
         //   - string: uuid of population member
         SettlementRemovePopulation,
         
+        // Unlock building at a settlement
+        // params:
+        //   - string: uuid of settlement
+        //   - string: id of building type
+        SettlementUnlockBuilding,
+        
+        // Purchases a building at a settlement if it can be afforded
+        // params:
+        //   - string: uuid of settlement
+        //   - string: id of building type
+        SettlementPurchaseBuilding,
     }
 }

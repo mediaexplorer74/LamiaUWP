@@ -10,15 +10,17 @@ namespace LamiaSimulation
     [Serializable]
     internal class GlobalState: IActionReceiver, IQueryable, ISimulated
     {
-        private List<Location> locations;
-        private List<Settlement> playerSettlements;
-        private List<string> unreadMessages;
+        public List<string> availablePages;
+        public List<Location> locations;
+        public List<Settlement> playerSettlements;
+        public List<string> unreadMessages;
 
         public GlobalState()
         {
             locations = new List<Location>();
             playerSettlements = new List<Settlement>();
             unreadMessages = new List<string>();
+            availablePages = new List<string>();
         }
 
         // ---------------------------------------------------
@@ -44,6 +46,11 @@ namespace LamiaSimulation
         {
             switch(action)
             {
+                // Unlock page
+                case ClientAction.UnlockPage:
+                    if (!availablePages.Contains(param1.Get as string))
+                        availablePages.Add(param1.Get as string);
+                    break;
                 // Send message to client
                 case ClientAction.SendMessage:
                     unreadMessages.Add(param1.Get as string);
@@ -123,7 +130,7 @@ namespace LamiaSimulation
             {
                 // Available game pages
                 case ClientQuery.AvailablePages:
-                    result = new QueryResult<(string, string)[]>(AvailablePages.ToArray()) as QueryResult<T>;
+                    result = new QueryResult<(string, string)[]>(GetAvailablePages().ToArray()) as QueryResult<T>;
                     break;
                 // Unread messages
                 case ClientQuery.UnreadMessages:
@@ -150,6 +157,10 @@ namespace LamiaSimulation
         {
             switch(query)
             {
+                // Has unlocked page?
+                case ClientQuery.HasUnlockedPage:
+                    result = new QueryResult<bool>(availablePages.Contains(param1.Get as string)) as QueryResult<T>;
+                    break;
                 // Species name
                 case ClientQuery.SpeciesName:
                     result = new QueryResult<string>(Text._(Helpers.GetSpeciesTypeById(param1.Get as string).name)) as QueryResult<T>;
@@ -212,16 +223,26 @@ namespace LamiaSimulation
         // Query behaviours
         // ---------------------------------------------------
 
-        private List<(string, string)> AvailablePages
+        public List<(string, string)> GetAvailablePages()
         {
-            get
+            var pageList = new List<(string, string)>();
+            foreach(var pageId in availablePages)
+                pageList.Add((pageId, PageDisplayName(pageId)));
+            return pageList;
+        }
+
+        public string PageDisplayName(string pageId)
+        {
+            switch (pageId)
             {
-                var pages = new List<(string, string)>
-                {
-                    (Consts.Pages.Population, T._("Population"))
-                };
-                return pages;
+                case "population":
+                    return T._("Population");
+                case "buildings":
+                    return T._("Buildings");
+                case "research":
+                    return T._("Research");
             }
+            throw new NotImplementedException("No specified page name");
         }
     }
 }

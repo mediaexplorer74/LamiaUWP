@@ -51,11 +51,10 @@ func _process(_delta):
     inventory_progress.set_value_no_signal(Query.PopulationMemberInventoryProgress(game_controller.currentSettlementUuid, population_uuid))
     # Hunger
     hunger_progress.set_value_no_signal(Query.PopulationMemberHunger(game_controller.currentSettlementUuid, population_uuid))
-    # task
-    var current_task = Query.PopulationMemberTask(game_controller.currentSettlementUuid, population_uuid)
+    # action
     current_action_label.text = Query.PopulationMemberCurrentActionName(game_controller.currentSettlementUuid, population_uuid)
     var current_action = Query.PopulationMemberCurrentAction(game_controller.currentSettlementUuid, population_uuid)
-    # task progress
+    # action progress
     if current_action == "idle":
         current_action_progress.hide()
         return

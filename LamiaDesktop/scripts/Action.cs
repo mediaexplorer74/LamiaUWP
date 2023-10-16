@@ -10,6 +10,11 @@ public partial class Action: Node
     {
     }
 
+    public void UnlockPage(string pageId)
+    {
+        Simulation.Instance.PerformAction(ClientAction.UnlockPage, new ClientParameter<string>(pageId));
+    }
+    
     public void AddLocation(string locationType)
     {
         Simulation.Instance.PerformAction(ClientAction.AddLocation, new ClientParameter<string>(locationType));
@@ -88,4 +93,23 @@ public partial class Action: Node
             new ClientParameter<string>(populationUuid)
         );
     }
+
+    public void SettlementUnlockBuilding(string settlementUuid, string buildingId)
+    {
+        Simulation.Instance.PerformAction(
+            ClientAction.SettlementUnlockBuilding,
+            new ClientParameter<string>(settlementUuid),
+            new ClientParameter<string>(buildingId)
+        );
+    }
+
+    public void SettlementPurchaseBuilding(string settlementUuid, string buildingId)
+    {
+        Simulation.Instance.PerformAction(
+            ClientAction.SettlementPurchaseBuilding,
+            new ClientParameter<string>(settlementUuid),
+            new ClientParameter<string>(buildingId)
+        );
+    }
+    
 }

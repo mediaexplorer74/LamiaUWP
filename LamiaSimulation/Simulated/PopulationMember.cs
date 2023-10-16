@@ -12,15 +12,14 @@ namespace LamiaSimulation
         public string taskAssigment;
         public string currentAction;
         public float hunger;
-
-        private string settlementUuid;
-        private string currentLocationUuid;
-        private float timeToCompleteCurrentAction;
-        private float currentActionProgress;
-        private Dictionary<ResourceType, float> inventory;
-        private float maxInventory;
-        private string waitMessage = "";
-        private float deathTimer = 0f;
+        public string settlementUuid;
+        public string currentLocationUuid;
+        public float timeToCompleteCurrentAction;
+        public float currentActionProgress;
+        public Dictionary<ResourceType, float> inventory;
+        public float maxInventory;
+        public string waitMessage = "";
+        public float deathTimer = 0f;
 
         public PopulationMember(string speciesID, string settlementUuid, string settlementLocationUuid)
         {

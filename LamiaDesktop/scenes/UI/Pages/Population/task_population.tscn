@@ -190,15 +190,22 @@ max_value = 1.0
 value = 0.5
 show_percentage = false
 
-[node name="InventoryContainer" type="VBoxContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer"]
+[node name="InventoryTooltipContainer" type="MarginContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer"]
+layout_mode = 2
+
+[node name="TooltipShower" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryTooltipContainer" instance=ExtResource("5_hvmaj")]
+layout_mode = 2
+tooltip_label_text = "Inventory"
+
+[node name="InventoryContainer" type="VBoxContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryTooltipContainer"]
 layout_mode = 2
 theme_override_constants/separation = 1
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryContainer"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryTooltipContainer/InventoryContainer"]
 layout_mode = 2
 texture = ExtResource("7_5mesa")
 
-[node name="InventoryProgress" type="ProgressBar" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryContainer"]
+[node name="InventoryProgress" type="ProgressBar" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryTooltipContainer/InventoryContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_4d2e0")
@@ -207,15 +214,22 @@ max_value = 1.0
 value = 0.5
 show_percentage = false
 
-[node name="HungerContainer" type="VBoxContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer"]
+[node name="HungerTooltipContainer" type="MarginContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer"]
+layout_mode = 2
+
+[node name="TooltipShower" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerTooltipContainer" instance=ExtResource("5_hvmaj")]
+layout_mode = 2
+tooltip_label_text = "Hunger"
+
+[node name="HungerContainer" type="VBoxContainer" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerTooltipContainer"]
 layout_mode = 2
 theme_override_constants/separation = 1
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerContainer"]
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerTooltipContainer/HungerContainer"]
 layout_mode = 2
 texture = ExtResource("8_6t8lm")
 
-[node name="HungerProgress" type="ProgressBar" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerContainer"]
+[node name="HungerProgress" type="ProgressBar" parent="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerTooltipContainer/HungerContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_4d2e0")
@@ -231,3 +245,7 @@ show_percentage = false
 [connection signal="mouse_entered" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton" to="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton/TooltipShower" method="_on_show_tooltip"]
 [connection signal="mouse_exited" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton" to="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton/TooltipShower" method="_on_hide_tooltip"]
 [connection signal="pressed" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/AssignTaskButton" to="." method="_on_assign_task_button_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryTooltipContainer" to="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryTooltipContainer/TooltipShower" method="_on_show_tooltip"]
+[connection signal="mouse_exited" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryTooltipContainer" to="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/InventoryTooltipContainer/TooltipShower" method="_on_hide_tooltip"]
+[connection signal="mouse_entered" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerTooltipContainer" to="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerTooltipContainer/TooltipShower" method="_on_show_tooltip"]
+[connection signal="mouse_exited" from="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerTooltipContainer" to="MarginContainer/TaskPopulationInfo/NameActionContainer/ActionContainer/HungerTooltipContainer/TooltipShower" method="_on_hide_tooltip"]

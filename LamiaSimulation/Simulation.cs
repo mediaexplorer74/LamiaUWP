@@ -28,6 +28,7 @@ namespace LamiaSimulation
             );
             DataType.LoadDataFromJson<TaskType>(Path.Combine(dataDir, Consts.FilenameDataTasks));
             DataType.LoadDataFromJson<LocationType>(Path.Combine(dataDir, Consts.FilenameLocationTypes));
+            DataType.LoadDataFromJson<BuildingType>(Path.Combine(dataDir, Consts.FilenameBuildingTypes));
         }
 
         public void Reset()
@@ -37,6 +38,7 @@ namespace LamiaSimulation
 
         public void Start()
         {
+            globalState.PerformAction(ClientAction.UnlockPage,  new ClientParameter<string>("population"));
             globalState.PerformAction(ClientAction.AddLocation,  new ClientParameter<string>("origin"));
             globalState.PerformAction(
                 ClientAction.AddSettlementAtLocation, new ClientParameter<string>(LastID)
@@ -127,8 +129,8 @@ namespace LamiaSimulation
         {
             QueryResult<T> result = null;
             var _param1 = new ClientParameter<T1>(param1);
-            var _param2 = new ClientParameter<T1>(param1);
-            var _param3 = new ClientParameter<T1>(param1);
+            var _param2 = new ClientParameter<T2>(param2);
+            var _param3 = new ClientParameter<T3>(param3);
             globalState.Query(ref result, query, _param1, _param2, _param3);
             if(result == null)
                 throw new ClientQueryException($"Null result when querying {query.ToString()}, params: {_param1}, {_param2}, {_param3}");

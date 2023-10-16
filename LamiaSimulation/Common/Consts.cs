@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace LamiaSimulation
 {
@@ -16,7 +17,7 @@ namespace LamiaSimulation
         public static int InitialSettlementPopulationCapacity = 2;
 
         // How much of each resource a settlement can hold by default
-        public static float InitialSettlementResourceCapacity = 100f;
+        public static float InitialSettlementResourceCapacity = 20f;
 
         // How long it takes for a population to deposit their inventory
         public static float depositInventoryTime = 1.0f;
@@ -41,5 +42,6 @@ namespace LamiaSimulation
         public const string FilenameDataPopulationSpecies = "populationspecies.json";
         public const string FilenameDataTasks = "tasks.json";
         public const string FilenameLocationTypes = "locationtypes.json";
+        public const string FilenameBuildingTypes = "buildings.json";
     }
 }

@@ -7,23 +7,27 @@ namespace LamiaSimulation
     [Serializable]
     internal class Settlement: SimulationObject, IActionReceiver, IQueryable, ISimulated
     {
-        private string name;
-        private List<PopulationMember> populationMembers;
-        private int maxPopulationMember = Consts.InitialSettlementPopulationCapacity;
-        private List<string> availableTasks;
-        private Dictionary<ResourceType, float> inventory;
-        private Dictionary<ResourceType, float> inventoryMemory;
-        private Dictionary<ResourceType, float> inventoryDelta;
-        private float inventoryMemoryTime;
-        private List<PopulationMember> populationToRemove;
-        private float spawnTimer;
-        private bool spawnEnabled;
+        public string name;
+        public List<PopulationMember> populationMembers;
+        public int maxPopulationMember = Consts.InitialSettlementPopulationCapacity;
+        public List<string> availableTasks;
+        public Dictionary<BuildingType, int> buildings;
+        public List<string> availableBuildings;
+        public Dictionary<ResourceType, float> inventory;
+        public Dictionary<ResourceType, float> inventoryMemory;
+        public Dictionary<ResourceType, float> inventoryDelta;
+        public float inventoryMemoryTime;
+        public List<PopulationMember> populationToRemove;
+        public float spawnTimer;
+        public bool spawnEnabled;
         
         public string locationUuid;
         public static string simulatingSettlement;
 
         public Settlement(string name, string locationUuid)
         {
+            buildings = new Dictionary<BuildingType, int>();
+            availableBuildings = new List<string>();
             inventory = new Dictionary<ResourceType, float>();
             inventoryMemory = new Dictionary<ResourceType, float>();
             inventoryDelta = new Dictionary<ResourceType, float>();
@@ -87,6 +91,14 @@ namespace LamiaSimulation
                 // Remove population from settlement
                 case ClientAction.SettlementRemovePopulation:
                     populationToRemove.Add(GetPopulationMemberById(param2.Get as string));
+                    break;
+                // Unlock building
+                case ClientAction.SettlementUnlockBuilding:
+                    UnlockBuilding(param2.Get as string);
+                    break;
+                // Purchase building
+                case ClientAction.SettlementPurchaseBuilding:
+                    PurchaseBuilding(param2.Get as string);
                     break;
             }
             foreach(var pop in populationMembers)
@@ -177,7 +189,10 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementAvailableFoodPortion:
                     result = new QueryResult<float>(GetNextAvailableFoodPortion().hungerRecoveryFactor) as QueryResult<T>;
                     break;
-                
+                // Buildings list
+                case ClientQuery.SettlementBuildings:
+                    result = new QueryResult<string[]>(GetBuildingsList()) as QueryResult<T>;
+                    break;
             }
             foreach(var pop in populationMembers)
                 pop.Query(ref result, query, param1);
@@ -244,6 +259,30 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementInventoryResourceDelta:
                     result = new QueryResult<float>(GetInventoryResourceDelta(param2.Get as string)) as QueryResult<T>;
                     break;
+                // Building amount
+                case ClientQuery.SettlementBuildingsAmount:
+                    result = new QueryResult<int>(GetBuildingAmount(param2.Get as string)) as QueryResult<T>;
+                    break;
+                // Building unlocked
+                case ClientQuery.SettlementHasBuildingUnlocked:
+                    result = new QueryResult<bool>(HasBuildingUnlocked(param2.Get as string)) as QueryResult<T>;
+                    break;
+                // Building names
+                case ClientQuery.SettlementBuildingDisplayName:
+                    result = new QueryResult<string>(GetBuildingDisplayName(param2.Get as string)) as QueryResult<T>;
+                    break;
+                // Building descriptions
+                case ClientQuery.SettlementBuildingDescription:
+                    result = new QueryResult<string[]>(GetBuildingDescription(param2.Get as string)) as QueryResult<T>;
+                    break;
+                // Building can afford
+                case ClientQuery.SettlementBuildingCanAfford:
+                    result = new QueryResult<bool>(GetBuildingCanAfford(param2.Get as string)) as QueryResult<T>;
+                    break;
+                // Resources required for a building    
+                case ClientQuery.SettlementBuildingResourceList:                
+                    result = new QueryResult<string[]>(GetBuildingResourceList(param2.Get as string)) as QueryResult<T>;
+                    break;
             }
             foreach(var pop in populationMembers)
                 pop.Query(ref result, query, param1, param2);
@@ -252,6 +291,15 @@ namespace LamiaSimulation
         public void Query<T, T1, T2, T3>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1,
             ClientParameter<T2> param2, ClientParameter<T3> param3)
         {
+            if(param1.Get as string != ID)
+                return;
+            switch (query)
+            {
+                // Single resource cost required for a building    
+                case ClientQuery.SettlementBuildingSingleResourceCost:
+                    result = new QueryResult<float>(GetBuildingSingleResourceCost(param2.Get as string, param3.Get as string)) as QueryResult<T>;
+                    break;
+            }
             foreach(var pop in populationMembers)
                 pop.Query(ref result, query, param1, param2, param3);
         }
@@ -280,6 +328,26 @@ namespace LamiaSimulation
                     spawnEnabled = true;
                 }
             }
+            // Page unlock
+            var hasUnlockedBuildings = Simulation.Instance.Query<bool, string>(
+                ClientQuery.HasUnlockedPage, Consts.Pages.Buildings
+            );
+            if (!hasUnlockedBuildings)
+            {
+                if (inventory.ContainsKey(Helpers.GetResourceTypeById("logs")))
+                {
+                    Simulation.Instance.PerformAction(
+                        ClientAction.UnlockPage,
+                        new ClientParameter<string>(Consts.Pages.Buildings)
+                    );
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("We can construct new buildings with wood."))
+                    );
+                    UnlockBuilding("log_hut");
+                }
+            }
+            
             // Spawning population
             if (spawnEnabled && GetNumPopulation() < GetPopulationMemberCapacity())
             {
@@ -291,7 +359,7 @@ namespace LamiaSimulation
                     Simulation.Instance.PerformAction(
                         ClientAction.SendMessage,
                         new ClientParameter<string>(
-                            string.Format(T._("{0} has joined your settlement."), newMember.name)
+                            string.Format(T._("{0} has joined the settlement."), newMember.name)
                         )
                     );
                     spawnTimer = Consts.populationSpawnTime;
@@ -348,6 +416,56 @@ namespace LamiaSimulation
             availableTasks.Add(taskID);
         }
 
+        private void TakeNextAvailableFoodPortion()
+        {
+            var nextAvailableFood = GetNextAvailableFoodPortion();
+            if(nextAvailableFood.resourceType == null)
+                throw new ClientActionException(T._("No food available to take."));
+            inventory[nextAvailableFood.resourceType] -= 1f;
+        }
+        
+        private void UnlockBuilding(string buildingID)
+        {
+            if(HasBuildingUnlocked(buildingID))
+                throw new ClientActionException(T._("Building already unlocked."));
+            var buildingType = DataQuery<BuildingType>.GetByID(buildingID);
+            if(buildingType == null)
+                throw new ClientActionException(T._("Building type does not exist."));
+            availableBuildings.Add(buildingID);
+            buildings[buildingType] = 0;
+        }
+
+        private void PurchaseBuilding(string buildingID)
+        {
+            if (!HasBuildingUnlocked(buildingID))
+                throw new ClientActionException(T._("Building not unlocked yet."));
+            var buildingType = DataQuery<BuildingType>.GetByID(buildingID);
+            if(buildingType == null)
+                throw new ClientActionException(T._("Building type does not exist."));
+            if(!GetBuildingCanAfford(buildingID))
+                throw new ClientActionException(T._("Cannot afford building."));
+            foreach (var resourceCost in GetBuildingCost(buildingID))
+            {
+                var resourceType = Helpers.GetDataTypeById<ResourceType>(resourceCost.Key);
+                if (inventory.ContainsKey(resourceType))
+                    inventory[resourceType] -= resourceCost.Value;
+            }
+            buildings[buildingType]++;
+            RecalculatePopulationLimits();
+        }
+
+        private void RecalculatePopulationLimits()
+        {
+            var popLimit = Consts.InitialSettlementPopulationCapacity;
+            foreach (var building in buildings)
+            {
+                if (building.Key.behaviour != BuildingBehaviour.POPULATION_CAPACITY)
+                    continue;
+                popLimit += (int)building.Key.behaviourValue * building.Value;
+            }
+            maxPopulationMember = popLimit;
+        }
+        
         // ---------------------------------------------------
         // Query behaviours
         // ---------------------------------------------------
@@ -471,13 +589,71 @@ namespace LamiaSimulation
             }
             return (highestFood, highestFactor);
         }
-
-        private void TakeNextAvailableFoodPortion()
+        
+        private bool HasBuildingUnlocked(string buildingID)
         {
-            var nextAvailableFood = GetNextAvailableFoodPortion();
-            if(nextAvailableFood.resourceType == null)
-                throw new ClientActionException(T._("No food available to take."));
-            inventory[nextAvailableFood.resourceType] -= 1f;
+            return availableBuildings.Contains(buildingID);
         }
+        
+        private string[] GetBuildingsList()
+        {
+            var buildings = this.buildings.Keys.Select(building => building.ID).Distinct().ToList();
+            return buildings.ToArray();
+        }
+
+        private int GetBuildingAmount(string buildingId)
+        {
+            var building = Helpers.GetDataTypeById<BuildingType>(buildingId);
+            return !buildings.ContainsKey(building) ? 0 : buildings[building];
+        }
+        
+        private string GetBuildingDisplayName(string buildingID)
+        {
+            return T._(Helpers.GetDataTypeById<BuildingType>(buildingID).name);
+        }
+
+        private string[] GetBuildingDescription(string buildingID)
+        {
+            return Helpers.GetDataTypeById<BuildingType>(buildingID).GetDescriptionDisplay();
+        }
+
+        private bool GetBuildingCanAfford(string buildingID)
+        {
+            foreach (var resourceCost in GetBuildingCost(buildingID))
+            {
+                var resourceType = Helpers.GetDataTypeById<ResourceType>(resourceCost.Key);
+                if (!inventory.ContainsKey(resourceType))
+                    return false;
+                if (inventory[resourceType] < resourceCost.Value)
+                    return false;
+            }
+            return true;
+        }
+
+        private Dictionary<string, float> GetBuildingCost(string buildingID)
+        {
+            var actualBuildingCost = new Dictionary<string, float>(); 
+            var buildingType = Helpers.GetDataTypeById<BuildingType>(buildingID);
+            var currentNumber = GetBuildingAmount(buildingID);
+            foreach (var resourceCost in buildingType.cost)
+                actualBuildingCost[resourceCost.Key] = (
+                    currentNumber == 0 ?
+                        resourceCost.Value :
+                        resourceCost.Value * (buildingType.costGrowth * currentNumber)
+                    );
+            return actualBuildingCost;
+        }
+
+        private string[] GetBuildingResourceList(string buildingID)
+        {
+            var buildingType = Helpers.GetDataTypeById<BuildingType>(buildingID);
+            return buildingType.cost.Keys.ToArray();
+        }
+
+        private float GetBuildingSingleResourceCost(string buildingID, string resourceID)
+        {
+            return GetBuildingCost(buildingID)[resourceID];
+        }
+        
     }
 }

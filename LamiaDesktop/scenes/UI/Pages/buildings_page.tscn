@@ -1,0 +1,56 @@
+[gd_scene load_steps=6 format=3 uid="uid://b2wb4llmt3qx4"]
+
+[ext_resource type="Script" path="res://scripts/UI/Pages/Buildings/BuildingsList.gd" id="1_m56ym"]
+[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="2_yevfk"]
+[ext_resource type="PackedScene" uid="uid://dkxjwc2ngem8l" path="res://scenes/UI/Pages/Buildings/building.tscn" id="3_w7mom"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgllo"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_lettk"]
+font = ExtResource("2_yevfk")
+font_size = 35
+outline_size = 4
+outline_color = Color(0.207843, 0.207843, 0.207843, 1)
+shadow_size = 4
+shadow_color = Color(0, 0, 0, 0.278431)
+shadow_offset = Vector2(2, 2)
+
+[node name="BuildingsPage" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_sgllo")
+
+[node name="MarginContainer2" type="MarginContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="BuildingsList" type="VBoxContainer" parent="MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("1_m56ym")
+
+[node name="BuildingsHeader" type="Label" parent="MarginContainer2/BuildingsList"]
+layout_mode = 2
+text = "Buildings
+"
+label_settings = SubResource("LabelSettings_lettk")
+
+[node name="-" type="HSeparator" parent="MarginContainer2/BuildingsList"]
+layout_mode = 2
+
+[node name="BuildingsContainer" type="VBoxContainer" parent="MarginContainer2/BuildingsList"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Building" parent="MarginContainer2/BuildingsList/BuildingsContainer" instance=ExtResource("3_w7mom")]
+layout_mode = 2

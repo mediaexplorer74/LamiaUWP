@@ -14,6 +14,14 @@ namespace LamiaSimulation
          */
         UnreadMessages,
 
+        /*
+         * If the specified page Id has been unlocked
+         *   Result - bool
+         *   Params:
+         *     - string: page id to query
+         */
+        HasUnlockedPage,
+        
         // --------------------------------------------------------------------
         // RESOURCES
         // --------------------------------------------------------------------
@@ -171,6 +179,77 @@ namespace LamiaSimulation
          */
         SettlementAvailableFoodPortion,
         
+        /*
+         * All buildings that are at a settlement
+         *   Result - string[]: Building IDs in a settlement
+         *   Params:
+         *     - string: uuid of settlement to query
+         */
+        SettlementBuildings,
+        
+        /*
+         * Number of a type of building in a settlement
+         *   Result - float: Number of buildings at a settlement
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: building ID to query
+         */
+        SettlementBuildingsAmount,
+        
+        /*
+         * If a building has been unlocked and is available to construct
+         *   Result - bool
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: building ID to query
+         */
+        SettlementHasBuildingUnlocked,
+
+        /*
+         * Name to show to the user to refer to a building
+         *   Result - string: Building name
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: building ID to query
+         */
+        SettlementBuildingDisplayName,
+        
+        /*
+         * Description of a building in a settlement
+         *   Result - string[]: Building description
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: building ID to query
+         */
+        SettlementBuildingDescription,
+        
+        /*
+         * Returns if a building is available for purchase
+         *   Result - bool
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: building ID to query
+         */
+        SettlementBuildingCanAfford,
+        
+        /*
+         * Gives resource types that are required for a building to be built
+         *   Result - string[]: Array of resource IDs 
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: building ID to query
+         */
+        SettlementBuildingResourceList,
+
+        /*
+         * Gives exactly how much of a particular resource is required to construct a building 
+         *   Result - float: how much of this resource is required
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: building ID to query
+         *     - string: resource ID to query
+         */
+        SettlementBuildingSingleResourceCost,
         
         // --------------------------------------------------------------------
         // POPULATION

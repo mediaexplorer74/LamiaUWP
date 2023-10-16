@@ -7,8 +7,8 @@ namespace LamiaSimulation
     [Serializable]
     internal class Location : SimulationObject, IActionReceiver, IQueryable, ISimulated
     {
-        private LocationType locationType;
-        private Dictionary<ResourceType, float> availableResources;
+        public LocationType locationType;
+        public Dictionary<ResourceType, float> availableResources;
 
         public Location(string locationTypeName)
         {
