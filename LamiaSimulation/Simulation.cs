@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Text.Json;
 
 namespace LamiaSimulation
@@ -11,19 +10,19 @@ namespace LamiaSimulation
         {
             get { return _Instance ??= new Simulation(); }
         }
-
         private static Simulation _Instance;
 
         private GlobalState globalState;
         private bool started = false;
+        private float saveTimer;
 
         internal static string lastID;
         public string LastID => lastID;
-
-        private float saveTimer;
+        public SimulationEvents events; 
         
         public Simulation()
         {
+            events = new SimulationEvents();
             globalState = new GlobalState();
             var dataDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Consts.FilenameDataDirectory);
             DataType.LoadDataFromJson<ResourceType>(Path.Combine(dataDir, Consts.FilenameDataResources));
@@ -34,11 +33,11 @@ namespace LamiaSimulation
             DataType.LoadDataFromJson<LocationType>(Path.Combine(dataDir, Consts.FilenameLocationTypes));
             DataType.LoadDataFromJson<BuildingType>(Path.Combine(dataDir, Consts.FilenameBuildingTypes));
             saveTimer = Consts.SaveGameTimeInterval;
-            LoadGame();
         }
 
         public void Reset()
         {
+            File.Delete(Consts.FilenameSaveFile);
             globalState = new GlobalState();
             started = false;
         }

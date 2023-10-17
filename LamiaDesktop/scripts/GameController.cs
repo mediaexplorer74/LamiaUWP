@@ -11,6 +11,7 @@ public partial class GameController : Node
 	public override void _Ready()
 	{
 		simulation = Simulation.Instance;
+		simulation.LoadGame();
 		simulation.Start();
 		currentSettlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
 	}

@@ -58,7 +58,16 @@ namespace LamiaSimulation
                 // Unlock page
                 case ClientAction.UnlockPage:
                     if (!availablePages.Contains(param1.Get as string))
+                    {
                         availablePages.Add(param1.Get as string);
+                        // Fire event
+                        Simulation.Instance.events.OnUnlockedPage(
+                            new UnlockedPageEventArgs
+                            {
+                                PageId = param1.Get as string
+                            }
+                        );
+                    }
                     break;
                 // Send message to client
                 case ClientAction.SendMessage:

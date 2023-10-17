@@ -26,6 +26,7 @@ namespace LamiaSimulation
         public Settlement()
         {
             populationToRemove = new List<PopulationMember>();
+            SetUpEventHandlers();
         }
         
         public Settlement(string name, string locationUuid)
@@ -44,8 +45,21 @@ namespace LamiaSimulation
             spawnEnabled = false;
             this.name = name;
             this.locationUuid = locationUuid;
+            SetUpEventHandlers();
             UnlockTask("idle");
             UnlockTask("forage");
+        }
+
+        ~Settlement()
+        {
+            Simulation.Instance.events.SettlementHasNewResourceEvent -= OnSettlementHasNewResourceHandler;
+            Simulation.Instance.events.SettlementSpawnedNewPopulationEvent -= OnSettlementSpawnedNewPopulationHandler;
+        }
+
+        private void SetUpEventHandlers()
+        {
+            Simulation.Instance.events.SettlementHasNewResourceEvent += OnSettlementHasNewResourceHandler;
+            Simulation.Instance.events.SettlementSpawnedNewPopulationEvent += OnSettlementSpawnedNewPopulationHandler;
         }
 
         // ---------------------------------------------------
@@ -131,11 +145,23 @@ namespace LamiaSimulation
                     if(Helpers.GetResourceTypeById(resourceId) == null)
                         throw new ClientActionException(T._("Resource does not exist."));
                     var amount = param3.Coerce<float>();
+                    var newInInventory = !inventory.ContainsKey(resourceId);
                     inventory.TryAdd(resourceId, 0.0f);
                     inventory[resourceId] += amount;
                     var cap = GetInventoryResourceCapacity(resourceId);
                     if (inventory[resourceId] > cap)
                         inventory[resourceId] = cap;
+                    // Fire event if new
+                    if (newInInventory)
+                    {
+                        Simulation.Instance.events.OnSettlementHasNewResource(
+                            new SettlementHasNewResourceEventArgs
+                            {
+                                SettlementUuid = ID,
+                                ResourceId = resourceId
+                            }
+                        );
+                    }
                     break;
             }
 
@@ -318,72 +344,7 @@ namespace LamiaSimulation
         public void Simulate(float deltaTime)
         {
             simulatingSettlement = ID;
-            // Task unlocks
-            if (!HasTaskUnlocked("cut_trees"))
-            {
-                if (inventory.ContainsKey("raw_food"))
-                {
-                    UnlockTask("cut_trees");
-                    Simulation.Instance.PerformAction(
-                        ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("With food available, it's time to find some better building materials."))
-                    );
-                    Simulation.Instance.PerformAction(
-                        ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("The trees around here will take some work to fell, but they are the only option."))
-                        );
-                    spawnEnabled = true;
-                }
-            }
-            if (!HasTaskUnlocked("research"))
-            {
-                if (GetNumPopulation() >= Consts.UnlockResearchAtPopulationCount)
-                {
-                    UnlockTask("research");
-                    Simulation.Instance.PerformAction(
-                        ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("The last Lamia to join your settlement has some bright ideas."))
-                    );
-                }
-            }
 
-            // Page unlock
-            var hasUnlockedBuildings = Simulation.Instance.Query<bool, string>(
-                ClientQuery.HasUnlockedPage, Consts.Pages.Buildings
-            );
-            if (!hasUnlockedBuildings)
-            {
-                if (inventory.ContainsKey("logs"))
-                {
-                    Simulation.Instance.PerformAction(
-                        ClientAction.UnlockPage,
-                        new ClientParameter<string>(Consts.Pages.Buildings)
-                    );
-                    Simulation.Instance.PerformAction(
-                        ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("We can construct new buildings with wood."))
-                    );
-                    UnlockBuilding("log_hut");
-                }
-            }
-            var hasUnlockedResearch = Simulation.Instance.Query<bool, string>(
-                ClientQuery.HasUnlockedPage, Consts.Pages.Research
-            );
-            if (!hasUnlockedResearch)
-            {
-                if (inventory.ContainsKey("research"))
-                {
-                    Simulation.Instance.PerformAction(
-                        ClientAction.UnlockPage,
-                        new ClientParameter<string>(Consts.Pages.Research)
-                    );
-                    Simulation.Instance.PerformAction(
-                        ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("Best apply some of those smart thinkings to new projects."))
-                    );
-                }
-            }
-            
             // Spawning population
             if (spawnEnabled && GetNumPopulation() < GetPopulationMemberCapacity())
             {
@@ -399,6 +360,16 @@ namespace LamiaSimulation
                         )
                     );
                     spawnTimer = Consts.populationSpawnTime;
+                    // Fire event
+                    Simulation.Instance.events.OnSettlementSpawnedNewPopulationEvent(
+                        new SettlementSpawnedNewPopulationEventArgs
+                        {
+                            SettlementUuid = ID,
+                            LocationUuid = locationUuid,
+                            PopulationName = newMember.name,
+                            SpeciesId = newMember.populationSpeciesTypeName
+                        }
+                    );
                 }
             }
             // Simulate pop
@@ -426,7 +397,7 @@ namespace LamiaSimulation
                 }
             }
         }
-
+        
         // ---------------------------------------------------
         // Action behaviours
         // ---------------------------------------------------
@@ -487,6 +458,14 @@ namespace LamiaSimulation
             }
             buildings[buildingID]++;
             RecalculatePopulationLimits();
+            // Fire event
+            Simulation.Instance.events.OnBuildingPurchased(
+                new BuildingPurchasedEventArgs
+                {
+                    BuildingId = buildingID,
+                    SettlementUuid = ID
+                }
+            );
         }
 
         private void RecalculatePopulationLimits()
@@ -686,5 +665,77 @@ namespace LamiaSimulation
             return GetBuildingCost(buildingID)[resourceID];
         }
         
+        // ---------------------------------------------------
+        // Event handlers
+        // ---------------------------------------------------
+        
+        public void OnSettlementHasNewResourceHandler(object sender, SettlementHasNewResourceEventArgs e)
+        {
+            switch (e.ResourceId)
+            {
+                // Unlock cut tree task when getting raw food
+                case "raw_food":
+                    if (HasTaskUnlocked("cut_trees"))
+                        return;
+                    UnlockTask("cut_trees");
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("With food available, it's time to find some better building materials."))
+                    );
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("The trees around here will take some work to fell, but they are the only option."))
+                    );
+                    spawnEnabled = true;
+                    break;
+                // Unlock Buildings page when getting first logs
+                case "logs":
+                    var hasUnlockedBuildings = Simulation.Instance.Query<bool, string>(
+                        ClientQuery.HasUnlockedPage, Consts.Pages.Buildings
+                    );
+                    if (hasUnlockedBuildings)
+                        return;
+                    Simulation.Instance.PerformAction(
+                        ClientAction.UnlockPage,
+                        new ClientParameter<string>(Consts.Pages.Buildings)
+                    );
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("We can construct new buildings with wood."))
+                    );
+                    UnlockBuilding("log_hut");
+                    break;
+                // Unlock Research page when getting first research
+                case "research":
+                    var hasUnlockedResearch = Simulation.Instance.Query<bool, string>(
+                        ClientQuery.HasUnlockedPage, Consts.Pages.Research
+                    );
+                    if (hasUnlockedResearch)
+                        return;
+                    Simulation.Instance.PerformAction(
+                        ClientAction.UnlockPage,
+                        new ClientParameter<string>(Consts.Pages.Research)
+                    );
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("Best apply some of those smart thinkings to new projects."))
+                    );
+                    break;
+            }
+        }
+
+        public void OnSettlementSpawnedNewPopulationHandler(object sender, SettlementSpawnedNewPopulationEventArgs e)
+        {
+            // Unlock research when hitting a population threshold
+            if (!HasTaskUnlocked("research") && GetNumPopulation() >= Consts.UnlockResearchAtPopulationCount)
+            {
+                UnlockTask("research");
+                Simulation.Instance.PerformAction(
+                    ClientAction.SendMessage,
+                    new ClientParameter<string>(T._("The last Lamia to join your settlement has some bright ideas."))
+                );
+            }
+            
+        }
     }
 }
