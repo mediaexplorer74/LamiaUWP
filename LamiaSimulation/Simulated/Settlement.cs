@@ -335,6 +335,18 @@ namespace LamiaSimulation
                     spawnEnabled = true;
                 }
             }
+            if (!HasTaskUnlocked("research"))
+            {
+                if (GetNumPopulation() >= Consts.UnlockResearchAtPopulationCount)
+                {
+                    UnlockTask("research");
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("The last Lamia to join your settlement has some bright ideas."))
+                    );
+                }
+            }
+
             // Page unlock
             var hasUnlockedBuildings = Simulation.Instance.Query<bool, string>(
                 ClientQuery.HasUnlockedPage, Consts.Pages.Buildings
@@ -352,6 +364,23 @@ namespace LamiaSimulation
                         new ClientParameter<string>(T._("We can construct new buildings with wood."))
                     );
                     UnlockBuilding("log_hut");
+                }
+            }
+            var hasUnlockedResearch = Simulation.Instance.Query<bool, string>(
+                ClientQuery.HasUnlockedPage, Consts.Pages.Research
+            );
+            if (!hasUnlockedResearch)
+            {
+                if (inventory.ContainsKey("research"))
+                {
+                    Simulation.Instance.PerformAction(
+                        ClientAction.UnlockPage,
+                        new ClientParameter<string>(Consts.Pages.Research)
+                    );
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        new ClientParameter<string>(T._("Best apply some of those smart thinkings to new projects."))
+                    );
                 }
             }
             

@@ -5,6 +5,15 @@
     "behaviour": "IDLE"
   },
 
+  "research": {
+    "name": "Research",
+    "description": "It's time for thinky-thinks!",
+    "behaviour": "RESEARCH",
+    "amount": 1.0,
+    "timeToComplete": 1.0,
+    "hungerReduction": 0.05
+  },
+  
   "forage": {
     "name": "Forage",
     "description": "Wander around the surrounding area picking berries and other various bits of edible flora.",

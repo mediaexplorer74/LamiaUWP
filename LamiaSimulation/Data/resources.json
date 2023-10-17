@@ -1,4 +1,10 @@
 {
+  "research": {
+    "name": "Research",
+    "description": "It's the smart brain stuffs that your guys get headaches over.",
+    "category": "special",
+    "weight": 0.0
+  },
   "raw_food": {
     "name": "Raw Food",
     "description": "Uncooked and unprocessed but still nommable. Almost.",

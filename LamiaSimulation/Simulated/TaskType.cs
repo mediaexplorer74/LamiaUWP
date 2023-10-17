@@ -5,6 +5,7 @@ namespace LamiaSimulation
     public enum TaskTypeBehaviour
     {
         IDLE,
+        RESEARCH,
         EXTRACT
     }
 
@@ -25,6 +26,10 @@ namespace LamiaSimulation
             {
                 case TaskTypeBehaviour.IDLE:
                     return new[] { T._(description) };
+                case TaskTypeBehaviour.RESEARCH:
+                    var researchTextFormat = T._("Generate: {0} Research/{1} secs");
+                    behaviourText = String.Format(researchTextFormat, amount, timeToComplete);
+                    break;
                 case TaskTypeBehaviour.EXTRACT:
                     var resourceTypeName = T._(DataQuery<ResourceType>.GetByID(extractResourceType).name);
                     var behaviourTextFormat = T._("Extract: {0} {1}/{2} secs");

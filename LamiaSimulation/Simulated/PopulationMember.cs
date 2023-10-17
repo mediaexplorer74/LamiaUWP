@@ -212,6 +212,16 @@ namespace LamiaSimulation
                     }
                     hunger -= Consts.depositInventoryHungerReduction;
                     break;
+                case "research":
+                    var researchTask = Helpers.GetTaskTypeById("research");
+                    Simulation.Instance.PerformAction(
+                        ClientAction.AddResourceToSettlementInventory,
+                        new ClientParameter<string>(settlementUuid),
+                        new ClientParameter<string>("research"),
+                        new ClientParameter<float>(researchTask.amount)
+                    );
+                    hunger -= researchTask.hungerReduction;
+                    break;
                 case "extract":
                     var task = Helpers.GetTaskTypeById(taskAssigment);
                     if (task.behaviour != TaskTypeBehaviour.EXTRACT)
@@ -278,6 +288,10 @@ namespace LamiaSimulation
                     currentAction = "idle";
                     timeToCompleteCurrentAction = 0.0f;
                     break;
+                case "research":
+                    currentAction = "research";
+                    timeToCompleteCurrentAction = Helpers.GetTaskTypeById(taskAssigment).timeToComplete;                    
+                    break;
                 case "forage":
                 case "cut_trees":
                     currentAction = "extract";
@@ -302,24 +316,36 @@ namespace LamiaSimulation
         {
             if (state == "starving" || state == "eating")
                 return (false, "");
-            if (currentAction == "extract")
+            switch (currentAction)
             {
-                var task = Helpers.GetTaskTypeById(taskAssigment);
-                if (task.behaviour != TaskTypeBehaviour.EXTRACT)
-                    return (false, "");
-                var locationResourceAmount = Simulation.Instance.Query<float, string, string>(
-                    ClientQuery.LocationResourceAmount, currentLocationUuid, task.extractResourceType
-                );
-                if (locationResourceAmount == 0f)
-                    return (true, T._("No resource remaining at location.")); 
-                var settlementResourceAmount = Simulation.Instance.Query<float, string, string>(
-                    ClientQuery.SettlementInventoryResourceAmount, settlementUuid, task.extractResourceType
-                );
-                var settlementResourceCapacity = Simulation.Instance.Query<float, string, string>(
-                    ClientQuery.SettlementInventoryResourceCapacity, settlementUuid, task.extractResourceType
-                );
-                if (settlementResourceAmount >= settlementResourceCapacity)
-                    return (true, T._("No space left to store resource.")); 
+                case "research":
+                    var settlementResearchAmount = Simulation.Instance.Query<float, string, string>(
+                        ClientQuery.SettlementInventoryResourceAmount, settlementUuid, "research"
+                    );
+                    var settlementResearchCapacity = Simulation.Instance.Query<float, string, string>(
+                        ClientQuery.SettlementInventoryResourceCapacity, settlementUuid, "research"
+                    );
+                    if (settlementResearchAmount >= settlementResearchCapacity)
+                        return (true, T._("No more capacity for smart thoughts."));
+                    break;
+                case "extract":
+                    var task = Helpers.GetTaskTypeById(taskAssigment);
+                    if (task.behaviour != TaskTypeBehaviour.EXTRACT)
+                        return (false, "");
+                    var locationResourceAmount = Simulation.Instance.Query<float, string, string>(
+                        ClientQuery.LocationResourceAmount, currentLocationUuid, task.extractResourceType
+                    );
+                    if (locationResourceAmount == 0f)
+                        return (true, T._("No resource remaining at location.")); 
+                    var settlementResourceAmount = Simulation.Instance.Query<float, string, string>(
+                        ClientQuery.SettlementInventoryResourceAmount, settlementUuid, task.extractResourceType
+                    );
+                    var settlementResourceCapacity = Simulation.Instance.Query<float, string, string>(
+                        ClientQuery.SettlementInventoryResourceCapacity, settlementUuid, task.extractResourceType
+                    );
+                    if (settlementResourceAmount >= settlementResourceCapacity)
+                        return (true, T._("No space left to store resource."));
+                    break;
             }
 
             return (false, "");
@@ -341,6 +367,8 @@ namespace LamiaSimulation
             {
                 case "idle":
                     return ". . .";
+                case "research":
+                    return T._("Thinking");
                 case "deposit":
                     return T._("Depositing");
                 case "extract":

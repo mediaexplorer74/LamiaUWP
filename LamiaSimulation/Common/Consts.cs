@@ -33,6 +33,9 @@ namespace LamiaSimulation
 
         // How long it takes for a population to spawn if there's room
         public static float populationSpawnTime = 20f;
+        
+        // How many population need to spawn before research is unlocked
+        public static int UnlockResearchAtPopulationCount = 4;
 
         // Location of save file
         public const string FilenameSaveFile = "save.dat";
