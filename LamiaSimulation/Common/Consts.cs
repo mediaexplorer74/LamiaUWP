@@ -34,6 +34,12 @@ namespace LamiaSimulation
         // How long it takes for a population to spawn if there's room
         public static float populationSpawnTime = 20f;
 
+        // Location of save file
+        public const string FilenameSaveFile = "save.dat";
+        
+        // How long between save game intervals
+        public const float SaveGameTimeInterval = 5.0f;
+        
         // Locations of data definition files
         public const string FilenameDataDirectory = "Data";
         public const string FilenameDataFirstNames = "firstnames.txt";

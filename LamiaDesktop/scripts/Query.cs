@@ -23,6 +23,11 @@ public partial class Query: Node
         return pageReturn;
     }
 
+    public string[] MessageHistory()
+    {
+        return Simulation.Instance.Query<string[]>(ClientQuery.MessageHistory);
+    }
+    
     public string[] UnreadMessages()
     {
         return Simulation.Instance.Query<string[]>(ClientQuery.UnreadMessages);

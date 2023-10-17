@@ -3,29 +3,31 @@ using System.Collections.Generic;
 
 namespace LamiaSimulation
 {
-    [Serializable]
     internal class PopulationMember: SimulationObject, IActionReceiver, IQueryable, ISimulated
     {
-        public PopulationSpeciesType species;
-        public string state;
-        public string name;
-        public string taskAssigment;
-        public string currentAction;
-        public float hunger;
-        public string settlementUuid;
-        public string currentLocationUuid;
-        public float timeToCompleteCurrentAction;
-        public float currentActionProgress;
-        public Dictionary<ResourceType, float> inventory;
-        public float maxInventory;
-        public string waitMessage = "";
-        public float deathTimer = 0f;
-
+        public string populationSpeciesTypeName { get; set; }
+        public string state { get; set; }
+        public string name { get; set; }
+        public string taskAssigment { get; set; }
+        public string currentAction { get; set; }
+        public float hunger { get; set; }
+        public string settlementUuid { get; set; }
+        public string currentLocationUuid { get; set; }
+        public float timeToCompleteCurrentAction { get; set; }
+        public float currentActionProgress { get; set; }
+        public Dictionary<string, float> inventory { get; set; }
+        public float maxInventory { get; set; }
+        public string waitMessage { get; set; }
+        public float deathTimer { get; set; }
+        
+        private PopulationSpeciesType species => DataQuery<PopulationSpeciesType>.GetByID(populationSpeciesTypeName);
+        
+        public PopulationMember(){ }
+        
         public PopulationMember(string speciesID, string settlementUuid, string settlementLocationUuid)
         {
-            inventory = new Dictionary<ResourceType, float>();
-            var species = DataQuery<PopulationSpeciesType>.GetByID(speciesID);
-            this.species = species ?? throw new ClientActionException(T._("Species does not exist."));
+            inventory = new Dictionary<string, float>();
+            populationSpeciesTypeName = speciesID;
             this.settlementUuid = settlementUuid;
             currentLocationUuid = settlementLocationUuid;
             name = NameGenerator.Instance.GenerateFullName();
@@ -34,6 +36,7 @@ namespace LamiaSimulation
             taskAssigment = "idle";
             currentAction = "idle";
             state = "task";
+            waitMessage = "";
         }
 
         // ---------------------------------------------------
@@ -202,7 +205,7 @@ namespace LamiaSimulation
                         Simulation.Instance.PerformAction(
                             ClientAction.AddResourceToSettlementInventory,
                             new ClientParameter<string>(settlementUuid),
-                            new ClientParameter<string>(inventoryItem.Key.ID),
+                            new ClientParameter<string>(inventoryItem.Key),
                             new ClientParameter<float>(inventoryItem.Value)
                         );
                         inventory[inventoryItem.Key] = 0f;
@@ -226,8 +229,8 @@ namespace LamiaSimulation
                         new ClientParameter<string>(task.extractResourceType), 
                         new ClientParameter<float>(amountToExtract)
                     );
-                    inventory.TryAdd(resource, 0f);
-                    inventory[resource] += task.amount;
+                    inventory.TryAdd(task.extractResourceType, 0f);
+                    inventory[task.extractResourceType] += task.amount;
                     hunger -= task.hungerReduction;
                     break;
                 case "eating":
@@ -366,7 +369,10 @@ namespace LamiaSimulation
         {
             var currentAmount = 0f;
             foreach (var inventoryItem in inventory)
-                currentAmount += inventory[inventoryItem.Key] * inventoryItem.Key.weight;
+            {
+                var resourceType = Helpers.GetResourceTypeById(inventoryItem.Key);
+                currentAmount += inventory[inventoryItem.Key] * resourceType.weight;
+            }
             return Math.Min(1f, currentAmount / maxInventory);
         }
         

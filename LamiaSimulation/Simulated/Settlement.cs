@@ -4,33 +4,38 @@ using System.Linq;
 
 namespace LamiaSimulation
 {
-    [Serializable]
     internal class Settlement: SimulationObject, IActionReceiver, IQueryable, ISimulated
     {
-        public string name;
-        public List<PopulationMember> populationMembers;
-        public int maxPopulationMember = Consts.InitialSettlementPopulationCapacity;
-        public List<string> availableTasks;
-        public Dictionary<BuildingType, int> buildings;
-        public List<string> availableBuildings;
-        public Dictionary<ResourceType, float> inventory;
-        public Dictionary<ResourceType, float> inventoryMemory;
-        public Dictionary<ResourceType, float> inventoryDelta;
-        public float inventoryMemoryTime;
-        public List<PopulationMember> populationToRemove;
-        public float spawnTimer;
-        public bool spawnEnabled;
+        public string name { get; set; }
+        public List<PopulationMember> populationMembers { get; set; }
+        public int maxPopulationMember { get; set; }
+        public List<string> availableTasks { get; set; }
+        public Dictionary<string, int> buildings { get; set; }
+        public List<string> availableBuildings { get; set; }
+        public Dictionary<string, float> inventory { get; set; }
+        public Dictionary<string, float> inventoryMemory { get; set; }
+        public Dictionary<string, float> inventoryDelta { get; set; }
+        public float inventoryMemoryTime { get; set; }
+        public float spawnTimer { get; set; }
+        public bool spawnEnabled { get; set; }
+        public string locationUuid { get; set; }
         
-        public string locationUuid;
+        public List<PopulationMember> populationToRemove;
         public static string simulatingSettlement;
 
+        public Settlement()
+        {
+            populationToRemove = new List<PopulationMember>();
+        }
+        
         public Settlement(string name, string locationUuid)
         {
-            buildings = new Dictionary<BuildingType, int>();
+            maxPopulationMember = Consts.InitialSettlementPopulationCapacity;
+            buildings = new Dictionary<string, int>();
             availableBuildings = new List<string>();
-            inventory = new Dictionary<ResourceType, float>();
-            inventoryMemory = new Dictionary<ResourceType, float>();
-            inventoryDelta = new Dictionary<ResourceType, float>();
+            inventory = new Dictionary<string, float>();
+            inventoryMemory = new Dictionary<string, float>();
+            inventoryDelta = new Dictionary<string, float>();
             inventoryMemoryTime = 1.0f;
             populationMembers = new List<PopulationMember>();
             availableTasks = new List<string>();
@@ -122,13 +127,15 @@ namespace LamiaSimulation
                     break;
                 // Add resource to inventory
                 case ClientAction.AddResourceToSettlementInventory:
-                    var resource = Helpers.GetResourceTypeById(param2.Get as string);
+                    var resourceId = param2.Get as string;
+                    if(Helpers.GetResourceTypeById(resourceId) == null)
+                        throw new ClientActionException(T._("Resource does not exist."));
                     var amount = param3.Coerce<float>();
-                    inventory.TryAdd(resource, 0.0f);
-                    inventory[resource] += amount;
-                    var cap = GetInventoryResourceCapacity(resource.ID);
-                    if (inventory[resource] > cap)
-                        inventory[resource] = cap;
+                    inventory.TryAdd(resourceId, 0.0f);
+                    inventory[resourceId] += amount;
+                    var cap = GetInventoryResourceCapacity(resourceId);
+                    if (inventory[resourceId] > cap)
+                        inventory[resourceId] = cap;
                     break;
             }
 
@@ -243,7 +250,7 @@ namespace LamiaSimulation
                     if(query == ClientQuery.PopulationMemberName)
                         result = new QueryResult<string>(pop.name) as QueryResult<T>;
                     else if(query == ClientQuery.PopulationMemberSpecies)
-                        result = new QueryResult<string>(pop.species.ID) as QueryResult<T>;
+                        result = new QueryResult<string>(pop.populationSpeciesTypeName) as QueryResult<T>;
                     else if(query == ClientQuery.PopulationMemberTask)
                         result = new QueryResult<string>(pop.taskAssigment) as QueryResult<T>;
                     break;
@@ -314,7 +321,7 @@ namespace LamiaSimulation
             // Task unlocks
             if (!HasTaskUnlocked("cut_trees"))
             {
-                if (inventory.ContainsKey(Helpers.GetResourceTypeById("raw_food")))
+                if (inventory.ContainsKey("raw_food"))
                 {
                     UnlockTask("cut_trees");
                     Simulation.Instance.PerformAction(
@@ -334,7 +341,7 @@ namespace LamiaSimulation
             );
             if (!hasUnlockedBuildings)
             {
-                if (inventory.ContainsKey(Helpers.GetResourceTypeById("logs")))
+                if (inventory.ContainsKey("logs"))
                 {
                     Simulation.Instance.PerformAction(
                         ClientAction.UnlockPage,
@@ -421,7 +428,7 @@ namespace LamiaSimulation
             var nextAvailableFood = GetNextAvailableFoodPortion();
             if(nextAvailableFood.resourceType == null)
                 throw new ClientActionException(T._("No food available to take."));
-            inventory[nextAvailableFood.resourceType] -= 1f;
+            inventory[nextAvailableFood.resourceType.ID] -= 1f;
         }
         
         private void UnlockBuilding(string buildingID)
@@ -432,7 +439,7 @@ namespace LamiaSimulation
             if(buildingType == null)
                 throw new ClientActionException(T._("Building type does not exist."));
             availableBuildings.Add(buildingID);
-            buildings[buildingType] = 0;
+            buildings[buildingID] = 0;
         }
 
         private void PurchaseBuilding(string buildingID)
@@ -446,11 +453,10 @@ namespace LamiaSimulation
                 throw new ClientActionException(T._("Cannot afford building."));
             foreach (var resourceCost in GetBuildingCost(buildingID))
             {
-                var resourceType = Helpers.GetDataTypeById<ResourceType>(resourceCost.Key);
-                if (inventory.ContainsKey(resourceType))
-                    inventory[resourceType] -= resourceCost.Value;
+                if (inventory.ContainsKey(resourceCost.Key))
+                    inventory[resourceCost.Key] -= resourceCost.Value;
             }
-            buildings[buildingType]++;
+            buildings[buildingID]++;
             RecalculatePopulationLimits();
         }
 
@@ -459,9 +465,10 @@ namespace LamiaSimulation
             var popLimit = Consts.InitialSettlementPopulationCapacity;
             foreach (var building in buildings)
             {
-                if (building.Key.behaviour != BuildingBehaviour.POPULATION_CAPACITY)
+                var buildingType = Helpers.GetDataTypeById<BuildingType>(building.Key);
+                if (buildingType.behaviour != BuildingBehaviour.POPULATION_CAPACITY)
                     continue;
-                popLimit += (int)building.Key.behaviourValue * building.Value;
+                popLimit += (int)buildingType.behaviourValue * building.Value;
             }
             maxPopulationMember = popLimit;
         }
@@ -487,7 +494,7 @@ namespace LamiaSimulation
 
         private string[] GetSettlementPopulationSpecies()
         {
-            var speciesID = populationMembers.Select(pop => pop.species.ID).Distinct().ToList();
+            var speciesID = populationMembers.Select(pop => pop.populationSpeciesTypeName).Distinct().ToList();
             return speciesID.ToArray();
         }
 
@@ -499,7 +506,7 @@ namespace LamiaSimulation
 
         private string[] GetSettlementPopulationSpeciesMembers(string speciesID)
         {
-            var popIDs = populationMembers.Filter(pop => pop.species.ID == speciesID).Select(pop => pop.ID).ToList();
+            var popIDs = populationMembers.Filter(pop => pop.populationSpeciesTypeName == speciesID).Select(pop => pop.ID).ToList();
             return popIDs.ToArray();
         }
 
@@ -554,14 +561,12 @@ namespace LamiaSimulation
 
         private string[] GetInventoryList()
         {
-            var resources = inventory.Keys.Select(resource => resource.ID).Distinct().ToList();
-            return resources.ToArray();
+            return inventory.Keys.ToArray();
         }
 
         private float GetInventoryResourceAmount(string resourceId)
         {
-            var resource = Helpers.GetResourceTypeById(resourceId);
-            return !inventory.ContainsKey(resource) ? 0f : inventory[resource];
+            return !inventory.ContainsKey(resourceId) ? 0f : inventory[resourceId];
         }
 
         private float GetInventoryResourceCapacity(string resourceId)
@@ -571,8 +576,7 @@ namespace LamiaSimulation
         
         private float GetInventoryResourceDelta(string resourceId)
         {
-            var resource = Helpers.GetResourceTypeById(resourceId);
-            return !inventoryDelta.ContainsKey(resource) ? 0f : inventoryDelta[resource];
+            return !inventoryDelta.ContainsKey(resourceId) ? 0f : inventoryDelta[resourceId];
         }
 
         private (ResourceType resourceType, float hungerRecoveryFactor) GetNextAvailableFoodPortion()
@@ -581,10 +585,11 @@ namespace LamiaSimulation
             ResourceType highestFood = null;
             foreach (var inventoryItem in inventory)
             {
-                if (inventoryItem.Key.hungerRecoveryFactor > highestFactor && inventoryItem.Value > 0f)
+                var resourceType = Helpers.GetResourceTypeById(inventoryItem.Key);
+                if (resourceType.hungerRecoveryFactor > highestFactor && inventoryItem.Value > 0f)
                 {
-                    highestFactor = inventoryItem.Key.hungerRecoveryFactor;
-                    highestFood = inventoryItem.Key;
+                    highestFactor = resourceType.hungerRecoveryFactor;
+                    highestFood = resourceType;
                 }
             }
             return (highestFood, highestFactor);
@@ -597,14 +602,12 @@ namespace LamiaSimulation
         
         private string[] GetBuildingsList()
         {
-            var buildings = this.buildings.Keys.Select(building => building.ID).Distinct().ToList();
-            return buildings.ToArray();
+            return buildings.Keys.ToArray();
         }
 
         private int GetBuildingAmount(string buildingId)
         {
-            var building = Helpers.GetDataTypeById<BuildingType>(buildingId);
-            return !buildings.ContainsKey(building) ? 0 : buildings[building];
+            return !buildings.ContainsKey(buildingId) ? 0 : buildings[buildingId];
         }
         
         private string GetBuildingDisplayName(string buildingID)
@@ -621,10 +624,9 @@ namespace LamiaSimulation
         {
             foreach (var resourceCost in GetBuildingCost(buildingID))
             {
-                var resourceType = Helpers.GetDataTypeById<ResourceType>(resourceCost.Key);
-                if (!inventory.ContainsKey(resourceType))
+                if (!inventory.ContainsKey(resourceCost.Key))
                     return false;
-                if (inventory[resourceType] < resourceCost.Value)
+                if (inventory[resourceCost.Key] < resourceCost.Value)
                     return false;
             }
             return true;

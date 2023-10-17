@@ -19,4 +19,15 @@ public partial class GameController : Node
 	{
 		simulation.Simulate((float)delta);
 	}
+
+	public void SaveGame()
+	{
+		simulation.SaveGame();
+	}
+
+	public void RestartGame()
+	{
+		simulation.Reset();
+		simulation.Start();
+	}
 }

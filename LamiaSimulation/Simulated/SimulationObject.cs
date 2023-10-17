@@ -4,11 +4,11 @@ namespace LamiaSimulation
 {
     public abstract class SimulationObject
     {
-        public readonly string ID;
+        public string ID { get; set; }
 
         protected SimulationObject()
         {
-            ID = Guid.NewGuid().ToString();
+            ID ??= Guid.NewGuid().ToString();
             Simulation.lastID = ID;
         }
     }

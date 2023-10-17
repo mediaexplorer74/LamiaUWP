@@ -9,6 +9,12 @@ namespace LamiaSimulation
         AvailablePages,
 
         /*
+         * Already read messages, limits to 10
+         *   Result - string[]: Messages to display
+         */
+        MessageHistory,
+        
+        /*
          * Unread messages to show the player
          *   Result - string[]: Messages to display
          */

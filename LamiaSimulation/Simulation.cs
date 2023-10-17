@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
+using System.Reflection;
+using System.Text.Json;
 
 namespace LamiaSimulation
 {
@@ -14,10 +15,13 @@ namespace LamiaSimulation
         private static Simulation _Instance;
 
         private GlobalState globalState;
+        private bool started = false;
 
         internal static string lastID;
         public string LastID => lastID;
 
+        private float saveTimer;
+        
         public Simulation()
         {
             globalState = new GlobalState();
@@ -29,15 +33,20 @@ namespace LamiaSimulation
             DataType.LoadDataFromJson<TaskType>(Path.Combine(dataDir, Consts.FilenameDataTasks));
             DataType.LoadDataFromJson<LocationType>(Path.Combine(dataDir, Consts.FilenameLocationTypes));
             DataType.LoadDataFromJson<BuildingType>(Path.Combine(dataDir, Consts.FilenameBuildingTypes));
+            saveTimer = Consts.SaveGameTimeInterval;
+            LoadGame();
         }
 
         public void Reset()
         {
             globalState = new GlobalState();
+            started = false;
         }
 
         public void Start()
         {
+            if (started)
+                return;
             globalState.PerformAction(ClientAction.UnlockPage,  new ClientParameter<string>("population"));
             globalState.PerformAction(ClientAction.AddLocation,  new ClientParameter<string>("origin"));
             globalState.PerformAction(
@@ -64,6 +73,24 @@ namespace LamiaSimulation
                 ClientAction.SendMessage, new ClientParameter<string>(
                     T._("It's tongue laps at the air lazily. It's probably hungry.")
                 ));
+            started = true;
+        }
+        
+        public void SaveGame()
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var jsonString = JsonSerializer.Serialize(globalState, options);
+            File.WriteAllText(Consts.FilenameSaveFile, jsonString);
+        }
+
+        public void LoadGame()
+        {
+            if (!File.Exists(Consts.FilenameSaveFile))
+                return;
+            var jsonString = File.ReadAllText(Consts.FilenameSaveFile);
+            globalState = JsonSerializer.Deserialize<GlobalState>(jsonString)!;
+            globalState.LodadedFromSave();
+            started = true;
         }
 
         // ---------------------------------------------------
@@ -140,10 +167,19 @@ namespace LamiaSimulation
         // ---------------------------------------------------
         // ISimulated
         // ---------------------------------------------------
-
+        
         public void Simulate(float deltaTime)
         {
+            // Save game every so often
+            saveTimer -= deltaTime;
+            if (saveTimer <= 0f)
+            {
+                SaveGame();
+                saveTimer = Consts.SaveGameTimeInterval;
+            }
+            // Simulate 
             globalState.Simulate(deltaTime);
         }
     }
+    
 }

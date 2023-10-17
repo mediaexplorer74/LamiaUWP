@@ -7,20 +7,29 @@ namespace LamiaSimulation
 
     using Text = T;
 
-    [Serializable]
     internal class GlobalState: IActionReceiver, IQueryable, ISimulated
     {
-        public List<string> availablePages;
-        public List<Location> locations;
-        public List<Settlement> playerSettlements;
-        public List<string> unreadMessages;
-
+        public List<string> availablePages { get; set; }
+        public List<Location> locations { get; set; }
+        public List<Settlement> playerSettlements { get; set; }
+        public List<string> messageHistory { get; set; }
+        public List<string> unreadMessages { get; set; }
+        public List<string> currentlyDisplayedMessages { get; set; }
+        
         public GlobalState()
         {
             locations = new List<Location>();
             playerSettlements = new List<Settlement>();
+            messageHistory = new List<string>();
             unreadMessages = new List<string>();
+            currentlyDisplayedMessages = new List<string>();
             availablePages = new List<string>();
+        }
+
+        public void LodadedFromSave()
+        {
+            unreadMessages = new List<string>(currentlyDisplayedMessages);
+            currentlyDisplayedMessages.Clear();
         }
 
         // ---------------------------------------------------
@@ -38,7 +47,7 @@ namespace LamiaSimulation
             }
             catch(ClientActionException e)
             {
-                unreadMessages.Add(e.Message);
+                AddMessage(e.Message);
             }
         }
 
@@ -53,7 +62,7 @@ namespace LamiaSimulation
                     break;
                 // Send message to client
                 case ClientAction.SendMessage:
-                    unreadMessages.Add(param1.Get as string);
+                    AddMessage(param1.Get as string);
                     break;
                 // Add new location to world
                 case ClientAction.AddLocation:
@@ -85,7 +94,7 @@ namespace LamiaSimulation
             }
             catch(ClientActionException e)
             {
-                unreadMessages.Add(e.Message);
+                AddMessage(e.Message);
             }
         }
 
@@ -100,7 +109,7 @@ namespace LamiaSimulation
             }
             catch(ClientActionException e)
             {
-                unreadMessages.Add(e.Message);
+                AddMessage(e.Message);
             }
         }
 
@@ -116,7 +125,7 @@ namespace LamiaSimulation
             }
             catch(ClientActionException e)
             {
-                unreadMessages.Add(e.Message);
+                AddMessage(e.Message);
             }
         }
 
@@ -132,10 +141,24 @@ namespace LamiaSimulation
                 case ClientQuery.AvailablePages:
                     result = new QueryResult<(string, string)[]>(GetAvailablePages().ToArray()) as QueryResult<T>;
                     break;
+                // Message history
+                case ClientQuery.MessageHistory:
+                    result = new QueryResult<string[]>(messageHistory.ToArray()) as QueryResult<T>;
+                    break;
                 // Unread messages
                 case ClientQuery.UnreadMessages:
                     result = new QueryResult<string[]>(unreadMessages.ToArray()) as QueryResult<T>;
-                    unreadMessages.Clear();
+                    if (unreadMessages.Count > 0)
+                    {
+                        foreach (var message in currentlyDisplayedMessages)
+                            messageHistory.Add(message);
+                        if (messageHistory.Count > 10)
+                            messageHistory.RemoveRange(0, messageHistory.Count - 10);
+                        currentlyDisplayedMessages.Clear();
+                        foreach (var message in unreadMessages)
+                            currentlyDisplayedMessages.Add(message);
+                        unreadMessages.Clear();
+                    }
                     break;
                 // Location IDs
                 case ClientQuery.Locations:
@@ -217,7 +240,10 @@ namespace LamiaSimulation
         // Action behaviours
         // ---------------------------------------------------
 
-        // ....
+        public void AddMessage(string message)
+        {
+            unreadMessages.Add(message);
+        }
 
         // ---------------------------------------------------
         // Query behaviours

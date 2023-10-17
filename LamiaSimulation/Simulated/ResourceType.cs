@@ -1,3 +1,5 @@
+using System;
+
 namespace LamiaSimulation
 {
     public class ResourceType: DataType

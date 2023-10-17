@@ -4,21 +4,20 @@ using System.Linq;
 
 namespace LamiaSimulation
 {
-    [Serializable]
     internal class Location : SimulationObject, IActionReceiver, IQueryable, ISimulated
     {
-        public LocationType locationType;
-        public Dictionary<ResourceType, float> availableResources;
+        private LocationType locationType => DataQuery<LocationType>.GetByID(locationTypeName);
+        public string locationTypeName { get; set; }
+        public Dictionary<string, float> availableResources { get; set; }
 
+        public Location(){ }
+        
         public Location(string locationTypeName)
         {
-            locationType = DataQuery<LocationType>.GetByID(locationTypeName);
-            availableResources = new Dictionary<ResourceType, float>();
+            this.locationTypeName = locationTypeName;
+            availableResources = new Dictionary<string, float>();
             foreach(var resource in locationType.resources)
-            {
-                var resourceType = DataQuery<ResourceType>.GetByID(resource.Key);
-                availableResources[resourceType] = resource.Value;
-            }
+                availableResources[resource.Key] = resource.Value;
         }
 
         public void PerformAction(ClientAction action)
@@ -43,13 +42,13 @@ namespace LamiaSimulation
             {
                 // Subtract resource from location
                 case ClientAction.SubtractResourceFromLocation:
-                    var resource = Helpers.GetResourceTypeById(param2.Get as string);
+                    var resourceTypeId = param2.Get as string; 
                     var amount = param3.Coerce<float>();
-                    if (!availableResources.ContainsKey(resource))
+                    if (!availableResources.ContainsKey(resourceTypeId))
                         throw new ClientActionException(T._("Resource not available at location."));
-                    availableResources[resource] -= amount;
-                    if (availableResources[resource] < 0f)
-                        availableResources[resource] = 0f;
+                    availableResources[resourceTypeId] -= amount;
+                    if (availableResources[resourceTypeId] < 0f)
+                        availableResources[resourceTypeId] = 0f;
                     break;
             }
         }
@@ -96,14 +95,12 @@ namespace LamiaSimulation
         
         private string[] GetResourceList()
         {
-            var resources = availableResources.Keys.Select(resource => resource.ID).Distinct().ToList();
-            return resources.ToArray();
+            return availableResources.Keys.ToArray();
         }
 
         private float GetResourceAmount(string resourceId)
         {
-            var resource = Helpers.GetResourceTypeById(resourceId);
-            return !availableResources.ContainsKey(resource) ? 0f : availableResources[resource];
+            return !availableResources.ContainsKey(resourceId) ? 0f : availableResources[resourceId];
         }
         
     }

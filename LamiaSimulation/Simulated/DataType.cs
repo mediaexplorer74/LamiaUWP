@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using System;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 
 namespace LamiaSimulation
 {
-    [Serializable]
     public abstract class DataType
     {
         static Dictionary<string, Dictionary<string, DataType>> data;

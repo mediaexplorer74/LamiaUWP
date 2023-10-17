@@ -1,17 +1,36 @@
-[gd_scene load_steps=11 format=3 uid="uid://e6wbtvxigtho"]
+[gd_scene load_steps=17 format=3 uid="uid://e6wbtvxigtho"]
 
 [ext_resource type="Script" path="res://scripts/GameController.cs" id="1_cfsw3"]
 [ext_resource type="Script" path="res://scripts/UI/Global/VersionText.gd" id="2_ohmy4"]
 [ext_resource type="Theme" uid="uid://bnv8uaqyik3sg" path="res://styles/main_theme.tres" id="2_v40hy"]
 [ext_resource type="Script" path="res://scripts/UI/Global/Pages.gd" id="3_fpc7b"]
+[ext_resource type="PackedScene" uid="uid://bt82ve604ccni" path="res://scenes/UI/Global/tooltip_shower.tscn" id="3_tuckq"]
 [ext_resource type="Script" path="res://scripts/UI/Global/Messages.gd" id="4_5vxlb"]
 [ext_resource type="StyleBox" uid="uid://xxd4m0jineq1" path="res://styles/panel1.tres" id="4_l5owv"]
 [ext_resource type="PackedScene" uid="uid://goa3xwhj1xkd" path="res://scenes/UI/Global/page_button.tscn" id="5_3j2ef"]
 [ext_resource type="Script" path="res://scripts/UI/Global/ResourcesList.gd" id="6_yb6nm"]
 [ext_resource type="PackedScene" uid="uid://dmctleo7i03mh" path="res://scenes/UI/Global/resource.tscn" id="7_6chm1"]
+[ext_resource type="Script" path="res://scripts/UI/Global/ScrollToBottomContainer.gd" id="10_rtdk6"]
+[ext_resource type="Script" path="res://scripts/UI/Global/MenuModal.gd" id="11_sjde1"]
+[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="12_70fio"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1axur"]
 font_size = 30
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8gths"]
+bg_color = Color(0.109804, 0.188235, 0.117647, 0.439216)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ru64m"]
+bg_color = Color(0.341176, 0.341176, 0.341176, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+expand_margin_left = 20.0
+expand_margin_top = 10.0
+expand_margin_right = 20.0
+expand_margin_bottom = 10.0
+shadow_size = 5
 
 [node name="GameController" type="Control"]
 layout_mode = 3
@@ -35,21 +54,33 @@ theme = ExtResource("2_v40hy")
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
+[node name="MainMenuButton" type="Button" parent="TopLevelContainer/Header"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 10.0
+offset_right = 37.0
+offset_bottom = 36.0
+text = "M"
+
+[node name="MainMenuTooltipShower" parent="TopLevelContainer/Header" instance=ExtResource("3_tuckq")]
+layout_mode = 0
+tooltip_label_text = "Main menu"
+
 [node name="Title" type="Label" parent="TopLevelContainer/Header"]
 layout_mode = 2
-offset_left = 10.0
-offset_top = 4.0
-offset_right = 1162.0
-offset_bottom = 49.0
+offset_left = 45.0
+offset_top = 5.0
+offset_right = 1197.0
+offset_bottom = 50.0
 text = "Lamia"
 label_settings = SubResource("LabelSettings_1axur")
 
 [node name="Version" type="Label" parent="TopLevelContainer/Header"]
 layout_mode = 0
-offset_left = 110.0
-offset_top = 6.0
-offset_right = 159.0
-offset_bottom = 32.0
+offset_left = 145.0
+offset_top = 7.0
+offset_right = 208.0
+offset_bottom = 33.0
 text = "v 0.0.0"
 script = ExtResource("2_ohmy4")
 
@@ -127,7 +158,7 @@ theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
 [node name="Messages" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(300, 0)
+custom_minimum_size = Vector2(300, 80)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -142,7 +173,82 @@ theme_override_styles/panel = ExtResource("4_l5owv")
 script = ExtResource("4_5vxlb")
 metadata/_edit_use_anchors_ = true
 
-[node name="MessageList" type="VBoxContainer" parent="Messages"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Messages"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+script = ExtResource("10_rtdk6")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Messages/ScrollContainer"]
+layout_mode = 2
+
+[node name="MessageHistoryList" type="VBoxContainer" parent="Messages/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_constants/separation = -3
+
+[node name="MessageList" type="VBoxContainer" parent="Messages/ScrollContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = -3
+
+[node name="MenuModal" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8gths")
+script = ExtResource("11_sjde1")
+
+[node name="RestartGameConfirmDialog" type="ConfirmationDialog" parent="MenuModal"]
+unique_name_in_owner = true
+initial_position = 1
+size = Vector2i(309, 102)
+borderless = true
+dialog_text = "This will delete your save game!
+Are you sure?"
+
+[node name="PanelContainer" type="PanelContainer" parent="MenuModal"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_ru64m")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuModal/PanelContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuModal/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("12_70fio")
+theme_override_font_sizes/font_size = 25
+text = "Menu"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MenuModal/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BackToGameButton" type="Button" parent="MenuModal/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Back To Game"
+
+[node name="RestartGameButton" type="Button" parent="MenuModal/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Restart Game"
+
+[node name="QuitButton" type="Button" parent="MenuModal/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Quit"
+
+[connection signal="mouse_entered" from="TopLevelContainer/Header/MainMenuButton" to="TopLevelContainer/Header/MainMenuTooltipShower" method="_on_show_tooltip"]
+[connection signal="mouse_exited" from="TopLevelContainer/Header/MainMenuButton" to="TopLevelContainer/Header/MainMenuTooltipShower" method="_on_hide_tooltip"]
+[connection signal="pressed" from="TopLevelContainer/Header/MainMenuButton" to="MenuModal" method="_on_main_menu_button_pressed"]
+[connection signal="canceled" from="MenuModal/RestartGameConfirmDialog" to="MenuModal" method="_on_restart_game_confirm_dialog_canceled"]
+[connection signal="confirmed" from="MenuModal/RestartGameConfirmDialog" to="MenuModal" method="_on_restart_game_confirm_dialog_confirmed"]
+[connection signal="pressed" from="MenuModal/PanelContainer/VBoxContainer/BackToGameButton" to="MenuModal" method="_on_back_to_game_button_pressed"]
+[connection signal="pressed" from="MenuModal/PanelContainer/VBoxContainer/RestartGameButton" to="MenuModal" method="_on_restart_game_button_pressed"]
+[connection signal="pressed" from="MenuModal/PanelContainer/VBoxContainer/QuitButton" to="MenuModal" method="_on_quit_button_pressed"]
