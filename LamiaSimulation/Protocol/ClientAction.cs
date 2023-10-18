@@ -51,6 +51,13 @@ namespace LamiaSimulation
         //   - float: amount of resource to add
         AddResourceToSettlementInventory,
 
+        // Reduces an amount of a resource from a settlement's inventory
+        // params:
+        //   - string: uuid of settlement
+        //   - string: id of resource
+        //   - float: amount of resource to reduce
+        SubtractResourceFromSettlementInventory,
+
         // Reduces an amount of a resource from a location's resources.
         // params:
         //   - string: uuid of location
@@ -80,5 +87,10 @@ namespace LamiaSimulation
         //   - string: uuid of settlement
         //   - string: id of building type
         SettlementPurchaseBuilding,
+        
+        // Unlocks a research and applies it's effects
+        // params:
+        //   - string: id of research to unlock
+        UnlockResearch,
     }
 }

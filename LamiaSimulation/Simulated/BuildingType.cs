@@ -6,6 +6,7 @@ namespace LamiaSimulation
     public enum BuildingBehaviour
     {
         POPULATION_CAPACITY,
+        STORAGE_CAPACITY,
     }
     
     public class BuildingType: DataType
@@ -21,10 +22,15 @@ namespace LamiaSimulation
         public string[] GetDescriptionDisplay()
         {
             var behaviourText = "";
+            var behaviourTextFormat = "";
             switch(behaviour)
             {
                 case BuildingBehaviour.POPULATION_CAPACITY:
-                    var behaviourTextFormat = T._("Increase population capacity by {0}");
+                    behaviourTextFormat = T._("Increase population capacity by {0}");
+                    behaviourText = String.Format(behaviourTextFormat, (int)behaviourValue);
+                    break;
+                case BuildingBehaviour.STORAGE_CAPACITY:
+                    behaviourTextFormat = T._("Increase storage capacity by {0}");
                     behaviourText = String.Format(behaviourTextFormat, (int)behaviourValue);
                     break;
             }

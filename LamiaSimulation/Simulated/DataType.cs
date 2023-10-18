@@ -42,7 +42,10 @@ namespace LamiaSimulation
     {
         public static Dictionary<string, T> GetAll()
         {
-            return DataType.GetTypeData<T>() as Dictionary<string, T>;
+            var returnDict = new Dictionary<string, T>();
+            foreach (var element in DataType.GetTypeData<T>())
+                returnDict[element.Key] = element.Value as T;
+            return returnDict;
         }
 
         public static T GetByID(string ID)

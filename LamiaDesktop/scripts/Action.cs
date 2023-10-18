@@ -76,6 +76,16 @@ public partial class Action: Node
             new ClientParameter<System.Single>(amount)
         );
     }
+    
+    public void SubtractResourceFromSettlementInventory(string settlementUuid, string resourceId, float amount)
+    {
+        Simulation.Instance.PerformAction(
+            ClientAction.SubtractResourceFromSettlementInventory,
+            new ClientParameter<string>(settlementUuid),
+            new ClientParameter<string>(resourceId),
+            new ClientParameter<System.Single>(amount)
+        );
+    }
 
     public void SettlementTakeAvailableFoodPortion(string settlementUuid)
     {
@@ -111,5 +121,13 @@ public partial class Action: Node
             new ClientParameter<string>(buildingId)
         );
     }
-    
+
+    public void UnlockResearch(string researchId)
+    {
+        Simulation.Instance.PerformAction(
+            ClientAction.UnlockResearch,
+            new ClientParameter<string>(researchId)
+        );
+    }
+
 }

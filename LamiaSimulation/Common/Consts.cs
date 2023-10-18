@@ -52,5 +52,6 @@ namespace LamiaSimulation
         public const string FilenameDataTasks = "tasks.json";
         public const string FilenameLocationTypes = "locationtypes.json";
         public const string FilenameBuildingTypes = "buildings.json";
+        public const string FilenameResearchTypes = "research.json";
     }
 }

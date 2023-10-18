@@ -8,7 +8,7 @@ namespace LamiaSimulation
         {
             var filtered = DataQuery<PopulationSpeciesType>.GetByID(ID);
             if(filtered == null)
-                throw new ClientActionException(T._("Species does not exist."));
+                throw new ClientActionException(T._($"Species {ID} does not exist."));
             return filtered;
         }
 
@@ -16,7 +16,7 @@ namespace LamiaSimulation
         {
             var filtered = DataQuery<TaskType>.GetByID(ID);
             if(filtered == null)
-                throw new ClientActionException(T._("Task does not exist."));
+                throw new ClientActionException(T._($"Task {ID} does not exist."));
             return filtered;
         }
 
@@ -24,7 +24,7 @@ namespace LamiaSimulation
         {
             var filtered = DataQuery<ResourceType>.GetByID(ID);
             if(filtered == null)
-                throw new ClientActionException(T._("Resource does not exist."));
+                throw new ClientActionException(T._($"Resource {ID} does not exist."));
             return filtered;
         }
         
@@ -32,7 +32,7 @@ namespace LamiaSimulation
         {
             var filtered = DataQuery<LocationType>.GetByID(ID);
             if(filtered == null)
-                throw new ClientActionException(T._("Location type does not exist."));
+                throw new ClientActionException(T._($"Location type {ID} does not exist."));
             return filtered;
         }
         
@@ -40,7 +40,7 @@ namespace LamiaSimulation
         {
             var filtered = DataQuery<T1>.GetByID(ID);
             if(filtered == null)
-                throw new ClientActionException(T._("Resource does not exist."));
+                throw new ClientActionException(T._($"Data type of name {ID} does not exist."));
             return filtered;
         }
         

@@ -29,6 +29,63 @@ namespace LamiaSimulation
         HasUnlockedPage,
         
         // --------------------------------------------------------------------
+        // RESEARCH
+        // --------------------------------------------------------------------
+
+        /*
+         * Research available for unlocking
+         *   Result - string[]:  Research IDs available
+         */
+        ResearchAvailable,
+
+        /*
+         * Research already completed
+         *   Result - string[]:  Research IDs completed
+         */
+        ResearchUnlocked,
+
+        /*
+         * Name of a research to display to the player 
+         *   Result - string
+         *   Params:
+         *     - string: research id to query
+         */
+        ResearchDisplayName,
+
+        /*
+         * Description of a research 
+         *   Result - string[]: research description
+         *   Params:
+         *     - string: research ID to query
+         */
+        ResearchDescription,
+        
+        /*
+         * Returns if a research can be unlocked with the current available resources
+         *   Result - bool
+         *   Params:
+         *     - string: research ID to query
+         */
+        ResearchCanAfford,
+        
+        /*
+         * Gives resource types that are required to unlock a research
+         *   Result - string[]: Array of resource IDs
+         *   Params:
+         *     - string: research ID to query
+         */
+        ResearchResourceList,
+
+        /*
+         * Gives exactly how much of a particular resource is required to unlock a research
+         *   Result - float: how much of this resource is required
+         *   Params:
+         *     - string: research ID to query
+         *     - string: resource ID to query
+         */
+        ResearchSingleResourceCost,
+        
+        // --------------------------------------------------------------------
         // RESOURCES
         // --------------------------------------------------------------------
 

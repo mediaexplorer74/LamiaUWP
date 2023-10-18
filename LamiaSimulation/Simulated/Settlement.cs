@@ -16,6 +16,7 @@ namespace LamiaSimulation
         public Dictionary<string, float> inventoryMemory { get; set; }
         public Dictionary<string, float> inventoryDelta { get; set; }
         public float inventoryMemoryTime { get; set; }
+        public float resourceCapacity { get; set; }
         public float spawnTimer { get; set; }
         public bool spawnEnabled { get; set; }
         public string locationUuid { get; set; }
@@ -38,6 +39,7 @@ namespace LamiaSimulation
             inventoryMemory = new Dictionary<string, float>();
             inventoryDelta = new Dictionary<string, float>();
             inventoryMemoryTime = 1.0f;
+            resourceCapacity = Consts.InitialSettlementResourceCapacity;
             populationMembers = new List<PopulationMember>();
             availableTasks = new List<string>();
             populationToRemove = new List<PopulationMember>();
@@ -162,6 +164,16 @@ namespace LamiaSimulation
                             }
                         );
                     }
+                    break;
+                // Remove resource from inventory
+                case ClientAction.SubtractResourceFromSettlementInventory:
+                    var subtractResourceId = param2.Get as string;
+                    if(Helpers.GetResourceTypeById(subtractResourceId) == null)
+                        throw new ClientActionException(T._("Resource does not exist."));
+                    if (!inventory.ContainsKey(subtractResourceId))
+                        break;
+                    var subtractAmount = Math.Min(inventory[subtractResourceId], param3.Coerce<float>());
+                    inventory[subtractResourceId] -= subtractAmount;
                     break;
             }
 
@@ -458,6 +470,7 @@ namespace LamiaSimulation
             }
             buildings[buildingID]++;
             RecalculatePopulationLimits();
+            RecalculateResourceLimits();
             // Fire event
             Simulation.Instance.events.OnBuildingPurchased(
                 new BuildingPurchasedEventArgs
@@ -480,7 +493,20 @@ namespace LamiaSimulation
             }
             maxPopulationMember = popLimit;
         }
-        
+
+        private void RecalculateResourceLimits()
+        {
+            var resourceLimit = Consts.InitialSettlementResourceCapacity;
+            foreach (var building in buildings)
+            {
+                var buildingType = Helpers.GetDataTypeById<BuildingType>(building.Key);
+                if (buildingType.behaviour != BuildingBehaviour.STORAGE_CAPACITY)
+                    continue;
+                resourceLimit += (float)buildingType.behaviourValue * building.Value;
+            }
+            resourceCapacity = resourceLimit;
+        }
+
         // ---------------------------------------------------
         // Query behaviours
         // ---------------------------------------------------
@@ -579,7 +605,7 @@ namespace LamiaSimulation
 
         private float GetInventoryResourceCapacity(string resourceId)
         {
-            return Consts.InitialSettlementResourceCapacity;
+            return resourceCapacity;
         }
         
         private float GetInventoryResourceDelta(string resourceId)

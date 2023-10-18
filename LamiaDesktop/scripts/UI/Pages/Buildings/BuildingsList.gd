@@ -8,6 +8,11 @@ extends VBoxContainer
 
 var current_buildings_list = []
 
+func _ready():
+    for n in buildings_container.get_children():
+        buildings_container.remove_child(n)
+        n.queue_free()
+
 func _process(_delta):
     var buildings_list = Array(Query.SettlementBuildings(game_controller.currentSettlementUuid))
     
@@ -19,7 +24,7 @@ func _process(_delta):
         buildings_container.remove_child(n)
         n.queue_free()
     for building_id in buildings_list:
-        var new_building = building_template.instantiate() as Building
+        var new_building = building_template.instantiate()
         buildings_container.add_child(new_building)
         new_building.building_id = building_id
     

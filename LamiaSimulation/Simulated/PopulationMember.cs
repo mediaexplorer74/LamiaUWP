@@ -131,6 +131,8 @@ namespace LamiaSimulation
                     state = "starving";
                 }
                 state = starvingState.foodAvailable ? "eating" : "starving";
+                if(currentAction != "eating")
+                    timeToCompleteCurrentAction = Consts.populationEatingTime;                    
                 currentAction = "eating";
             }
             var waitSate = DetermineWaitState();

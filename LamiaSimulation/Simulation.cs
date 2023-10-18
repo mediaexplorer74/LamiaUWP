@@ -23,7 +23,6 @@ namespace LamiaSimulation
         public Simulation()
         {
             events = new SimulationEvents();
-            globalState = new GlobalState();
             var dataDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Consts.FilenameDataDirectory);
             DataType.LoadDataFromJson<ResourceType>(Path.Combine(dataDir, Consts.FilenameDataResources));
             DataType.LoadDataFromJson<PopulationSpeciesType>(
@@ -32,6 +31,8 @@ namespace LamiaSimulation
             DataType.LoadDataFromJson<TaskType>(Path.Combine(dataDir, Consts.FilenameDataTasks));
             DataType.LoadDataFromJson<LocationType>(Path.Combine(dataDir, Consts.FilenameLocationTypes));
             DataType.LoadDataFromJson<BuildingType>(Path.Combine(dataDir, Consts.FilenameBuildingTypes));
+            DataType.LoadDataFromJson<ResearchType>(Path.Combine(dataDir, Consts.FilenameResearchTypes));
+            globalState = new GlobalState();
             saveTimer = Consts.SaveGameTimeInterval;
         }
 
@@ -39,6 +40,7 @@ namespace LamiaSimulation
         {
             File.Delete(Consts.FilenameSaveFile);
             globalState = new GlobalState();
+            globalState.Init();
             started = false;
         }
 
@@ -46,6 +48,7 @@ namespace LamiaSimulation
         {
             if (started)
                 return;
+            globalState.Init();
             globalState.PerformAction(ClientAction.UnlockPage,  new ClientParameter<string>("population"));
             globalState.PerformAction(ClientAction.AddLocation,  new ClientParameter<string>("origin"));
             globalState.PerformAction(

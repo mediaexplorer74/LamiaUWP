@@ -1,11 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://dkxjwc2ngem8l"]
+[gd_scene load_steps=10 format=3 uid="uid://bmx74vtxy7mw8"]
 
-[ext_resource type="Script" path="res://scripts/UI/Pages/Buildings/Building.gd" id="1_0lfcx"]
-[ext_resource type="Texture2D" uid="uid://bmenrhu8088cv" path="res://media/icons/icon_question.png" id="2_fdj2d"]
-[ext_resource type="PackedScene" uid="uid://bt82ve604ccni" path="res://scenes/UI/Global/tooltip_shower.tscn" id="3_08l2o"]
-[ext_resource type="FontFile" uid="uid://cnpqjrumbcm1x" path="res://media/fonts/Vera.ttf" id="5_et8m4"]
-[ext_resource type="PackedScene" uid="uid://tblic20jfd1u" path="res://scenes/UI/Pages/Buildings/building_resource_cost.tscn" id="6_0mvpf"]
-[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="6_5imjn"]
+[ext_resource type="Script" path="res://scripts/UI/Pages/Research/Research.gd" id="1_1iqxq"]
+[ext_resource type="Texture2D" uid="uid://bmenrhu8088cv" path="res://media/icons/icon_question.png" id="2_4g47w"]
+[ext_resource type="PackedScene" uid="uid://bt82ve604ccni" path="res://scenes/UI/Global/tooltip_shower.tscn" id="3_bbjyk"]
+[ext_resource type="FontFile" uid="uid://cnpqjrumbcm1x" path="res://media/fonts/Vera.ttf" id="4_i30fe"]
+[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="5_0umpw"]
+[ext_resource type="PackedScene" uid="uid://celk31ov3e7mp" path="res://scenes/UI/Pages/Research/research_resource_cost.tscn" id="6_ricup"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ccp33"]
 bg_color = Color(0.243137, 0.243137, 0.243137, 1)
@@ -16,22 +16,18 @@ border_width_bottom = 2
 border_color = Color(0.390075, 0.45, 0.2385, 1)
 border_blend = true
 
-[sub_resource type="LabelSettings" id="LabelSettings_o77na"]
-font = ExtResource("6_5imjn")
-font_size = 26
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0f7bb"]
 bg_color = Color(0.360784, 0.360784, 0.360784, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ew8g5"]
 bg_color = Color(0.359069, 0.359069, 0.359069, 1)
 
-[node name="Building" type="PanelContainer"]
+[node name="Research" type="PanelContainer"]
 clip_contents = true
 custom_minimum_size = Vector2(300, 0)
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_ccp33")
-script = ExtResource("1_0lfcx")
+script = ExtResource("1_1iqxq")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -56,10 +52,10 @@ theme_type_variation = &"QuestionMarkButton"
 theme_override_constants/icon_max_width = 19
 button_mask = 0
 text = " "
-icon = ExtResource("2_fdj2d")
+icon = ExtResource("2_4g47w")
 icon_alignment = 1
 
-[node name="TooltipShower" parent="VBoxContainer/InfoContainer/MarginContainer2/Info" instance=ExtResource("3_08l2o")]
+[node name="TooltipShower" parent="VBoxContainer/InfoContainer/MarginContainer2/Info" instance=ExtResource("3_bbjyk")]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -71,29 +67,19 @@ grow_horizontal = 0
 [node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/InfoContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 0
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 0
+theme_override_constants/margin_bottom = 5
 
-[node name="NameAmountContainer" type="HBoxContainer" parent="VBoxContainer/InfoContainer/MarginContainer"]
-layout_mode = 2
-
-[node name="Name" type="Label" parent="VBoxContainer/InfoContainer/MarginContainer/NameAmountContainer"]
+[node name="Name" type="Label" parent="VBoxContainer/InfoContainer/MarginContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_fonts/font = ExtResource("5_et8m4")
+theme_override_fonts/font = ExtResource("4_i30fe")
 theme_override_font_sizes/font_size = 16
-text = "Building"
-
-[node name="Amount" type="Label" parent="VBoxContainer/InfoContainer/MarginContainer/NameAmountContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 1
-theme_override_fonts/font = ExtResource("6_5imjn")
-text = "999"
-label_settings = SubResource("LabelSettings_o77na")
+text = "Research
+"
 
 [node name="ActionsContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -116,7 +102,7 @@ layout_mode = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
-theme_override_fonts/font = ExtResource("6_5imjn")
+theme_override_fonts/font = ExtResource("5_0umpw")
 text = ">"
 
 [node name="Label" type="Label" parent="VBoxContainer/ActionsContainer/CostButtonContainer/MarginContainer/HBoxContainer"]
@@ -134,10 +120,10 @@ layout_mode = 2
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="BuildButton" type="Button" parent="VBoxContainer/ActionsContainer/MarginContainer"]
+[node name="ResearchButton" type="Button" parent="VBoxContainer/ActionsContainer/MarginContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Build"
+text = "Unlock"
 
 [node name="ResourceCostContainer" type="PanelContainer" parent="VBoxContainer"]
 unique_name_in_owner = true
@@ -153,10 +139,10 @@ theme_override_constants/margin_top = 4
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="BuildingResourceCost" parent="VBoxContainer/ResourceCostContainer/MarginContainer/ResourceCostListContainer" instance=ExtResource("6_0mvpf")]
+[node name="ResearchResourceCost" parent="VBoxContainer/ResourceCostContainer/MarginContainer/ResourceCostListContainer" instance=ExtResource("6_ricup")]
 layout_mode = 2
 
 [connection signal="mouse_entered" from="VBoxContainer/InfoContainer/MarginContainer2/Info" to="VBoxContainer/InfoContainer/MarginContainer2/Info/TooltipShower" method="_on_show_tooltip"]
 [connection signal="mouse_exited" from="VBoxContainer/InfoContainer/MarginContainer2/Info" to="VBoxContainer/InfoContainer/MarginContainer2/Info/TooltipShower" method="_on_hide_tooltip"]
 [connection signal="pressed" from="VBoxContainer/ActionsContainer/CostButtonContainer/MarginContainer/HBoxContainer/OpenCostButton" to="." method="_on_open_cost_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/ActionsContainer/MarginContainer/BuildButton" to="." method="_on_build_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/ActionsContainer/MarginContainer/ResearchButton" to="." method="_on_research_button_pressed"]

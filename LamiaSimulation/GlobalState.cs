@@ -15,6 +15,8 @@ namespace LamiaSimulation
         public List<string> messageHistory { get; set; }
         public List<string> unreadMessages { get; set; }
         public List<string> currentlyDisplayedMessages { get; set; }
+        public List<string> availableResearch { get; set; }
+        public List<string> researchUnlocked { get; set; }
         
         public GlobalState()
         {
@@ -24,12 +26,25 @@ namespace LamiaSimulation
             unreadMessages = new List<string>();
             currentlyDisplayedMessages = new List<string>();
             availablePages = new List<string>();
+            availableResearch = new List<string>();
+            researchUnlocked = new List<string>();
+        }
+
+        ~GlobalState()
+        {
+            Simulation.Instance.events.UnlockedPageEvent -= OnUnlockedPageHandler;
+        }
+
+        public void Init()
+        {
+            Simulation.Instance.events.UnlockedPageEvent += OnUnlockedPageHandler;
         }
 
         public void LodadedFromSave()
         {
             unreadMessages = new List<string>(currentlyDisplayedMessages);
             currentlyDisplayedMessages.Clear();
+            Init();
         }
 
         // ---------------------------------------------------
@@ -91,6 +106,10 @@ namespace LamiaSimulation
                         throw new ClientActionException(Text._("Settlement already exists at location"));
                     var newSettlement = new Settlement(Text._("Unnamed"), param1.Get.ToString());
                     playerSettlements.Add(newSettlement);
+                    break;
+                // Unlocks a research
+                case ClientAction.UnlockResearch:
+                    UnlockResearch(param1.Get as string);
                     break;
             }
 
@@ -177,6 +196,14 @@ namespace LamiaSimulation
                 case ClientQuery.Settlements:
                     result = new QueryResult<string[]>(playerSettlements.Map(s => s.ID).ToArray()) as QueryResult<T>;
                     break;
+                // Research available
+                case ClientQuery.ResearchAvailable:
+                    result = new QueryResult<string[]>(availableResearch.ToArray()) as QueryResult<T>;
+                    break;
+                // Research unlocked
+                case ClientQuery.ResearchUnlocked:
+                    result = new QueryResult<string[]>(researchUnlocked.ToArray()) as QueryResult<T>;
+                    break;
             }
 
             foreach(var location in locations)
@@ -209,6 +236,22 @@ namespace LamiaSimulation
                 case ClientQuery.ResourceDescription:
                     result = new QueryResult<string>(Text._(Helpers.GetResourceTypeById(param1.Get as string).description)) as QueryResult<T>;
                     break;
+                // Research name
+                case ClientQuery.ResearchDisplayName:
+                    result = new QueryResult<string>(Text._(Helpers.GetDataTypeById<ResearchType>(param1.Get as string).name)) as QueryResult<T>;
+                    break;
+                // Research description
+                case ClientQuery.ResearchDescription:
+                    result = new QueryResult<string>(Text._(Helpers.GetDataTypeById<ResearchType>(param1.Get as string).description)) as QueryResult<T>;
+                    break;
+                // Research can afford
+                case ClientQuery.ResearchCanAfford:
+                    result = new QueryResult<bool>(CanAffordResearch(param1.Get as string)) as QueryResult<T>;
+                    break;
+                // Research resource cost resource types
+                case ClientQuery.ResearchResourceList:
+                    result = new QueryResult<string[]>(Helpers.GetDataTypeById<ResearchType>(param1.Get as string).cost.Keys.ToArray()) as QueryResult<T>;
+                    break;
             }
 
             foreach(var location in locations)
@@ -220,6 +263,13 @@ namespace LamiaSimulation
         public void Query<T, T1, T2>(ref QueryResult<T> result, ClientQuery query,
             ClientParameter<T1> param1, ClientParameter<T2> param2)
         {
+            switch (query)
+            {
+                // Research single resource type cost 
+                case ClientQuery.ResearchSingleResourceCost:
+                    result = new QueryResult<float>(Helpers.GetDataTypeById<ResearchType>(param1.Get as string).cost[param2.Get as string]) as QueryResult<T>;
+                    break;
+            }
             foreach(var location in locations)
                 location.Query(ref result, query, param1, param2);
             foreach(var settlement in playerSettlements)
@@ -254,6 +304,109 @@ namespace LamiaSimulation
             unreadMessages.Add(message);
         }
 
+        private void DetermineAvailableResearch()
+        {
+            availableResearch.Clear();
+            var allResearch = DataQuery<ResearchType>.GetAll();
+            foreach (var research in allResearch)
+            {
+                if (researchUnlocked.Contains(research.Key))
+                    continue;
+                if (HavePrerequisitesForResearch(research.Key))
+                    availableResearch.Add(research.Key);
+            }
+        }
+        
+        private bool HavePrerequisitesForResearch(string researchId)
+        {
+            var research = Helpers.GetDataTypeById<ResearchType>(researchId);
+            if (research.prerequisites == null || research.prerequisites.Count == 0)
+                return true;
+            foreach (var prerequisite in research.prerequisites)
+                if (!researchUnlocked.Contains(prerequisite))
+                    return false;
+            return true;
+        }
+
+        private bool CanAffordResearch(string researchId)
+        {
+            var research = Helpers.GetDataTypeById<ResearchType>(researchId);
+            foreach (var resourceCost in research.cost)
+            {
+                var accumulatedResource = 0f;
+                foreach (var settlement in playerSettlements)
+                {
+                    accumulatedResource += Simulation.Instance.Query<float, string, string>(
+                        ClientQuery.SettlementInventoryResourceAmount, settlement.ID, resourceCost.Key
+                    );
+                }
+                if (accumulatedResource < resourceCost.Value)
+                    return false;
+            }
+            return true;
+        }
+
+        private void UnlockResearch(string researchId)
+        {
+            if (researchUnlocked.Contains(researchId))
+                return;
+            if (!availableResearch.Contains(researchId))
+                return;
+            if (!HavePrerequisitesForResearch(researchId))
+                return;
+            if (!CanAffordResearch(researchId))
+                return;
+            var research = Helpers.GetDataTypeById<ResearchType>(researchId);
+            foreach (var resourceCost in research.cost)
+            {
+                var resourceLeftToPay = resourceCost.Value;
+                foreach (var settlement in playerSettlements)
+                {
+                    if (resourceLeftToPay <= 0f)
+                        continue;
+                    var amountAtSettlement = Simulation.Instance.Query<float, string, string>(
+                        ClientQuery.SettlementInventoryResourceAmount, settlement.ID, resourceCost.Key
+                    );
+                    if (amountAtSettlement <= 0f)
+                        continue;
+                    var amountToDeduct = (
+                        amountAtSettlement < resourceLeftToPay ? amountAtSettlement : resourceLeftToPay
+                    );
+                    resourceLeftToPay -= amountToDeduct;
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SubtractResourceFromSettlementInventory,
+                        new ClientParameter<string>(settlement.ID),
+                        new ClientParameter<string>(resourceCost.Key),
+                        new ClientParameter<float>(amountToDeduct)
+                    );
+                }
+            }
+            availableResearch.Remove(researchId);
+            researchUnlocked.Add(researchId);
+            DoResearchEffect(researchId);
+            DetermineAvailableResearch();
+        }
+
+        private void DoResearchEffect(string researchId)
+        {
+            var research = Helpers.GetDataTypeById<ResearchType>(researchId);
+            switch (research.behaviour)
+            {
+                case ResearchBehaviour.UNLOCK_BUILDING:
+                    foreach (var settlement in playerSettlements)
+                    {
+                        Simulation.Instance.PerformAction(
+                            ClientAction.SettlementUnlockBuilding,
+                            new ClientParameter<string>(settlement.ID),
+                            new ClientParameter<string>(research.unlockId)
+                        );
+                    }
+                    break;
+                default:
+                    throw new ClientActionException(Text._("Research behaviour not implemented"));
+            }
+        }
+
         // ---------------------------------------------------
         // Query behaviours
         // ---------------------------------------------------
@@ -278,6 +431,16 @@ namespace LamiaSimulation
                     return T._("Research");
             }
             throw new NotImplementedException("No specified page name");
+        }
+        
+        // ---------------------------------------------------
+        // Event handlers
+        // ---------------------------------------------------
+
+        public void OnUnlockedPageHandler(object sender, UnlockedPageEventArgs e)
+        {
+            if(e.PageId == Consts.Pages.Research)
+                DetermineAvailableResearch();
         }
     }
 }

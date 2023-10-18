@@ -39,6 +39,45 @@ public partial class Query: Node
     }
 
     // ----------------------
+    // RESEARCH
+    // ----------------------
+
+    public string[] ResearchAvailable()
+    {
+        return Simulation.Instance.Query<string[]>(ClientQuery.ResearchAvailable);
+    }
+
+    public string[] ResearchUnlocked()
+    {
+        return Simulation.Instance.Query<string[]>(ClientQuery.ResearchUnlocked);
+    }
+    
+    public string ResearchDisplayName(string researchId)
+    {
+        return Simulation.Instance.Query<string, string>(ClientQuery.ResearchDisplayName, researchId);
+    }
+
+    public string ResearchDescription(string researchId)
+    {
+        return Simulation.Instance.Query<string, string>(ClientQuery.ResearchDescription, researchId);
+    }
+
+    public bool ResearchCanAfford(string researchId)
+    {
+        return Simulation.Instance.Query<bool, string>(ClientQuery.ResearchCanAfford, researchId);
+    }
+
+    public string[] ResearchResourceList(string researchId)
+    {
+        return Simulation.Instance.Query<string[], string>(ClientQuery.ResearchResourceList, researchId);
+    }
+
+    public float ResearchSingleResourceCost(string researchId, string resourceId)
+    {
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.ResearchSingleResourceCost, researchId, resourceId);
+    }
+    
+    // ----------------------
     // RESOURCES
     // ----------------------
     

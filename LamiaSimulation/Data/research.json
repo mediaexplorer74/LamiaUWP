@@ -1,0 +1,12 @@
+﻿{
+  "stockpile": {
+    "name": "Stockpile",
+    "description": "Basically just a cleared out space for dumping stuff. Took a lot of pondering this one.",
+    "behaviour": "UNLOCK_BUILDING",
+    "unlockId": "stockpile",
+    "cost": {
+      "research": 20
+    },
+    "prerequisites": null
+  }
+}
