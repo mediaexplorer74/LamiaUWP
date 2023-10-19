@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace LamiaSimulation
 {
-    public enum BuildingBehaviour
+    public class BuildingBehaviour
     {
-        POPULATION_CAPACITY,
-        STORAGE_CAPACITY,
+        public int populationCapacity;
+        public Dictionary<string, float> storageCapacity;
     }
     
     public class BuildingType: DataType
@@ -15,26 +15,27 @@ namespace LamiaSimulation
         public string description;
         public string category;
         public BuildingBehaviour behaviour;
-        public float behaviourValue;
         public Dictionary<string, float> cost;
         public float costGrowth;
         
         public string[] GetDescriptionDisplay()
         {
-            var behaviourText = "";
+            var behaviourText = new List<string>{ T._(description), ""};
             var behaviourTextFormat = "";
-            switch(behaviour)
+            if(behaviour.populationCapacity > 0)
+                behaviourText.Add(T._($"Increase population capacity by {behaviour.populationCapacity}"));
+            if (behaviour.storageCapacity?.Count > 0)
             {
-                case BuildingBehaviour.POPULATION_CAPACITY:
-                    behaviourTextFormat = T._("Increase population capacity by {0}");
-                    behaviourText = String.Format(behaviourTextFormat, (int)behaviourValue);
-                    break;
-                case BuildingBehaviour.STORAGE_CAPACITY:
-                    behaviourTextFormat = T._("Increase storage capacity by {0}");
-                    behaviourText = String.Format(behaviourTextFormat, (int)behaviourValue);
-                    break;
+                behaviourText.Add(T._($"Increase storage capacity:"));
+                foreach (var singleBehaviour in behaviour.storageCapacity)
+                {
+                    var resource = Helpers.GetDataTypeById<ResourceType>(singleBehaviour.Key);
+                    behaviourText.Add(
+                        T._($"{resource.name}: +{singleBehaviour.Value}")
+                    );
+                }
             }
-            return new[] {T._(description), "", behaviourText};
+            return behaviourText.ToArray();
         }
         
     }

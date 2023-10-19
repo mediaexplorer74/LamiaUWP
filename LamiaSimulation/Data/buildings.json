@@ -3,8 +3,9 @@
     "name": "Log Hut",
     "description": "Really basic housing, keeps the rain off at least.",
     "category": "housing",
-    "behaviour": "POPULATION_CAPACITY",
-    "behaviourValue": 1.0,
+    "behaviour": {
+      "populationCapacity": 1
+    },
     "cost": {
       "logs": 4
     },
@@ -14,8 +15,12 @@
     "name": "Stockpile",
     "description": "Just kind of, chuck it all in a heap, I'm sure it will be fine.",
     "category": "storage",
-    "behaviour": "STORAGE_CAPACITY",
-    "behaviourValue": 20.0,
+    "behaviour":  {
+      "storageCapacity": {
+        "raw_food": 20.0,
+        "logs": 5.0
+      }
+    },
     "cost": {
       "raw_food": 6,
       "logs": 5

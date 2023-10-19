@@ -16,7 +16,7 @@ namespace LamiaSimulation
         public Dictionary<string, float> inventoryMemory { get; set; }
         public Dictionary<string, float> inventoryDelta { get; set; }
         public float inventoryMemoryTime { get; set; }
-        public float resourceCapacity { get; set; }
+        public Dictionary<string, float> resourceCapacity { get; set; }
         public float spawnTimer { get; set; }
         public bool spawnEnabled { get; set; }
         public string locationUuid { get; set; }
@@ -39,7 +39,7 @@ namespace LamiaSimulation
             inventoryMemory = new Dictionary<string, float>();
             inventoryDelta = new Dictionary<string, float>();
             inventoryMemoryTime = 1.0f;
-            resourceCapacity = Consts.InitialSettlementResourceCapacity;
+            resourceCapacity = new Dictionary<string, float>(Consts.InitialSettlementResourceCapacity);
             populationMembers = new List<PopulationMember>();
             availableTasks = new List<string>();
             populationToRemove = new List<PopulationMember>();
@@ -487,24 +487,28 @@ namespace LamiaSimulation
             foreach (var building in buildings)
             {
                 var buildingType = Helpers.GetDataTypeById<BuildingType>(building.Key);
-                if (buildingType.behaviour != BuildingBehaviour.POPULATION_CAPACITY)
+                if (buildingType.behaviour.populationCapacity == 0)
                     continue;
-                popLimit += (int)buildingType.behaviourValue * building.Value;
+                popLimit += buildingType.behaviour.populationCapacity * building.Value;
             }
             maxPopulationMember = popLimit;
         }
 
         private void RecalculateResourceLimits()
         {
-            var resourceLimit = Consts.InitialSettlementResourceCapacity;
-            foreach (var building in buildings)
+            foreach (var resource in inventory)
             {
-                var buildingType = Helpers.GetDataTypeById<BuildingType>(building.Key);
-                if (buildingType.behaviour != BuildingBehaviour.STORAGE_CAPACITY)
-                    continue;
-                resourceLimit += (float)buildingType.behaviourValue * building.Value;
+                resourceCapacity[resource.Key] = 0f;
+                if(Consts.InitialSettlementResourceCapacity.ContainsKey(resource.Key))
+                    resourceCapacity[resource.Key] = Consts.InitialSettlementResourceCapacity[resource.Key];
+                foreach (var building in buildings)
+                {
+                    var buildingType = Helpers.GetDataTypeById<BuildingType>(building.Key);
+                    if (buildingType.behaviour.storageCapacity == null || buildingType.behaviour.storageCapacity.Count < 0 || !buildingType.behaviour.storageCapacity.ContainsKey(resource.Key))
+                        continue;
+                    resourceCapacity[resource.Key] += buildingType.behaviour.storageCapacity[resource.Key] * building.Value;
+                }
             }
-            resourceCapacity = resourceLimit;
         }
 
         // ---------------------------------------------------
@@ -605,7 +609,7 @@ namespace LamiaSimulation
 
         private float GetInventoryResourceCapacity(string resourceId)
         {
-            return resourceCapacity;
+            return resourceCapacity.ContainsKey(resourceId) ? resourceCapacity[resourceId] : 0f;
         }
         
         private float GetInventoryResourceDelta(string resourceId)

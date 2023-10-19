@@ -17,7 +17,12 @@ namespace LamiaSimulation
         public static int InitialSettlementPopulationCapacity = 2;
 
         // How much of each resource a settlement can hold by default
-        public static float InitialSettlementResourceCapacity = 20f;
+        public static Dictionary<string, float> InitialSettlementResourceCapacity = new()
+        {
+            {"raw_food", 30f},
+            {"logs", 10f},
+            {"research", 20f}
+        };
 
         // How long it takes for a population to deposit their inventory
         public static float depositInventoryTime = 1.0f;
@@ -32,7 +37,7 @@ namespace LamiaSimulation
         public static float populationStarvationDeathTime = 20f;
 
         // How long it takes for a population to spawn if there's room
-        public static float populationSpawnTime = 20f;
+        public static float populationSpawnTime = 10f;
         
         // How many population need to spawn before research is unlocked
         public static int UnlockResearchAtPopulationCount = 4;
