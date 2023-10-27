@@ -9,5 +9,10 @@ namespace LamiaSimulation
         public string category;
         public float weight;
         public float hungerRecoveryFactor;
+
+        public ResourceCategory GetCategory()
+        {
+            return Helpers.GetDataTypeById<ResourceCategory>(category);
+        }
     }
 }

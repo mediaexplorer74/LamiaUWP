@@ -80,6 +80,16 @@ public partial class Query: Node
     // ----------------------
     // RESOURCES
     // ----------------------
+
+    public string ResourceCategoryName(string resourceCategoryId)
+    {
+        return Simulation.Instance.Query<string, string>(ClientQuery.ResourceCategoryName, resourceCategoryId);
+    }
+    
+    public string ResourceCategoryDescription(string resourceCategoryId)
+    {
+        return Simulation.Instance.Query<string, string>(ClientQuery.ResourceCategoryDescription, resourceCategoryId);
+    }
     
     public string ResourceName(string resourceId)
     {
@@ -154,9 +164,14 @@ public partial class Query: Node
         return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementPopulationSpeciesMembers, uuid, speciesId);
     }
 
-    public string[] SettlementInventory(string uuid)
+    public string[] SettlementInventoryCategories(string uuid)
     {
-        return Simulation.Instance.Query<string[], string>(ClientQuery.SettlementInventory, uuid);
+        return Simulation.Instance.Query<string[], string>(ClientQuery.SettlementInventoryCategories, uuid);
+    }
+    
+    public string[] SettlementInventoryResources(string uuid, string categoryId)
+    {
+        return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementInventoryResources, uuid, categoryId);
     }
 
     public float SettlementInventoryResourceAmount(string uuid, string resourceId)

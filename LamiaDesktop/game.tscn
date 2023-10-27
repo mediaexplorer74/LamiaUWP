@@ -8,8 +8,8 @@
 [ext_resource type="Script" path="res://scripts/UI/Global/Messages.gd" id="4_5vxlb"]
 [ext_resource type="StyleBox" uid="uid://xxd4m0jineq1" path="res://styles/panel1.tres" id="4_l5owv"]
 [ext_resource type="PackedScene" uid="uid://goa3xwhj1xkd" path="res://scenes/UI/Global/page_button.tscn" id="5_3j2ef"]
-[ext_resource type="Script" path="res://scripts/UI/Global/ResourcesList.gd" id="6_yb6nm"]
-[ext_resource type="PackedScene" uid="uid://dmctleo7i03mh" path="res://scenes/UI/Global/resource.tscn" id="7_6chm1"]
+[ext_resource type="PackedScene" uid="uid://cvgplnlsw8a5i" path="res://scenes/UI/Global/resource_category.tscn" id="7_80wkm"]
+[ext_resource type="Script" path="res://scripts/UI/Global/ResourceCategoryList.gd" id="7_ifjgw"]
 [ext_resource type="Script" path="res://scripts/UI/Global/ScrollToBottomContainer.gd" id="10_rtdk6"]
 [ext_resource type="Script" path="res://scripts/UI/Global/MenuModal.gd" id="11_sjde1"]
 [ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="12_70fio"]
@@ -127,17 +127,17 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/margin_bottom = 5
 
-[node name="ResourcesList" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer"]
+[node name="ResourceCategoryList" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 10
-theme_override_constants/separation = 6
-script = ExtResource("6_yb6nm")
+size_flags_vertical = 8
+theme_override_constants/separation = 12
+script = ExtResource("7_ifjgw")
+theme_override_constants/separation = 12
 
-[node name="Resource" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourcesList" instance=ExtResource("7_6chm1")]
+[node name="ResourceCategory" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourceCategoryList" instance=ExtResource("7_80wkm")]
 layout_mode = 2
 
-[node name="Resource2" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourcesList" instance=ExtResource("7_6chm1")]
+[node name="ResourceCategory2" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourceCategoryList" instance=ExtResource("7_80wkm")]
 layout_mode = 2
 
 [node name="PageContainer" type="ScrollContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper"]

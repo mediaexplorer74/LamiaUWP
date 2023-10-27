@@ -38,7 +38,7 @@ namespace Tests
                 new ClientParameter<string>("forage")
             );
             Assert.AreEqual(
-                new []{"raw_food"},
+                new []{"raw_food", "logs"},
                 simulation.Query<string[], string>(ClientQuery.LocationResources, locationUuid)
             );
             var defaultFoodAtLocation = Helpers.GetDataTypeById<LocationType>("origin").resources["raw_food"];
@@ -46,9 +46,14 @@ namespace Tests
                 defaultFoodAtLocation,
                 simulation.Query<float, string, string>(ClientQuery.LocationResourceAmount, locationUuid, "raw_food")
             );
+            var defaultLogsAtLocation = Helpers.GetDataTypeById<LocationType>("origin").resources["logs"];
+            Assert.AreEqual(
+                defaultLogsAtLocation,
+                simulation.Query<float, string, string>(ClientQuery.LocationResourceAmount, locationUuid, "logs")
+            );
             Assert.AreEqual(
                 0,
-                simulation.Query<string[], string>(ClientQuery.SettlementInventory, settlementUuid).Length
+                simulation.Query<string[], string>(ClientQuery.SettlementInventoryCategories, settlementUuid).Length
             );
             Assert.AreEqual(
                 0.0f,
@@ -57,8 +62,12 @@ namespace Tests
             for (var i = 0; i <= 12; i++)
                 simulation.Simulate(.5f);
             Assert.AreEqual(
+                new []{"food"},
+                simulation.Query<string[], string>(ClientQuery.SettlementInventoryCategories, settlementUuid)                
+            );
+            Assert.AreEqual(
                 new []{"raw_food"},
-                simulation.Query<string[], string>(ClientQuery.SettlementInventory, settlementUuid)                
+                simulation.Query<string[], string, string>(ClientQuery.SettlementInventoryResources, settlementUuid, "food")                
             );
             var amountToExtract = Helpers.GetDataTypeById<TaskType>("forage").amount;
             Assert.AreEqual(

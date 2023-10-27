@@ -32,6 +32,7 @@ namespace LamiaSimulation
             DataType.LoadDataFromJson<LocationType>(Path.Combine(dataDir, Consts.FilenameLocationTypes));
             DataType.LoadDataFromJson<BuildingType>(Path.Combine(dataDir, Consts.FilenameBuildingTypes));
             DataType.LoadDataFromJson<ResearchType>(Path.Combine(dataDir, Consts.FilenameResearchTypes));
+            DataType.LoadDataFromJson<ResourceCategory>(Path.Combine(dataDir, Consts.FilenameResourceCategories));
             globalState = new GlobalState();
             saveTimer = Consts.SaveGameTimeInterval;
         }

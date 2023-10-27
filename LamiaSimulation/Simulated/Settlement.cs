@@ -226,9 +226,9 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementTasks:
                     result = new QueryResult<string[]>(GetAvailableTasks()) as QueryResult<T>;
                     break;
-                // Inventory resource list
-                case ClientQuery.SettlementInventory:
-                    result = new QueryResult<string[]>(GetInventoryList()) as QueryResult<T>;
+                // Inventory resource categories
+                case ClientQuery.SettlementInventoryCategories:
+                    result = new QueryResult<string[]>(GetInventoryCategoryList()) as QueryResult<T>;
                     break;
                 // Next available food portion 
                 case ClientQuery.SettlementAvailableFoodPortion:
@@ -291,6 +291,10 @@ namespace LamiaSimulation
                         result = new QueryResult<string>(pop.populationSpeciesTypeName) as QueryResult<T>;
                     else if(query == ClientQuery.PopulationMemberTask)
                         result = new QueryResult<string>(pop.taskAssigment) as QueryResult<T>;
+                    break;
+                // Inventory resource list by category
+                case ClientQuery.SettlementInventoryResources:
+                    result = new QueryResult<string[]>(GetInventoryListByCategory(param2.Get as string)) as QueryResult<T>;
                     break;
                 // Inventory resource amount
                 case ClientQuery.SettlementInventoryResourceAmount:
@@ -597,11 +601,39 @@ namespace LamiaSimulation
             return filtered.First();
         }
 
+        private string[] GetInventoryCategoryList()
+        {
+            var availableCategories = new List<string>();
+            foreach (var category in DataQuery<ResourceCategory>.GetAll())
+            {
+                foreach (var resource in inventory)
+                {
+                    if (Helpers.GetDataTypeById<ResourceType>(resource.Key).category != category.Key)
+                        continue;
+                    availableCategories.Add(category.Key);
+                    break;
+                }
+            }
+            return availableCategories.ToArray();
+        }
+        
         private string[] GetInventoryList()
         {
             return inventory.Keys.ToArray();
         }
 
+        private string[] GetInventoryListByCategory(string categoryId)
+        {
+            var inventoryList = new List<string>();
+            foreach (var resource in inventory)
+            {
+                if (Helpers.GetDataTypeById<ResourceType>(resource.Key).category != categoryId)
+                    continue;
+                inventoryList.Add(resource.Key);
+            }
+            return inventoryList.ToArray();
+        }
+        
         private float GetInventoryResourceAmount(string resourceId)
         {
             return !inventory.ContainsKey(resourceId) ? 0f : inventory[resourceId];

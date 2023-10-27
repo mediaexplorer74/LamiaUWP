@@ -1,0 +1,61 @@
+[gd_scene load_steps=6 format=3 uid="uid://cvgplnlsw8a5i"]
+
+[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="1_4fyt0"]
+[ext_resource type="PackedScene" uid="uid://bt82ve604ccni" path="res://scenes/UI/Global/tooltip_shower.tscn" id="2_1cqqe"]
+[ext_resource type="Script" path="res://scripts/UI/Global/ResourcesList.gd" id="2_64r1s"]
+[ext_resource type="PackedScene" uid="uid://dmctleo7i03mh" path="res://scenes/UI/Global/resource.tscn" id="3_d7imu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x7xrq"]
+bg_color = Color(0, 0, 0, 0.184314)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.0588235, 0.0588235, 0.0588235, 1)
+border_blend = true
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="ResourceCategory" type="VBoxContainer"]
+size_flags_vertical = 8
+theme_override_constants/separation = -1
+script = ExtResource("2_64r1s")
+
+[node name="TooltipShower" parent="." instance=ExtResource("2_1cqqe")]
+layout_mode = 2
+
+[node name="CategoryNameContainer" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/margin_bottom = 4
+
+[node name="PanelContainer" type="PanelContainer" parent="CategoryNameContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_x7xrq")
+
+[node name="ResourceCategoryName" type="Label" parent="CategoryNameContainer/PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_4fyt0")
+theme_override_font_sizes/font_size = 14
+text = " Category Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResourcesList" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 10
+theme_override_constants/separation = 6
+
+[node name="Resource" parent="ResourcesList" instance=ExtResource("3_d7imu")]
+layout_mode = 2
+
+[node name="Resource2" parent="ResourcesList" instance=ExtResource("3_d7imu")]
+layout_mode = 2
+
+[connection signal="mouse_entered" from="CategoryNameContainer/PanelContainer" to="TooltipShower" method="_on_show_tooltip"]
+[connection signal="mouse_exited" from="CategoryNameContainer/PanelContainer" to="TooltipShower" method="_on_hide_tooltip"]

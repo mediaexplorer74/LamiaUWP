@@ -228,6 +228,14 @@ namespace LamiaSimulation
                 case ClientQuery.SpeciesDescription:
                     result = new QueryResult<string[]>(Text._(Helpers.GetSpeciesTypeById(param1.Get as string).description)) as QueryResult<T>;
                     break;
+                // Resource category name
+                case ClientQuery.ResourceCategoryName:
+                    result = new QueryResult<string>(Text._(Helpers.GetDataTypeById<ResourceCategory>(param1.Get as string).name)) as QueryResult<T>;
+                    break;
+                // Resource description
+                case ClientQuery.ResourceCategoryDescription:
+                    result = new QueryResult<string>(Text._(Helpers.GetDataTypeById<ResourceCategory>(param1.Get as string).description)) as QueryResult<T>;
+                    break;
                 // Resource name
                 case ClientQuery.ResourceName:
                     result = new QueryResult<string>(Text._(Helpers.GetResourceTypeById(param1.Get as string).name)) as QueryResult<T>;

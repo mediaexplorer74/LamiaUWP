@@ -90,6 +90,22 @@ namespace LamiaSimulation
         // --------------------------------------------------------------------
 
         /*
+         * Display name for a resource category
+         *   Result - string: Name of a resource category
+         *   Params:
+         *     - string: Resource category id to query
+         */
+        ResourceCategoryName,
+        
+        /*
+         * Description of a resource category
+         *   Result - string: Description of a resource category
+         *   Params:
+         *     - string: Resource category id to query
+         */
+        ResourceCategoryDescription,
+        
+        /*
          * Display name for a resource
          *   Result - string: Name of a resource
          *   Params:
@@ -198,14 +214,23 @@ namespace LamiaSimulation
          *     - string: ID of species to query
          */
         SettlementPopulationSpeciesMembers,
-        
+
         /*
-         * All resources that are being stored in a settlement's inventory
-         *   Result - string[]: Resource IDs being stored
+         * Categories of resources in a settlement's inventory
+         *   Result - string[]: Resource category IDs available
          *   Params:
          *     - string: uuid of settlement to query
          */
-        SettlementInventory,
+        SettlementInventoryCategories,
+        
+        /*
+         * All resources that are being stored in a resource category of a settlement's inventory
+         *   Result - string[]: Resource IDs being stored for the specified category
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: resource category id to query
+         */
+        SettlementInventoryResources,
 
         /*
          * Amount of a particular resource that is being stored in a settlement
