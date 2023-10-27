@@ -1,8 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://fqnw4ngdultq"]
+[gd_scene load_steps=8 format=3 uid="uid://fqnw4ngdultq"]
 
 [ext_resource type="Script" path="res://scripts/UI/Pages/Research/ResearchList.gd" id="1_b47et"]
 [ext_resource type="PackedScene" uid="uid://bmx74vtxy7mw8" path="res://scenes/UI/Pages/Research/research.tscn" id="2_dw2vi"]
 [ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="2_puf6d"]
+[ext_resource type="Script" path="res://scripts/UI/Pages/Research/CompletedResearchList.gd" id="4_7a1bv"]
+[ext_resource type="PackedScene" uid="uid://5q3a03g3wb3w" path="res://scenes/UI/Pages/Research/completed_research.tscn" id="4_y5deu"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgllo"]
 
@@ -34,23 +36,48 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="ResearchList" type="VBoxContainer" parent="MarginContainer2"]
+[node name="ResearchAndCompletedContainer" type="HBoxContainer" parent="MarginContainer2"]
+layout_mode = 2
+
+[node name="ResearchList" type="VBoxContainer" parent="MarginContainer2/ResearchAndCompletedContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
 script = ExtResource("1_b47et")
 
-[node name="ResearchHeader" type="Label" parent="MarginContainer2/ResearchList"]
+[node name="ResearchHeader" type="Label" parent="MarginContainer2/ResearchAndCompletedContainer/ResearchList"]
 layout_mode = 2
 text = "Research
 "
 label_settings = SubResource("LabelSettings_lettk")
 
-[node name="-" type="HSeparator" parent="MarginContainer2/ResearchList"]
+[node name="-" type="HSeparator" parent="MarginContainer2/ResearchAndCompletedContainer/ResearchList"]
 layout_mode = 2
 
-[node name="AvailableResearchListContainer" type="VBoxContainer" parent="MarginContainer2/ResearchList"]
+[node name="AvailableResearchListContainer" type="VBoxContainer" parent="MarginContainer2/ResearchAndCompletedContainer/ResearchList"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Research" parent="MarginContainer2/ResearchList/AvailableResearchListContainer" instance=ExtResource("2_dw2vi")]
+[node name="Research" parent="MarginContainer2/ResearchAndCompletedContainer/ResearchList/AvailableResearchListContainer" instance=ExtResource("2_dw2vi")]
+layout_mode = 2
+
+[node name="CompletedResearchList" type="VBoxContainer" parent="MarginContainer2/ResearchAndCompletedContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("4_7a1bv")
+
+[node name="CompletedResearchHeader" type="Label" parent="MarginContainer2/ResearchAndCompletedContainer/CompletedResearchList"]
+layout_mode = 2
+text = "Completed 
+"
+label_settings = SubResource("LabelSettings_lettk")
+
+[node name="-" type="HSeparator" parent="MarginContainer2/ResearchAndCompletedContainer/CompletedResearchList"]
+layout_mode = 2
+
+[node name="CompletedResearchListContainer" type="VBoxContainer" parent="MarginContainer2/ResearchAndCompletedContainer/CompletedResearchList"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CompletedResearch" parent="MarginContainer2/ResearchAndCompletedContainer/CompletedResearchList/CompletedResearchListContainer" instance=ExtResource("4_y5deu")]
 layout_mode = 2
