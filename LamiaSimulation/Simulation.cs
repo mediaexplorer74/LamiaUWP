@@ -33,6 +33,7 @@ namespace LamiaSimulation
             DataType.LoadDataFromJson<BuildingType>(Path.Combine(dataDir, Consts.FilenameBuildingTypes));
             DataType.LoadDataFromJson<ResearchType>(Path.Combine(dataDir, Consts.FilenameResearchTypes));
             DataType.LoadDataFromJson<ResourceCategory>(Path.Combine(dataDir, Consts.FilenameResourceCategories));
+            DataType.LoadDataFromJson<UpgradeType>(Path.Combine(dataDir, Consts.FilenameUpgrades));
             globalState = new GlobalState();
             saveTimer = Consts.SaveGameTimeInterval;
         }
@@ -92,7 +93,7 @@ namespace LamiaSimulation
                 return;
             var jsonString = File.ReadAllText(Consts.FilenameSaveFile);
             globalState = JsonSerializer.Deserialize<GlobalState>(jsonString)!;
-            globalState.LodadedFromSave();
+            LoadedFromSave();
             started = true;
         }
 
@@ -182,6 +183,11 @@ namespace LamiaSimulation
             }
             // Simulate 
             globalState.Simulate(deltaTime);
+        }
+
+        public void LoadedFromSave()
+        {
+            globalState.LoadedFromSave();
         }
     }
     

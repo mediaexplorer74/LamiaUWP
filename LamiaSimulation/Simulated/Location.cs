@@ -89,6 +89,10 @@ namespace LamiaSimulation
         {
         }
 
+        public void LoadedFromSave()
+        {
+        }
+        
         public void Simulate(float deltaTime)
         {
         }

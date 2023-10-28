@@ -175,6 +175,10 @@ namespace LamiaSimulation
             }
         }
 
+        public void LoadedFromSave()
+        {
+        }
+        
         private void AssignToTask(string newTaskId)
         {
             if(taskAssigment == newTaskId)
@@ -232,7 +236,7 @@ namespace LamiaSimulation
                     var locationResource = Simulation.Instance.Query<float, string, string>(
                         ClientQuery.LocationResourceAmount, currentLocationUuid, task.extractResourceType
                     );
-                    var amountToExtract = Math.Min(locationResource, task.amount);
+                    var amountToExtract = Math.Min(locationResource, Settlement.GetExtractTaskAmount(settlementUuid, taskAssigment));
                     if (amountToExtract <= 0f)
                         break;
                     Simulation.Instance.PerformAction(
@@ -242,7 +246,7 @@ namespace LamiaSimulation
                         new ClientParameter<float>(amountToExtract)
                     );
                     inventory.TryAdd(task.extractResourceType, 0f);
-                    inventory[task.extractResourceType] += task.amount;
+                    inventory[task.extractResourceType] += amountToExtract;
                     hunger -= task.hungerReduction;
                     break;
                 case "eating":
@@ -292,12 +296,12 @@ namespace LamiaSimulation
                     break;
                 case "research":
                     currentAction = "research";
-                    timeToCompleteCurrentAction = Helpers.GetTaskTypeById(taskAssigment).timeToComplete;                    
+                    timeToCompleteCurrentAction = Settlement.GetTimeToCompleteTask(settlementUuid, taskAssigment);
                     break;
                 case "forage":
                 case "cut_trees":
                     currentAction = "extract";
-                    timeToCompleteCurrentAction =  Helpers.GetTaskTypeById(taskAssigment).timeToComplete;
+                    timeToCompleteCurrentAction = Settlement.GetTimeToCompleteTask(settlementUuid, taskAssigment);
                     break;
                 default:
                     throw new ClientActionException(T._("Current task not supported properly.")); 

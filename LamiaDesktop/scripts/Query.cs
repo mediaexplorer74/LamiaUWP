@@ -283,6 +283,47 @@ public partial class Query: Node
     {
         return Simulation.Instance.Query<float, string, string>(ClientQuery.PopulationMemberHunger, settlementUuid, populationUuid);
     }
+
+    
+    // ----------------------
+    // UPGRADES
+    // ----------------------
+
+    public string[] UpgradesAvailable(string settlementId)
+    {
+        return Simulation.Instance.Query<string[], string>(ClientQuery.UpgradesAvailable, settlementId);
+    }
+
+    public string[] UpgradesUnlocked(string settlementId)
+    {
+        return Simulation.Instance.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementId);
+    }
+    
+    public string UpgradeDisplayName(string settlementId, string upgradeId)
+    {
+        return Simulation.Instance.Query<string, string, string>(ClientQuery.UpgradeDisplayName, settlementId, upgradeId);
+    }
+
+    public string UpgradeDescription(string settlementId, string upgradeId)
+    {
+        return Simulation.Instance.Query<string, string, string>(ClientQuery.UpgradeDescription, settlementId, upgradeId);
+    }
+
+    public bool UpgradeCanAfford(string settlementId, string upgradeId)
+    {
+        return Simulation.Instance.Query<bool, string, string>(ClientQuery.UpgradeCanAfford, settlementId, upgradeId);
+    }
+
+    public string[] UpgradeResourceList(string settlementId, string upgradeId)
+    {
+        return Simulation.Instance.Query<string[], string, string>(ClientQuery.UpgradeResourceList, settlementId, upgradeId);
+    }
+
+    public float UpgradeSingleResourceCost(string settlementId, string researchId, string upgradeId)
+    {
+        return Simulation.Instance.Query<float, string, string, string>(ClientQuery.UpgradeSingleResourceCost, settlementId,researchId, upgradeId);
+    }
+
     
     // ----------------------
     // SPECIES

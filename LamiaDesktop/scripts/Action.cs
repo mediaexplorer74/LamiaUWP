@@ -130,4 +130,13 @@ public partial class Action: Node
         );
     }
 
+    public void UnlockUpgrade(string settlementUuid, string researchId)
+    {
+        Simulation.Instance.PerformAction(
+            ClientAction.UnlockUpgrade,
+            new ClientParameter<string>(settlementUuid),
+            new ClientParameter<string>(researchId)
+        );
+    }
+    
 }

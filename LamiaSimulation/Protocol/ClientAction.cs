@@ -87,10 +87,17 @@ namespace LamiaSimulation
         //   - string: uuid of settlement
         //   - string: id of building type
         SettlementPurchaseBuilding,
-        
+
         // Unlocks a research and applies it's effects
         // params:
         //   - string: id of research to unlock
         UnlockResearch,
+        
+        // Unlocks an upgrade and applies it's effects
+        // params:
+        //   - string: uuid of settlement
+        //   - string: id of upgrade to unlock
+        UnlockUpgrade,
+        
     }
 }

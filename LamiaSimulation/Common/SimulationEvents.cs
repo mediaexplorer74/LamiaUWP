@@ -3,7 +3,7 @@
 
 namespace LamiaSimulation
 {
-    public class BuildingPurchasedEventArgs : EventArgs
+    public class SettlementBuildingPurchasedEventArgs : EventArgs
     {
         public string SettlementUuid { get; set; }
         public string BuildingId { get; set; }
@@ -30,14 +30,14 @@ namespace LamiaSimulation
 
     public class SimulationEvents
     {
-        public event EventHandler<BuildingPurchasedEventArgs> BuildingPurchasedEvent; 
+        public event EventHandler<SettlementBuildingPurchasedEventArgs> SettlementBuildingPurchasedEvent; 
         public event EventHandler<SettlementHasNewResourceEventArgs> SettlementHasNewResourceEvent; 
         public event EventHandler<SettlementSpawnedNewPopulationEventArgs> SettlementSpawnedNewPopulationEvent; 
         public event EventHandler<UnlockedPageEventArgs> UnlockedPageEvent; 
 
-        public void OnBuildingPurchased(BuildingPurchasedEventArgs e)
+        public void OnBuildingPurchased(SettlementBuildingPurchasedEventArgs e)
         {
-            BuildingPurchasedEvent?.Invoke(this, e);
+            SettlementBuildingPurchasedEvent?.Invoke(this, e);
         }
         
         public void OnSettlementHasNewResource(SettlementHasNewResourceEventArgs e)

@@ -8,5 +8,16 @@
       "research": 20
     },
     "prerequisites": null
+  },
+  "writing": {
+    "name": "Writing",
+    "description": "Passing on knowledge by word-of-mouth is getting too much, we should write this stuff down.",
+    "behaviour": "UNLOCK_BUILDING",
+    "unlockId": "archives",
+    "cost": {
+      "research": 20,
+      "logs": 15
+    },
+    "prerequisites": null
   }
 }

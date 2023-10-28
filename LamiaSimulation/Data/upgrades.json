@@ -1,0 +1,23 @@
+﻿{
+  "stone_axe": {
+    "name": "Stone Axe",
+    "description": "Strapping a sharp rock to a stick should make it easier to cut trees down.",
+    "cost": {
+      "research": 40,
+      "logs": 20
+    },
+    "prerequisites": null,
+    "behaviour": [
+      {
+        "method": "TASK_SPEED_ADJUST",
+        "id": "cut_trees",
+        "value": 0.5
+      },
+      {
+        "method": "TASK_EXTRACT_AMOUNT_ADJUST",
+        "id": "cut_trees",
+        "value": 2.0
+      }
+    ]
+  }
+}

@@ -11,6 +11,7 @@ namespace LamiaSimulation
             public static string Population = "population";
             public static string Buildings = "buildings";
             public static string Research = "research";
+            public static string Upgrades = "upgrades";
         }
 
         // Number of pops that initial settlements can sustain
@@ -59,5 +60,6 @@ namespace LamiaSimulation
         public const string FilenameBuildingTypes = "buildings.json";
         public const string FilenameResearchTypes = "research.json";
         public const string FilenameResourceCategories = "resourcecategories.json";
+        public const string FilenameUpgrades = "upgrades.json";
     }
 }

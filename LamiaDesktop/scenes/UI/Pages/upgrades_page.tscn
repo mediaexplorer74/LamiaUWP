@@ -1,0 +1,82 @@
+[gd_scene load_steps=8 format=3 uid="uid://cpa4rkavwr2ky"]
+
+[ext_resource type="Script" path="res://scripts/UI/Pages/Upgrades/UpgradeList.gd" id="1_e51sy"]
+[ext_resource type="FontFile" uid="uid://bjenvttwwiow7" path="res://media/fonts/VeraBd.ttf" id="2_nutsj"]
+[ext_resource type="PackedScene" uid="uid://d178hex0fktc5" path="res://scenes/UI/Pages/Upgrades/upgrade.tscn" id="3_ll2ds"]
+[ext_resource type="Script" path="res://scripts/UI/Pages/Upgrades/CompletedUpgradeList.gd" id="4_nswyv"]
+[ext_resource type="PackedScene" uid="uid://bpwtrx7o3m47i" path="res://scenes/UI/Pages/Upgrades/completed_upgrade.tscn" id="5_8rp3n"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sgllo"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_lettk"]
+font = ExtResource("2_nutsj")
+font_size = 35
+outline_size = 4
+outline_color = Color(0.207843, 0.207843, 0.207843, 1)
+shadow_size = 4
+shadow_color = Color(0, 0, 0, 0.278431)
+shadow_offset = Vector2(2, 2)
+
+[node name="UpgradesPage" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_sgllo")
+
+[node name="MarginContainer2" type="MarginContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="UpgradesAndCompletedContainer" type="HBoxContainer" parent="MarginContainer2"]
+layout_mode = 2
+
+[node name="UpgradesList" type="VBoxContainer" parent="MarginContainer2/UpgradesAndCompletedContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+script = ExtResource("1_e51sy")
+
+[node name="UpgradesHeader" type="Label" parent="MarginContainer2/UpgradesAndCompletedContainer/UpgradesList"]
+layout_mode = 2
+text = "Upgrades"
+label_settings = SubResource("LabelSettings_lettk")
+
+[node name="-" type="HSeparator" parent="MarginContainer2/UpgradesAndCompletedContainer/UpgradesList"]
+layout_mode = 2
+
+[node name="AvailableUpgradesListContainer" type="VBoxContainer" parent="MarginContainer2/UpgradesAndCompletedContainer/UpgradesList"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Upgrade" parent="MarginContainer2/UpgradesAndCompletedContainer/UpgradesList/AvailableUpgradesListContainer" instance=ExtResource("3_ll2ds")]
+layout_mode = 2
+
+[node name="CompletedUpgradesList" type="VBoxContainer" parent="MarginContainer2/UpgradesAndCompletedContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("4_nswyv")
+
+[node name="CompletedUpgradeHeader" type="Label" parent="MarginContainer2/UpgradesAndCompletedContainer/CompletedUpgradesList"]
+layout_mode = 2
+text = "Completed 
+"
+label_settings = SubResource("LabelSettings_lettk")
+
+[node name="-" type="HSeparator" parent="MarginContainer2/UpgradesAndCompletedContainer/CompletedUpgradesList"]
+layout_mode = 2
+
+[node name="CompletedUpgradesListContainer" type="VBoxContainer" parent="MarginContainer2/UpgradesAndCompletedContainer/CompletedUpgradesList"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CompletedUpgrade" parent="MarginContainer2/UpgradesAndCompletedContainer/CompletedUpgradesList/CompletedUpgradesListContainer" instance=ExtResource("5_8rp3n")]
+layout_mode = 2

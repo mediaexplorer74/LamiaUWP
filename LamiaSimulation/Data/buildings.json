@@ -26,5 +26,20 @@
       "logs": 5
     },
     "costGrowth": 1.5
+  },
+  "archives": {
+    "name": "Archives",
+    "description": "A place to write down all of the cool ideas we've had for future reference.",
+    "category": "storage",
+    "behaviour":  {
+      "storageCapacity": {
+        "research": 20.0
+      }
+    },
+    "cost": {
+      "research": 20,
+      "logs": 15
+    },
+    "costGrowth": 1.40
   }
 }

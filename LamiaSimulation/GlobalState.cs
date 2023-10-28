@@ -16,7 +16,7 @@ namespace LamiaSimulation
         public List<string> unreadMessages { get; set; }
         public List<string> currentlyDisplayedMessages { get; set; }
         public List<string> availableResearch { get; set; }
-        public List<string> researchUnlocked { get; set; }
+        public List<string> unlockedResearch { get; set; }
         
         public GlobalState()
         {
@@ -27,7 +27,7 @@ namespace LamiaSimulation
             currentlyDisplayedMessages = new List<string>();
             availablePages = new List<string>();
             availableResearch = new List<string>();
-            researchUnlocked = new List<string>();
+            unlockedResearch = new List<string>();
         }
 
         ~GlobalState()
@@ -40,11 +40,23 @@ namespace LamiaSimulation
             Simulation.Instance.events.UnlockedPageEvent += OnUnlockedPageHandler;
         }
 
-        public void LodadedFromSave()
+        public void LoadedFromSave()
         {
             unreadMessages = new List<string>(currentlyDisplayedMessages);
             currentlyDisplayedMessages.Clear();
+            DetermineAvailableResearch();
             Init();
+            try
+            {
+                foreach(var location in locations)
+                    location.LoadedFromSave();
+                foreach(var settlement in playerSettlements)
+                    settlement.LoadedFromSave();
+            }
+            catch(ClientActionException e)
+            {
+                AddMessage(e.Message);
+            }
         }
 
         // ---------------------------------------------------
@@ -202,7 +214,7 @@ namespace LamiaSimulation
                     break;
                 // Research unlocked
                 case ClientQuery.ResearchUnlocked:
-                    result = new QueryResult<string[]>(researchUnlocked.ToArray()) as QueryResult<T>;
+                    result = new QueryResult<string[]>(unlockedResearch.ToArray()) as QueryResult<T>;
                     break;
             }
 
@@ -318,7 +330,7 @@ namespace LamiaSimulation
             var allResearch = DataQuery<ResearchType>.GetAll();
             foreach (var research in allResearch)
             {
-                if (researchUnlocked.Contains(research.Key))
+                if (unlockedResearch.Contains(research.Key))
                     continue;
                 if (HavePrerequisitesForResearch(research.Key))
                     availableResearch.Add(research.Key);
@@ -331,7 +343,7 @@ namespace LamiaSimulation
             if (research.prerequisites == null || research.prerequisites.Count == 0)
                 return true;
             foreach (var prerequisite in research.prerequisites)
-                if (!researchUnlocked.Contains(prerequisite))
+                if (!unlockedResearch.Contains(prerequisite))
                     return false;
             return true;
         }
@@ -356,7 +368,7 @@ namespace LamiaSimulation
 
         private void UnlockResearch(string researchId)
         {
-            if (researchUnlocked.Contains(researchId))
+            if (unlockedResearch.Contains(researchId))
                 return;
             if (!availableResearch.Contains(researchId))
                 return;
@@ -390,7 +402,7 @@ namespace LamiaSimulation
                 }
             }
             availableResearch.Remove(researchId);
-            researchUnlocked.Add(researchId);
+            unlockedResearch.Add(researchId);
             DoResearchEffect(researchId);
             DetermineAvailableResearch();
         }
@@ -437,6 +449,8 @@ namespace LamiaSimulation
                     return T._("Buildings");
                 case "research":
                     return T._("Research");
+                case "upgrades":
+                    return T._("Upgrades");
             }
             throw new NotImplementedException("No specified page name");
         }
