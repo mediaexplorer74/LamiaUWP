@@ -23,7 +23,7 @@ func _process(_delta):
         completed_research_container.remove_child(n)
         n.queue_free()
     for research_id in research_list:
-        var new_research = completed_research_template.instantiate() as CompletedResearch
+        var new_research = completed_research_template.instantiate()
         completed_research_container.add_child(new_research)
         new_research.research_id = research_id
     

@@ -48,9 +48,19 @@ label_settings = SubResource("LabelSettings_lettk")
 [node name="-" type="HSeparator" parent="MarginContainer2/BuildingsList"]
 layout_mode = 2
 
-[node name="BuildingsContainer" type="VBoxContainer" parent="MarginContainer2/BuildingsList"]
+[node name="BuildingsContainer" type="GridContainer" parent="MarginContainer2/BuildingsList"]
 unique_name_in_owner = true
 layout_mode = 2
+columns = 3
 
 [node name="Building" parent="MarginContainer2/BuildingsList/BuildingsContainer" instance=ExtResource("3_w7mom")]
+layout_mode = 2
+
+[node name="Building2" parent="MarginContainer2/BuildingsList/BuildingsContainer" instance=ExtResource("3_w7mom")]
+layout_mode = 2
+
+[node name="Building3" parent="MarginContainer2/BuildingsList/BuildingsContainer" instance=ExtResource("3_w7mom")]
+layout_mode = 2
+
+[node name="Building4" parent="MarginContainer2/BuildingsList/BuildingsContainer" instance=ExtResource("3_w7mom")]
 layout_mode = 2
