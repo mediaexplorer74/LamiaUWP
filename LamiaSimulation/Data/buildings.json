@@ -25,7 +25,7 @@
       "raw_food": 6,
       "logs": 5
     },
-    "costGrowth": 1.5
+    "costGrowth": 1.4
   },
   "archives": {
     "name": "Archives",
@@ -41,5 +41,20 @@
       "logs": 15
     },
     "costGrowth": 1.40
+  },
+  "pantry": {
+    "name": "Pantry",
+    "description": "Shelves and cupboards full of prepared meals.",
+    "category": "storage",
+    "behaviour":  {
+      "storageCapacity": {
+        "ration": 20.0
+      }
+    },
+    "cost": {
+      "raw_food": 20,
+      "logs": 20
+    },
+    "costGrowth": 1.5
   }
 }

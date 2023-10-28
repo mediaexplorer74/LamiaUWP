@@ -2,8 +2,12 @@
   "stockpile": {
     "name": "Stockpile",
     "description": "Basically just a cleared out space for dumping stuff. Took a lot of pondering this one.",
-    "behaviour": "UNLOCK_BUILDING",
-    "unlockId": "stockpile",
+    "behaviour": [
+      {
+        "method": "UNLOCK_BUILDING",
+        "id": "stockpile"
+      }
+    ],
     "cost": {
       "research": 20
     },
@@ -12,12 +16,35 @@
   "writing": {
     "name": "Writing",
     "description": "Passing on knowledge by word-of-mouth is getting too much, we should write this stuff down.",
-    "behaviour": "UNLOCK_BUILDING",
-    "unlockId": "archives",
+    "behaviour": [
+      {
+        "method": "UNLOCK_BUILDING",
+        "id": "archives"
+      }
+    ],
     "cost": {
       "research": 20,
       "logs": 15
     },
     "prerequisites": null
+  },
+  "meal_prep": {
+    "name": "Meal Preparation",
+    "description": "Turn some of these leaves and berries into more appetising and filling meals.",
+    "behaviour": [
+      {
+        "method": "UNLOCK_BUILDING",
+        "id": "pantry"
+      },
+      {
+        "method": "UNLOCK_TASK",
+        "id": "cook"
+      }
+    ],
+    "cost": {
+      "research": 50,
+      "raw_food": 50
+    },
+    "prerequisites": ["writing", "stockpile"]
   }
 }

@@ -557,17 +557,18 @@ namespace LamiaSimulation
 
         private void RecalculateResourceLimits()
         {
-            foreach (var resource in inventory)
+            var allResources = DataQuery<ResourceType>.GetAll();
+            foreach (var resourceId in allResources.Keys)
             {
-                resourceCapacity[resource.Key] = 0f;
-                if(Consts.InitialSettlementResourceCapacity.ContainsKey(resource.Key))
-                    resourceCapacity[resource.Key] = Consts.InitialSettlementResourceCapacity[resource.Key];
+                resourceCapacity[resourceId] = 0f;
+                if(Consts.InitialSettlementResourceCapacity.ContainsKey(resourceId))
+                    resourceCapacity[resourceId] = Consts.InitialSettlementResourceCapacity[resourceId];
                 foreach (var building in buildings)
                 {
                     var buildingType = Helpers.GetDataTypeById<BuildingType>(building.Key);
-                    if (buildingType.behaviour.storageCapacity == null || buildingType.behaviour.storageCapacity.Count < 0 || !buildingType.behaviour.storageCapacity.ContainsKey(resource.Key))
+                    if (buildingType.behaviour.storageCapacity == null || buildingType.behaviour.storageCapacity.Count < 0 || !buildingType.behaviour.storageCapacity.ContainsKey(resourceId))
                         continue;
-                    resourceCapacity[resource.Key] += buildingType.behaviour.storageCapacity[resource.Key] * building.Value;
+                    resourceCapacity[resourceId] += buildingType.behaviour.storageCapacity[resourceId] * building.Value;
                 }
             }
         }

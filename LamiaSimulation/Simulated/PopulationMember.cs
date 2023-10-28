@@ -252,9 +252,17 @@ namespace LamiaSimulation
                                 inventory[behaviour.id] += amountToExtract;
                                 break;
                             case TaskTypeBehaviourMethod.CONSUME:
-                                if (!inventory.ContainsKey(behaviour.id) || inventory[behaviour.id] < behaviour.value)
+                                var settlementResourceAmount = Simulation.Instance.Query<float, string, string>(
+                                    ClientQuery.SettlementInventoryResourceAmount, settlementUuid, behaviour.id
+                                );
+                                if (settlementResourceAmount < behaviour.value)
                                     continue;
-                                inventory[behaviour.id] -= behaviour.value;
+                                Simulation.Instance.PerformAction(
+                                    ClientAction.SubtractResourceFromSettlementInventory,
+                                    new ClientParameter<string>(settlementUuid), 
+                                    new ClientParameter<string>(behaviour.id), 
+                                    new ClientParameter<float>(behaviour.value)
+                                );
                                 break;
                             case TaskTypeBehaviourMethod.CREATE:
                                 inventory.TryAdd(behaviour.id, 0f);
@@ -376,10 +384,13 @@ namespace LamiaSimulation
                                     return (true, T._("Not enough resource in inventory."));
                                 break;
                             case TaskTypeBehaviourMethod.CREATE:
+                                settlementResourceAmount = Simulation.Instance.Query<float, string, string>(
+                                    ClientQuery.SettlementInventoryResourceAmount, settlementUuid, behaviour.id
+                                );
                                 settlementResourceCapacity = Simulation.Instance.Query<float, string, string>(
                                     ClientQuery.SettlementInventoryResourceCapacity, settlementUuid, behaviour.id
                                 );
-                                if (settlementResourceAmount >= settlementResourceCapacity)
+                                if (behaviour.value > (settlementResourceCapacity - settlementResourceAmount))
                                     return (true, T._("No space left to store resource."));
                                 break;
                         }

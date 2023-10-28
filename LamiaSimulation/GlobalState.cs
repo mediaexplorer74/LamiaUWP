@@ -410,20 +410,34 @@ namespace LamiaSimulation
         private void DoResearchEffect(string researchId)
         {
             var research = Helpers.GetDataTypeById<ResearchType>(researchId);
-            switch (research.behaviour)
+            foreach (var behaviour in research.behaviour)
             {
-                case ResearchBehaviour.UNLOCK_BUILDING:
-                    foreach (var settlement in playerSettlements)
-                    {
-                        Simulation.Instance.PerformAction(
-                            ClientAction.SettlementUnlockBuilding,
-                            new ClientParameter<string>(settlement.ID),
-                            new ClientParameter<string>(research.unlockId)
-                        );
-                    }
-                    break;
-                default:
-                    throw new ClientActionException(Text._("Research behaviour not implemented"));
+                switch (behaviour.method)
+                {
+                    case ResearchBehaviourMethod.UNLOCK_BUILDING:
+                        foreach (var settlement in playerSettlements)
+                        {
+                            Simulation.Instance.PerformAction(
+                                ClientAction.SettlementUnlockBuilding,
+                                new ClientParameter<string>(settlement.ID),
+                                new ClientParameter<string>(behaviour.id)
+                            );
+                        }
+
+                        break;
+                    case ResearchBehaviourMethod.UNLOCK_TASK:
+                        foreach (var settlement in playerSettlements)
+                        {
+                            Simulation.Instance.PerformAction(
+                                ClientAction.UnlockTask,
+                                new ClientParameter<string>(settlement.ID),
+                                new ClientParameter<string>(behaviour.id)
+                            );
+                        }
+                        break;
+                    default:
+                        throw new ClientActionException(Text._("Research behaviour not implemented"));
+                }
             }
         }
 
