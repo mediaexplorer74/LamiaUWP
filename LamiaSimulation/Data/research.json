@@ -46,5 +46,20 @@
       "raw_food": 50
     },
     "prerequisites": ["writing", "stockpile"]
+  },
+  "warehouse": {
+    "name": "Warehouse",
+    "description": "TODO: fill in later",
+    "behaviour": [
+      {
+        "method": "UNLOCK_BUILDING",
+        "id": "warehouse"
+      }
+    ],
+    "cost": {
+      "research": 60,
+      "logs": 40
+    },
+    "prerequisites": ["stockpile"]
   }
 }

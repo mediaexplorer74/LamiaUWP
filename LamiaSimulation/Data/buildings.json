@@ -56,5 +56,19 @@
       "logs": 20
     },
     "costGrowth": 1.5
+  },
+  "warehouse": {
+    "name": "Warehouse",
+    "description": "TODO: fill in later",
+    "category": "storage",
+    "behaviour":  {
+      "storageCapacity": {
+        "logs": 60.0
+      }
+    },
+    "cost": {
+      "logs": 40
+    },
+    "costGrowth": 1.5
   }
 }
