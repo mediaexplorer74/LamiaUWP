@@ -45,9 +45,9 @@ func _process(_delta):
             var new_resource = upgrade_resource_cost_template.instantiate()
             resource_cost_list_container.add_child(new_resource)
             new_resource.get_node("ResourceNameLabel").text = Query.ResourceName(resource_id)
-            new_resource.get_node("AmountLabel").text = str(
-                Query.UpgradeSingleResourceCost(game_controller.currentSettlementUuid, upgrade_id, resource_id)
-                )
+            var amount = Query.UpgradeSingleResourceCost(game_controller.currentSettlementUuid, upgrade_id, resource_id)
+            var format = "%.2f" if fmod(amount, 1.0) > 0 else "%d"
+            new_resource.get_node("AmountLabel").text = format % amount
         resource_cost_dirty = false
 
 func _on_open_cost_button_pressed():
