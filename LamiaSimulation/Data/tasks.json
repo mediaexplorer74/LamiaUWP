@@ -2,14 +2,24 @@
   "idle": {
     "name": "Idle",
     "description": "Just hanging out.",
-    "behaviour": "IDLE"
+    "actionText": ". . .",
+    "behaviour": [
+      {
+        "method": "IDLE"
+      }
+    ]
   },
 
   "research": {
     "name": "Research",
     "description": "It's time for thinky-thinks!",
-    "behaviour": "RESEARCH",
-    "amount": 1.0,
+    "actionText": "Thinking",
+    "behaviour": [
+      {
+        "method": "RESEARCH",
+        "value": 1.0
+      }
+    ],
     "timeToComplete": 1.0,
     "hungerReduction": 0.05
   },
@@ -17,20 +27,50 @@
   "forage": {
     "name": "Forage",
     "description": "Wander around the surrounding area picking berries and other various bits of edible flora.",
-    "behaviour": "EXTRACT",
-    "extractResourceType": "raw_food",
-    "amount": 4.0,
+    "actionText": "Foraging",
+    "behaviour": [
+      {
+        "method": "EXTRACT",
+        "id": "raw_food",
+        "value": 3.0
+      }
+    ],
     "timeToComplete": 2.0,
     "hungerReduction": 0.2
   },
-  
+
   "cut_trees": {
     "name": "Cut Trees",
     "description": "Cut down trees to harvest wood for construction.",
-    "behaviour": "EXTRACT",
-    "extractResourceType": "logs",
-    "amount": 1.0,
+    "actionText": "Cutting trees",
+    "behaviour": [
+      {
+        "method": "EXTRACT",
+        "id": "logs",
+        "value": 1.0
+      }
+    ],
     "timeToComplete": 8.0,
     "hungerReduction": 0.5
+  },
+
+  "cook": {
+    "name": "Cook",
+    "description": "Make more nutritious and tasty food from ingredients.",
+    "actionText": "Cooking",
+    "behaviour": [
+      {
+        "method": "CONSUME",
+        "id": "raw_food",
+        "value": 4.0
+      },
+      {
+        "method": "CREATE",
+        "id": "ration",
+        "value": 4.0
+      }
+    ],
+    "timeToComplete": 3.0,
+    "hungerReduction": 0.2
   }
 }

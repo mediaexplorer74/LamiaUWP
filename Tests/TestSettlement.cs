@@ -69,7 +69,7 @@ namespace Tests
                 new []{"raw_food"},
                 simulation.Query<string[], string, string>(ClientQuery.SettlementInventoryResources, settlementUuid, "food")                
             );
-            var amountToExtract = Helpers.GetDataTypeById<TaskType>("forage").amount;
+            var amountToExtract = Helpers.GetDataTypeById<TaskType>("forage").behaviour[0].value;
             Assert.AreEqual(
                 amountToExtract * 2,
                 simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, "raw_food")

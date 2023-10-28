@@ -1,48 +1,72 @@
 using System;
+using System.Collections.Generic;
 
 namespace LamiaSimulation
 {
-    public enum TaskTypeBehaviour
+    public enum TaskTypeBehaviourMethod
     {
         IDLE,
         RESEARCH,
-        EXTRACT
+        EXTRACT,
+        CONSUME,
+        CREATE
     }
-
+    
+    public class TaskTypeBehaviour
+    {
+        public TaskTypeBehaviourMethod method;
+        public string id;
+        public float value;
+    }
+    
     public class TaskType: DataType
     {
         public string name;
         public string description;
-        public TaskTypeBehaviour behaviour;
-        public string extractResourceType;
-        public float amount;
+        public List<TaskTypeBehaviour> behaviour;
         public float timeToComplete;
         public float hungerReduction;
+        public string actionText;
 
         public string[] GetDescriptionDisplay(string settlementUuid)
         {
-            var behaviourText = "";
-            var exactAmount = 0f;
-            var exactTimeToComplete = 0f;
-            switch(behaviour)
+            var behaviourText = new List<string>{ T._(description), "" };
+            foreach(var(i, singleBehaviour) in behaviour.Enumerate())
             {
-                case TaskTypeBehaviour.IDLE:
+                if(singleBehaviour.method == TaskTypeBehaviourMethod.IDLE)
                     return new[] { T._(description) };
-                case TaskTypeBehaviour.RESEARCH:
-                    var researchTextFormat = T._("Generate: {0} Research/{1} secs");
-                    exactAmount = Settlement.GetExtractTaskAmount(settlementUuid, ID);
-                    exactTimeToComplete = Settlement.GetTimeToCompleteTask(settlementUuid, ID);
-                    behaviourText = String.Format(researchTextFormat, exactAmount, exactTimeToComplete);
-                    break;
-                case TaskTypeBehaviour.EXTRACT:
-                    var resourceTypeName = T._(DataQuery<ResourceType>.GetByID(extractResourceType).name);
-                    var behaviourTextFormat = T._("Extract: {0} {1}/{2} secs");
-                    exactAmount = Settlement.GetExtractTaskAmount(settlementUuid, ID);
-                    exactTimeToComplete = Settlement.GetTimeToCompleteTask(settlementUuid, ID);
-                    behaviourText = String.Format(behaviourTextFormat, resourceTypeName, exactAmount, exactTimeToComplete);
-                    break;
+                var exactAmount = Settlement.GetExtractTaskAmount(settlementUuid, ID, i);
+                var exactTimeToComplete = Settlement.GetTimeToCompleteTask(settlementUuid, ID);
+                var resourceTypeName = "";
+                var textFormat = "";
+                switch (singleBehaviour.method)
+                {
+                    case TaskTypeBehaviourMethod.RESEARCH:
+                        textFormat = T._("Generate: {0} Research/{1} secs");
+                        behaviourText.Add(string.Format(textFormat, exactAmount, exactTimeToComplete));
+                        break;
+                    case TaskTypeBehaviourMethod.EXTRACT:
+                        resourceTypeName = T._(DataQuery<ResourceType>.GetByID(singleBehaviour.id).name);
+                        textFormat = T._("Extract: {0} {1}/{2} secs");
+                        behaviourText.Add(string.Format(textFormat, resourceTypeName, exactAmount,
+                            exactTimeToComplete));
+                        break;
+                    case TaskTypeBehaviourMethod.CONSUME:
+                        resourceTypeName = T._(DataQuery<ResourceType>.GetByID(singleBehaviour.id).name);
+                        textFormat = T._("Consume: {0} {1}/{2} secs");
+                        behaviourText.Add(string.Format(textFormat, resourceTypeName, exactAmount,
+                            exactTimeToComplete));
+                        break;
+                    case TaskTypeBehaviourMethod.CREATE:
+                        resourceTypeName = T._(DataQuery<ResourceType>.GetByID(singleBehaviour.id).name);
+                        textFormat = T._("Create: {0} {1}/{2} secs");
+                        behaviourText.Add(string.Format(textFormat, resourceTypeName, exactAmount,
+                            exactTimeToComplete));
+                        break;
+                }
             }
-            return new[] {T._(description), "", behaviourText};
+
+            return behaviourText.ToArray();
         }
     }
 }

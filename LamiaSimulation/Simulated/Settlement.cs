@@ -879,9 +879,13 @@ namespace LamiaSimulation
             return timeToComplete;
         }
 
-        public static float GetExtractTaskAmount(string settlementUuid, string taskId)
+        public static float GetExtractTaskAmount(string settlementUuid, string taskId, int behaviourIndex = 0)
         {
-            var amount = Helpers.GetTaskTypeById(taskId).amount;            
+            var taskBehaviour = Helpers.GetTaskTypeById(taskId).behaviour[behaviourIndex];
+            if (taskBehaviour.method != TaskTypeBehaviourMethod.EXTRACT &&
+                taskBehaviour.method != TaskTypeBehaviourMethod.RESEARCH)
+                return 0f;
+            var amount = taskBehaviour.value;            
             var settlementUpgrades = Simulation.Instance.Query<string[], string>(
                 ClientQuery.UpgradesUnlocked, settlementUuid
             );
