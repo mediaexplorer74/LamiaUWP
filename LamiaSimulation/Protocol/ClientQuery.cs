@@ -424,6 +424,16 @@ namespace LamiaSimulation
         PopulationMemberInventoryProgress,
 
         /*
+         * How much of a particular resource is in this pop's inventory
+         *   Result - float: How many of the resource this pop has
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: uuid of population to query
+         *     - string: resource ID to query
+         */
+        PopulationMemberInventoryResourceAmount,
+        
+        /*
          * How full the population's stomach is
          *   Result - float: Number between 0 and 1 representing how full their stomach is
          *   Params:

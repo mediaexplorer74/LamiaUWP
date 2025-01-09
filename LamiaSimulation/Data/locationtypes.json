@@ -5,9 +5,32 @@
   },
   "origin": {
     "name": "Origin",
+    "mapCharacter": "O", 
     "resources": {
       "raw_food": 40000,
       "logs": 1000
     }
+  },
+
+  "forest": {
+    "name": "Forest",
+    "mapCharacter": "f",
+    "resources": {
+      "raw_food": 20000,
+      "logs": 1000
+    }
+  },
+  "forestDense": {
+    "name": "Dense Forest",
+    "mapCharacter": "F",
+    "resources": {
+      "raw_food": 40000,
+      "logs": 2000
+    }
+  },
+  "ocean": {
+    "name": "Ocean",
+    "mapCharacter": "~",
+    "resources": {}
   }
 }

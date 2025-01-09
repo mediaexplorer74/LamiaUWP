@@ -19,5 +19,17 @@ namespace LamiaSimulation
         )
         {
         }
+
+        void PerformAction<T1>(ClientAction action, T1 param1)
+        {
+        }
+
+        void PerformAction<T1, T2>(ClientAction action, T1 param1, T2 param2)
+        {
+        }
+        
+        void PerformAction<T1, T2, T3>(ClientAction action, T1 param1, T2 param2, T3 param3)
+        {
+        }        
     }
 }

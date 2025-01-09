@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace LamiaSimulation
 {
-    internal static class Consts
+    public static class Consts
     {
         // IDs of game pages
         public struct Pages

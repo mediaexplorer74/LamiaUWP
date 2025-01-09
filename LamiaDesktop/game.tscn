@@ -132,7 +132,6 @@ layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 12
 script = ExtResource("7_ifjgw")
-theme_override_constants/separation = 12
 
 [node name="ResourceCategory" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourceCategoryList" instance=ExtResource("7_80wkm")]
 layout_mode = 2

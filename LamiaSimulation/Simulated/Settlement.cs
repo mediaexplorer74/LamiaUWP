@@ -845,7 +845,7 @@ namespace LamiaSimulation
                 actualBuildingCost[resourceCost.Key] = (
                     currentNumber == 0 ?
                         resourceCost.Value :
-                        resourceCost.Value * (buildingType.costGrowth * currentNumber)
+                        resourceCost.Value * MathF.Pow(buildingType.costGrowth, currentNumber)
                     );
             return actualBuildingCost;
         }

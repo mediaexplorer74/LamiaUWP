@@ -6,9 +6,13 @@ namespace LamiaSimulation
     internal class PopulationMember: SimulationObject, IActionReceiver, IQueryable, ISimulated
     {
         public string populationSpeciesTypeName { get; set; }
+        
+        // Overriding state (wait, starving, eating, task)
         public string state { get; set; }
         public string name { get; set; }
+        // The current task that the player has assigned (ie: forage, cut_trees) 
         public string taskAssigment { get; set; }
+        // Thing the pop is doing (idle, eating, deposit, task, research)
         public string currentAction { get; set; }
         public float hunger { get; set; }
         public string settlementUuid { get; set; }
@@ -114,6 +118,14 @@ namespace LamiaSimulation
         public void Query<T, T1, T2, T3>(ref QueryResult<T> result, ClientQuery query, ClientParameter<T1> param1,
             ClientParameter<T2> param2, ClientParameter<T3> param3)
         {
+            if(param2.Get as string != ID)
+                return;
+            switch (query)
+            {
+                case ClientQuery.PopulationMemberInventoryResourceAmount:
+                    result = new QueryResult<float>(inventory.GetValueOrDefault(param3.Get as string, 0f)) as QueryResult<T>;
+                    break;
+            }
         }
 
         // ---------------------------------------------------

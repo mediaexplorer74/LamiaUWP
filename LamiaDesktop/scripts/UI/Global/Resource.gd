@@ -16,12 +16,15 @@ class_name ResourceUI
 func _process(delta):
     resource_name_label.text = Query.ResourceName(resource_name)
     var amount = Query.SettlementInventoryResourceAmount(game_controller.currentSettlementUuid, resource_name)
-    var cap = Query.SettlementInventoryResourceCapacity(game_controller.currentSettlementUuid, resource_name)
-    resource_amount_label.text = str(amount)
-    capacity_label.text = "/"+str(cap)
+    var amount_format = "%.2f" if fmod(amount, 1.0) > 0 else "%d"
+    var cap = Query.SettlementInventoryResourceCapacity(game_controller.currentSettlementUuid, resource_name)    
+    var cap_format = "%.2f" if fmod(amount, 1.0) > 0 else "%d"
+    resource_amount_label.text = amount_format % amount
+    capacity_label.text = "/"+ (cap_format % cap)
     amount_progress.set_value_no_signal(amount / cap)
     var resource_delta = Query.SettlementInventoryResourceDelta(game_controller.currentSettlementUuid, resource_name)
-    var delta_text = str(resource_delta) + "/s"
+    var delta_format = "%.2f" if fmod(resource_delta, 1.0) > 0 else "%d"
+    var delta_text = (delta_format % resource_delta) + "/s"
     if resource_delta > 0:
         delta_text = "+" + delta_text
     delta_label.text = delta_text

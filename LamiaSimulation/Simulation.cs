@@ -16,6 +16,7 @@ namespace LamiaSimulation
         private bool started = false;
         private float saveTimer;
 
+        // The last created SimulationObject sets this to its ID in it's constructor
         internal static string lastID;
         public string LastID => lastID;
         public SimulationEvents events; 
@@ -122,6 +123,28 @@ namespace LamiaSimulation
             globalState.PerformAction(action, param1, param2, param3);
         }
 
+        public void PerformAction<T1>(ClientAction action, T1 param1)
+        {
+            var _param1 = new ClientParameter<T1>(param1);
+            PerformAction(action, _param1);
+        }
+
+        public void PerformAction<T1, T2>(ClientAction action, T1 param1, T2 param2)
+        {
+            var _param1 = new ClientParameter<T1>(param1);
+            var _param2 = new ClientParameter<T2>(param2);
+            PerformAction(action, _param1, _param2);
+        }
+        
+        public void PerformAction<T1, T2, T3>(ClientAction action, T1 param1, T2 param2, T3 param3)
+        {
+            var _param1 = new ClientParameter<T1>(param1);
+            var _param2 = new ClientParameter<T2>(param2);
+            var _param3 = new ClientParameter<T3>(param3);
+            PerformAction(action, _param1, _param2, _param3);
+        }                
+        
+        
         // ---------------------------------------------------
         // IQueryable
         // ---------------------------------------------------
@@ -189,6 +212,7 @@ namespace LamiaSimulation
         {
             globalState.LoadedFromSave();
         }
+   
     }
     
 }
