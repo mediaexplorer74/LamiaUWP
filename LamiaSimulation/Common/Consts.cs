@@ -42,6 +42,16 @@ namespace LamiaSimulation
         
         // How many population need to spawn before research is unlocked
         public static int UnlockResearchAtPopulationCount = 4;
+        
+        // How many messages will be kept from message history
+        public static int MessageHistoryLimit = 10;
+
+        // Scene setting messages that are shown to the player
+        public static string[] InitialMessages = {
+            "A Lamia is a six foot tall snek with arms.",
+            "There's one hanging out in a clearing on the outskirts of a forest.",
+            "It's tongue laps at the air lazily. It's probably hungry.",
+        };
 
         // Location of save file
         public const string FilenameSaveFile = "save.dat";

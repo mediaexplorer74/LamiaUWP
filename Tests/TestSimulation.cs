@@ -3,18 +3,8 @@ using LamiaSimulation;
 
 namespace Tests
 {
-    public class SimulationTest
+    public class SimulationTest: BaseTest
     {
-        private Simulation simulation;
-
-        [SetUp]
-        public void Setup()
-        {
-            simulation = Simulation.Instance;
-            simulation.Reset();
-            simulation.Start();
-        }
-
         [Test]
         public void TestSimulationBeginsWithOriginLocation()
         {

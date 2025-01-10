@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Linq;
+using NUnit.Framework;
 using LamiaSimulation;
 
 namespace Tests
@@ -71,6 +73,19 @@ namespace Tests
                 2,
                 simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
             );
+            // Doesn't spawn when at capacity
+            SimulateSeconds(Consts.populationSpawnTime*2);
+            Assert.AreEqual(
+                2,
+                simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
+            );
+            // increase capacity and more spawn
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "log_hut");
+            SimulateSeconds(Consts.populationSpawnTime);
+            Assert.AreEqual(
+                3,
+                simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
+            );
         }
 
         [Test]
@@ -121,57 +136,556 @@ namespace Tests
                 simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
             );
         }
+
+        [Test]
+        public void TestUnlockBuilding()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                new string[]{},
+                simulation.Query<string[], string>(ClientQuery.SettlementBuildings, settlementUuid)
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "archives")
+            );
+            simulation.PerformAction(
+                ClientAction.SettlementUnlockBuilding, settlementUuid, "archives"
+            );
+            Assert.AreEqual(
+                new []{"archives"},
+                simulation.Query<string[], string>(ClientQuery.SettlementBuildings, settlementUuid)
+            );
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "archives")
+            );
+        }
         
-        // test unlock building
-        // ...
+        [Test]
+        public void TestPurchaseBuilding()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            simulation.PerformAction(
+                ClientAction.SettlementUnlockBuilding, settlementUuid, "log_hut"
+            );
+            Assert.AreEqual(
+                0,
+                simulation.Query<int, string, string>(ClientQuery.SettlementBuildingsAmount, settlementUuid, "log_hut")
+            );
+            foreach (var (resource, value) in Helpers.GetDataTypeById<BuildingType>("log_hut").cost)
+            {
+                simulation.PerformAction(
+                    ClientAction.AddResourceToSettlementInventory, settlementUuid, resource, value
+                );
+                Assert.AreEqual(
+                    value,
+                    simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, resource)
+                );
+            }
+            simulation.PerformAction(
+                ClientAction.SettlementPurchaseBuilding, settlementUuid, "log_hut"
+            );
+            Assert.AreEqual(
+                1,
+                simulation.Query<int, string, string>(ClientQuery.SettlementBuildingsAmount, settlementUuid, "log_hut")
+            );
+            foreach (var (resource, value) in Helpers.GetDataTypeById<BuildingType>("log_hut").cost)
+                Assert.AreEqual(
+                    0f,
+                    simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, resource)
+                );
+        }
+
+        [Test]
+        public void TestForceAddBuilding()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                0,
+                simulation.Query<int, string, string>(ClientQuery.SettlementBuildingsAmount, settlementUuid, "archives")
+            );
+            simulation.PerformAction(
+                ClientAction.SettlementForceAddBuilding, settlementUuid, "archives"
+            );
+            Assert.AreEqual(
+                1,
+                simulation.Query<int, string, string>(ClientQuery.SettlementBuildingsAmount, settlementUuid, "archives")
+            );
+        }
+
+        [Test]
+        public void TestUnlockUpgrade()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                new string[]{},
+                simulation.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementUuid)
+            );
+            simulation.PerformAction(
+                ClientAction.SettlementForceAddBuilding, settlementUuid, "warehouse"
+            );
+            simulation.PerformAction(
+                ClientAction.SettlementForceAddBuilding, settlementUuid, "archives"
+            );
+            foreach (var (resource, value) in Helpers.GetDataTypeById<UpgradeType>("stone_axe").cost)
+            {
+                simulation.PerformAction(
+                    ClientAction.AddResourceToSettlementInventory, settlementUuid, resource, value
+                );
+                Assert.AreEqual(
+                    value,
+                    simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, resource)
+                );
+            }
+            simulation.PerformAction(
+                ClientAction.UnlockPage, Consts.Pages.Upgrades
+            );
+            Assert.AreEqual(
+                new []{"stone_axe"},
+                simulation.Query<string[], string>(ClientQuery.UpgradesAvailable, settlementUuid)
+            );
+            simulation.PerformAction(
+                ClientAction.UnlockUpgrade,settlementUuid, "stone_axe"
+            );
+            Assert.AreEqual(
+                new []{"stone_axe"},
+                simulation.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementUuid)
+            );
+            foreach (var (resource, value) in Helpers.GetDataTypeById<UpgradeType>("stone_axe").cost)
+                Assert.AreEqual(
+                    0f,
+                    simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, resource)
+                );
+        }
+
+        [Test]
+        public void TestForceUnlockUpgrade()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                new string[]{},
+                simulation.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementUuid)
+            );
+            simulation.PerformAction(
+                ClientAction.ForceUnlockUpgrade, settlementUuid, "stone_axe"
+            );
+            Assert.AreEqual(
+                new []{"stone_axe"},
+                simulation.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementUuid)
+            );
+        }
         
-        // test purchasing building
-        // ...
+        [Test]
+        public void TestInventoryQuerying()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            simulation.PerformAction(
+                ClientAction.AddResourceToSettlementInventory,settlementUuid, "raw_food", 10f
+            );
+            simulation.PerformAction(
+                ClientAction.AddResourceToSettlementInventory,settlementUuid, "research", 20f
+            );
+            Assert.AreEqual(
+                new []{"special", "food"},
+                simulation.Query<string[], string>(ClientQuery.SettlementInventoryCategories, settlementUuid)
+            );
+            Assert.AreEqual(
+                new []{"raw_food"},
+                simulation.Query<string[], string, string>(ClientQuery.SettlementInventoryResources, settlementUuid, "food")
+            );
+            Assert.AreEqual(
+                new []{"research"},
+                simulation.Query<string[], string, string>(ClientQuery.SettlementInventoryResources, settlementUuid, "special")
+            );
+            Assert.AreEqual(
+                10f,
+                simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, "raw_food")
+            );
+            Assert.AreEqual(
+                20f,
+                simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceAmount, settlementUuid, "research")
+            );
+            Assert.AreEqual(
+                Consts.InitialSettlementResourceCapacity["raw_food"],
+                simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceCapacity, settlementUuid, "raw_food")
+            );
+            Assert.AreEqual(
+                Consts.InitialSettlementResourceCapacity["research"],
+                simulation.Query<float, string, string>(ClientQuery.SettlementInventoryResourceCapacity, settlementUuid, "research")
+            );
+        }
+
+        [Test]
+        public void TestBuildingQuerying()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            var logHut = Helpers.GetDataTypeById<BuildingType>("log_hut");
+            Assert.AreEqual(
+                new string[]{},
+                simulation.Query<string[], string>(ClientQuery.SettlementBuildings, settlementUuid)
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "log_hut")
+            );
+            simulation.PerformAction(ClientAction.SettlementUnlockBuilding, settlementUuid, "log_hut");
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "log_hut")
+            );
+            Assert.AreEqual(
+                "Log Hut",
+                simulation.Query<string, string, string>(ClientQuery.SettlementBuildingDisplayName, settlementUuid, "log_hut")
+            );
+            Assert.AreEqual(
+                new []
+                {
+                    "Really basic housing, keeps the rain off at least.",
+                    "",
+                    $"Increase population capacity by {logHut.behaviour.populationCapacity}"
+                },
+                simulation.Query<string[], string, string>(ClientQuery.SettlementBuildingDescription, settlementUuid, "log_hut")
+            );
+            Assert.AreEqual(
+                new[] {"logs"},
+                simulation.Query<string[], string, string>(ClientQuery.SettlementBuildingResourceList, settlementUuid, "log_hut")
+            );
+            Assert.AreEqual(
+                logHut.cost["logs"],
+                simulation.Query<float, string, string, string>(ClientQuery.SettlementBuildingSingleResourceCost, settlementUuid, "log_hut", "logs")
+            );
+            Assert.AreEqual(
+                0,
+                simulation.Query<int, string, string>(ClientQuery.SettlementBuildingsAmount, settlementUuid, "log_hut")
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementBuildingCanAfford, settlementUuid, "log_hut")
+            );
+            simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "logs", logHut.cost["logs"]);
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementBuildingCanAfford, settlementUuid, "log_hut")
+            );
+            simulation.PerformAction(ClientAction.SettlementPurchaseBuilding, settlementUuid, "log_hut");
+            Assert.AreEqual(
+                new []{"log_hut"},
+                simulation.Query<string[], string>(ClientQuery.SettlementBuildings, settlementUuid)
+            );
+            Assert.AreEqual(
+                1,
+                simulation.Query<int, string, string>(ClientQuery.SettlementBuildingsAmount, settlementUuid, "log_hut")
+            );
+            Assert.AreEqual(
+                logHut.cost["logs"] * logHut.costGrowth,
+                simulation.Query<float, string, string, string>(ClientQuery.SettlementBuildingSingleResourceCost, settlementUuid, "log_hut", "logs")
+            );
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "log_hut");
+            Assert.AreEqual(
+                logHut.cost["logs"] * MathF.Pow(logHut.costGrowth, 2),
+                simulation.Query<float, string, string, string>(ClientQuery.SettlementBuildingSingleResourceCost, settlementUuid, "log_hut", "logs")
+            );
+        }
+
+        [Test]
+        public void TestUpgradeQuerying()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            var stoneAxe = Helpers.GetDataTypeById<UpgradeType>("stone_axe");
+            Assert.AreEqual(
+                new string[]{},
+                simulation.Query<string[], string>(ClientQuery.UpgradesAvailable, settlementUuid)
+            );
+            simulation.PerformAction(ClientAction.UnlockPage, Consts.Pages.Upgrades);
+            Assert.AreEqual(
+                new []{"stone_axe"},
+                simulation.Query<string[], string>(ClientQuery.UpgradesAvailable, settlementUuid)
+            );
+            Assert.AreEqual(
+                new string[]{},
+                simulation.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementUuid)
+            );
+            Assert.AreEqual(
+                "Stone Axe",
+                simulation.Query<string, string, string>(ClientQuery.UpgradeDisplayName, settlementUuid, "stone_axe")
+            );
+            Assert.AreEqual(
+                "Strapping a sharp rock to a stick should make it easier to cut trees down.",
+                simulation.Query<string, string, string>(ClientQuery.UpgradeDescription, settlementUuid, "stone_axe")
+            );
+            Assert.AreEqual(
+                new []{"research", "logs"},
+                simulation.Query<string[], string, string>(ClientQuery.UpgradeResourceList, settlementUuid, "stone_axe")
+            );
+            Assert.AreEqual(
+                stoneAxe.cost["logs"],
+                simulation.Query<float, string, string, string>(ClientQuery.UpgradeSingleResourceCost, settlementUuid, "stone_axe", "logs")
+            );
+            Assert.AreEqual(
+                stoneAxe.cost["research"],
+                simulation.Query<float, string, string, string>(ClientQuery.UpgradeSingleResourceCost, settlementUuid, "stone_axe", "research")
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string, string>(ClientQuery.UpgradeCanAfford, settlementUuid, "stone_axe")
+            );
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "archives");
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "warehouse");
+            simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "logs", stoneAxe.cost["logs"]);
+            simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "research", stoneAxe.cost["research"]);
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string, string>(ClientQuery.UpgradeCanAfford, settlementUuid, "stone_axe")
+            );
+            simulation.PerformAction(ClientAction.UnlockUpgrade, settlementUuid, "stone_axe");
+            Assert.AreEqual(
+                new string[]{},
+                simulation.Query<string[], string>(ClientQuery.UpgradesAvailable, settlementUuid)
+            );
+            Assert.AreEqual(
+                new []{"stone_axe"},
+                simulation.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementUuid)
+            );
+        }
+
+        [Test]
+        public void TestTaskQuerying()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            var populationUuid =
+                simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
+            var cutTrees = Helpers.GetDataTypeById<TaskType>("cut_trees");
+            Assert.AreEqual(
+                new []{"idle", "forage"},
+                simulation.Query<string[], string>(ClientQuery.SettlementTasks, settlementUuid)
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "cut_trees")
+            );
+            simulation.PerformAction(ClientAction.UnlockTask, settlementUuid, "cut_trees");
+            Assert.AreEqual(
+                new []{"idle", "forage", "cut_trees"},
+                simulation.Query<string[], string>(ClientQuery.SettlementTasks, settlementUuid)
+            );
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "cut_trees")
+            );
+            Assert.AreEqual(
+                "Cut Trees",
+                simulation.Query<string, string, string>(ClientQuery.SettlementTaskName, settlementUuid, "cut_trees")
+            );
+            Assert.AreEqual(
+                new []
+                {
+                    cutTrees.description,
+                    "",
+                    $"Extract: {Helpers.GetResourceTypeById(cutTrees.behaviour[0].id).name} {cutTrees.behaviour[0].value}/{cutTrees.timeToComplete} secs"
+                },
+                simulation.Query<string[], string, string>(ClientQuery.SettlementTaskDescription, settlementUuid, "cut_trees")
+            );
+            Assert.AreEqual(
+                new string[]{},
+                simulation.Query<string[], string, string>(ClientQuery.SettlementTaskAssignments, settlementUuid, "cut_trees")
+            );
+            Assert.AreEqual(
+                0,
+                simulation.Query<int, string, string>(ClientQuery.SettlementTaskAssignedNum, settlementUuid, "cut_trees")
+            );
+            simulation.PerformAction(ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "cut_trees");
+            Assert.AreEqual(
+                new []{populationUuid},
+                simulation.Query<string[], string, string>(ClientQuery.SettlementTaskAssignments, settlementUuid, "cut_trees")
+            );
+            Assert.AreEqual(
+                1,
+                simulation.Query<int, string, string>(ClientQuery.SettlementTaskAssignedNum, settlementUuid, "cut_trees")
+            );
+            Assert.AreEqual(
+                -1,
+                simulation.Query<int, string, string>(ClientQuery.SettlementTaskMaximumCapacity, settlementUuid, "cut_trees")
+            );
+        }
+
+        [Test]
+        public void TestPopulationQuerying()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                1,
+                simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
+            );
+            Assert.AreEqual(
+                2,
+                simulation.Query<int, string>(ClientQuery.SettlementPopulationMax, settlementUuid)
+            );
+            Assert.AreEqual(
+                new []{"lamia"},
+                simulation.Query<string[], string>(ClientQuery.SettlementPopulationSpecies, settlementUuid)
+            );
+            var currentPop =
+                simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid);
+            Assert.AreEqual(1, currentPop.Length);
+            Assert.AreEqual(
+                currentPop,
+                simulation.Query<string[], string, string>(ClientQuery.SettlementPopulationSpeciesMembers, settlementUuid, "lamia")
+            );
+            Assert.AreEqual(
+                2,
+                simulation.Query<string, string, string>(ClientQuery.PopulationMemberName, settlementUuid, currentPop[0]).Split(" ").Length
+            );
+            Assert.AreEqual(
+                "lamia",
+                simulation.Query<string, string, string>(ClientQuery.PopulationMemberSpecies, settlementUuid, currentPop[0])
+            );
+            Assert.AreEqual(
+                "idle",
+                simulation.Query<string, string, string>(ClientQuery.PopulationMemberTask, settlementUuid, currentPop[0])
+            );
+            simulation.PerformAction(ClientAction.PopulationAssignToTask, settlementUuid, currentPop[0], "forage");
+            Assert.AreEqual(
+                "forage",
+                simulation.Query<string, string, string>(ClientQuery.PopulationMemberTask, settlementUuid, currentPop[0])
+            );
+            simulation.PerformAction(ClientAction.AddPopulation, settlementUuid, "lamia");
+            Assert.AreEqual(
+                2,
+                simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
+            );
+            currentPop =
+                simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid);
+            Assert.AreEqual(2, currentPop.Length);
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "log_hut");
+            Assert.AreEqual(
+                3,
+                simulation.Query<int, string>(ClientQuery.SettlementPopulationMax, settlementUuid)
+            );
+        }
+
+        [Test]
+        public void TestGetTimeToCompleteTask()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            var cutTrees = Helpers.GetTaskTypeById("cut_trees");
+            var stoneAxe = Helpers.GetDataTypeById<UpgradeType>("stone_axe");
+            Assert.AreEqual(
+                cutTrees.timeToComplete,
+                Settlement.GetTimeToCompleteTask(settlementUuid, "cut_trees")
+            );
+            simulation.PerformAction(ClientAction.ForceUnlockUpgrade, settlementUuid, "stone_axe");
+            foreach (var behaviour in stoneAxe.behaviour)
+            {
+                if(behaviour.method != UpgradeBehaviourMethod.TASK_SPEED_ADJUST)
+                    continue;
+                Assert.AreEqual(
+                    cutTrees.timeToComplete * behaviour.value,
+                    Settlement.GetTimeToCompleteTask(settlementUuid, "cut_trees")
+                );
+            }
+        }
         
-        // test unlock upgrade
-        // ...
+        [Test]
+        public void TestGetExtractTaskAmount()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            var cutTrees = Helpers.GetTaskTypeById("cut_trees");
+            var stoneAxe = Helpers.GetDataTypeById<UpgradeType>("stone_axe");
+            Assert.AreEqual(
+                cutTrees.behaviour[0].value,
+                Settlement.GetExtractTaskAmount(settlementUuid, "cut_trees")
+            );
+            simulation.PerformAction(ClientAction.ForceUnlockUpgrade, settlementUuid, "stone_axe");
+            foreach (var behaviour in stoneAxe.behaviour)
+            {
+                if(behaviour.method != UpgradeBehaviourMethod.TASK_EXTRACT_AMOUNT_ADJUST)
+                    continue;
+                Assert.AreEqual(
+                    cutTrees.behaviour[0].value * behaviour.value,
+                    Settlement.GetExtractTaskAmount(settlementUuid, "cut_trees")
+                );
+            }
+        }
+
+        [Test]
+        public void TestCutTreesTaskUnlocksWhenGettingFirstRawFood()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "cut_trees")
+            );
+            simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "raw_food", 10f);
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "cut_trees")
+            );
+        }
         
-        // test querying inventory
-        // ...
-        
-        // test querying buildings
-        // ...
-        
-        // test querying upgrades
-        // ...
-        
-        // test querying tasks
-        // ...
-        
-        // test querying population
-        // ...
-        
-        // test if can afford building
-        // ...
-        
-        // test if can afford upgrade
-        // ...
-        
-        // test GetTimeToCompleteTask
-        // ...
-        
-        // test GetExtractTaskAmount
-        // ...
-        
-        // test cut_trees task unlocks when getting first raw_food
-        // ...
-        
-        // test buildings page unlocks when getting first logs
-        // ...
-        
-        // test Research page unlocks when getting first research
-        // ...
-        
-        // Unlock research task when hitting a Consts.UnlockResearchAtPopulationCount population
-        // ...
-        
-        // Unlock upgrades page when getting first Archives
-        // ...
+        [Test]
+        public void TestBuildingsPageUnlocksWhenGettingFirstLogs()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Buildings)
+            );
+            simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "logs", 10f);
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Buildings)
+            );
+        }
+
+        [Test]
+        public void TestResearchPageUnlocksWhenGettingFirstResearch()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Research)
+            );
+            simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "research", 10f);
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Research)
+            );
+        }
+
+        [Test]
+        public void TestResearchTaskUnlocksWhenHittingPopulationThreshold()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            var populationUuid = simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
+            simulation.PerformAction(ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "forage");
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "research")
+            );
+            foreach(var i in Enumerable.Range(0, Consts.UnlockResearchAtPopulationCount - 2))
+                simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "log_hut");
+            SimulateSeconds(Consts.populationSpawnTime * (Consts.UnlockResearchAtPopulationCount + 1));
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "research")
+            );
+        }
+
+        [Test]
+        public void TestUnlockUpgradesPageWhenGettingFirstArchives()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Upgrades)
+            );
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "archives");
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Upgrades)
+            );
+        }
         
     }
 }

@@ -88,16 +88,28 @@ namespace LamiaSimulation
         //   - string: id of building type
         SettlementPurchaseBuilding,
 
+        // Adds a building to a settlement, bypassing requirements or resource requirements
+        // params:
+        //   - string: uuid of settlement
+        //   - string: id of building type
+        SettlementForceAddBuilding,
+
         // Unlocks a research and applies it's effects
         // params:
         //   - string: id of research to unlock
         UnlockResearch,
-        
-        // Unlocks an upgrade and applies it's effects
+
+        // Unlocks an upgrade if have requirements and can be afforded and applies it's effects
         // params:
         //   - string: uuid of settlement
         //   - string: id of upgrade to unlock
         UnlockUpgrade,
+        
+        // Unlocks an upgrade and applies it's effects, completely bypassing requirements and costs
+        // params:
+        //   - string: uuid of settlement
+        //   - string: id of upgrade to unlock
+        ForceUnlockUpgrade,
         
     }
 }

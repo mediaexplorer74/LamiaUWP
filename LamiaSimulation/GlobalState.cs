@@ -192,8 +192,8 @@ namespace LamiaSimulation
                     {
                         foreach (var message in currentlyDisplayedMessages)
                             messageHistory.Add(message);
-                        if (messageHistory.Count > 10)
-                            messageHistory.RemoveRange(0, messageHistory.Count - 10);
+                        if (messageHistory.Count > Consts.MessageHistoryLimit)
+                            messageHistory.RemoveRange(0, messageHistory.Count - Consts.MessageHistoryLimit);
                         currentlyDisplayedMessages.Clear();
                         foreach (var message in unreadMessages)
                             currentlyDisplayedMessages.Add(message);
@@ -453,7 +453,7 @@ namespace LamiaSimulation
             return pageList;
         }
 
-        public string PageDisplayName(string pageId)
+        public static string PageDisplayName(string pageId)
         {
             switch (pageId)
             {

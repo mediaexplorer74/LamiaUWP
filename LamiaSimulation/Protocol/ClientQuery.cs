@@ -277,7 +277,7 @@ namespace LamiaSimulation
         
         /*
          * Number of a type of building in a settlement
-         *   Result - float: Number of buildings at a settlement
+         *   Result - int: Number of buildings at a settlement
          *   Params:
          *     - string: uuid of settlement to query
          *     - string: building ID to query

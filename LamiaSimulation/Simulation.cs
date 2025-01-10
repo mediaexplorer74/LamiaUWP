@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using System.Runtime.CompilerServices;
 
+
+[assembly: InternalsVisibleTo("Tests")]
 namespace LamiaSimulation
 {
     public class Simulation : IActionReceiver, ISimulated
@@ -52,7 +55,7 @@ namespace LamiaSimulation
             if (started)
                 return;
             globalState.Init();
-            globalState.PerformAction(ClientAction.UnlockPage,  new ClientParameter<string>("population"));
+            globalState.PerformAction(ClientAction.UnlockPage,  new ClientParameter<string>(Consts.Pages.Population));
             globalState.PerformAction(ClientAction.AddLocation,  new ClientParameter<string>("origin"));
             globalState.PerformAction(
                 ClientAction.AddSettlementAtLocation, new ClientParameter<string>(LastID)
@@ -66,18 +69,11 @@ namespace LamiaSimulation
                 new ClientParameter<string>(LastID),
                 new ClientParameter<string>("lamia")
             );
-            globalState.PerformAction(
-                ClientAction.SendMessage, new ClientParameter<string>(
-                    T._("A Lamia is a six foot tall snek with arms.")
-                ));
-            globalState.PerformAction(
-                ClientAction.SendMessage, new ClientParameter<string>(
-                    T._("There's one hanging out in a clearing on the outskirts of a forest.")
-                ));
-            globalState.PerformAction(
-                ClientAction.SendMessage, new ClientParameter<string>(
-                    T._("It's tongue laps at the air lazily. It's probably hungry.")
-                ));
+            foreach (var msg in Consts.InitialMessages)
+                globalState.PerformAction(
+                    ClientAction.SendMessage, new ClientParameter<string>(
+                        T._(msg)
+                    ));
             started = true;
         }
         
@@ -212,7 +208,7 @@ namespace LamiaSimulation
         {
             globalState.LoadedFromSave();
         }
-   
+       
     }
     
 }

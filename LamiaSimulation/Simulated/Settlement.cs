@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+
 namespace LamiaSimulation
 {
     using Text = T;
@@ -64,6 +65,7 @@ namespace LamiaSimulation
             Simulation.Instance.events.SettlementHasNewResourceEvent -= OnSettlementHasNewResourceHandler;
             Simulation.Instance.events.SettlementSpawnedNewPopulationEvent -= OnSettlementSpawnedNewPopulationHandler;
             Simulation.Instance.events.SettlementBuildingPurchasedEvent -= OnSettlementBuildingPurchasedHandler;
+            Simulation.Instance.events.UnlockedPageEvent -= OnUnlockedPageHandler;
         }
 
         private void SetUpEventHandlers()
@@ -71,6 +73,7 @@ namespace LamiaSimulation
             Simulation.Instance.events.SettlementHasNewResourceEvent += OnSettlementHasNewResourceHandler;
             Simulation.Instance.events.SettlementSpawnedNewPopulationEvent += OnSettlementSpawnedNewPopulationHandler;
             Simulation.Instance.events.SettlementBuildingPurchasedEvent += OnSettlementBuildingPurchasedHandler;
+            Simulation.Instance.events.UnlockedPageEvent += OnUnlockedPageHandler;
         }
 
         private void PostInitSetup()
@@ -135,9 +138,17 @@ namespace LamiaSimulation
                 case ClientAction.SettlementPurchaseBuilding:
                     PurchaseBuilding(param2.Get as string);
                     break;
+                // Force add building
+                case ClientAction.SettlementForceAddBuilding:
+                    ForceAddBuilding(param2.Get as string);
+                    break;
                 // Unlocks an upgrade
                 case ClientAction.UnlockUpgrade:
                     UnlockUpgrade(param2.Get as string);
+                    break;
+                // Force unlocks an upgrade
+                case ClientAction.ForceUnlockUpgrade:
+                    ForceUnlockUpgrade(param2.Get as string);
                     break;
             }
             foreach(var pop in populationMembers)
@@ -515,6 +526,22 @@ namespace LamiaSimulation
             buildings[buildingID] = 0;
         }
 
+        private void DoPurchaseBuiding(string buildingID)
+        {
+            buildings.TryAdd(buildingID, 0);
+            buildings[buildingID]++;
+            RecalculatePopulationLimits();
+            RecalculateResourceLimits();
+            // Fire event
+            Simulation.Instance.events.OnBuildingPurchased(
+                new SettlementBuildingPurchasedEventArgs
+                {
+                    BuildingId = buildingID,
+                    SettlementUuid = ID
+                }
+            );
+        }
+        
         private void PurchaseBuilding(string buildingID)
         {
             if (!HasBuildingUnlocked(buildingID))
@@ -529,19 +556,17 @@ namespace LamiaSimulation
                 if (inventory.ContainsKey(resourceCost.Key))
                     inventory[resourceCost.Key] -= resourceCost.Value;
             }
-            buildings[buildingID]++;
-            RecalculatePopulationLimits();
-            RecalculateResourceLimits();
-            // Fire event
-            Simulation.Instance.events.OnBuildingPurchased(
-                new SettlementBuildingPurchasedEventArgs
-                {
-                    BuildingId = buildingID,
-                    SettlementUuid = ID
-                }
-            );
+            DoPurchaseBuiding(buildingID);
         }
 
+        private void ForceAddBuilding(string buildingID)
+        {
+            var buildingType = DataQuery<BuildingType>.GetByID(buildingID);
+            if(buildingType == null)
+                throw new ClientActionException(T._("Building type does not exist."));
+            DoPurchaseBuiding(buildingID);
+        }
+        
         private void RecalculatePopulationLimits()
         {
             var popLimit = Consts.InitialSettlementPopulationCapacity;
@@ -576,6 +601,11 @@ namespace LamiaSimulation
         private void DetermineAvailableUpgrades()
         {
             availableUpgrades.Clear();
+            var hasUnlockedUpgrades = Simulation.Instance.Query<bool, string>(
+                ClientQuery.HasUnlockedPage, Consts.Pages.Upgrades
+            );
+            if(!hasUnlockedUpgrades)
+                return;
             var allUpgrades = DataQuery<UpgradeType>.GetAll();
             foreach (var upgrade in allUpgrades)
             {
@@ -628,7 +658,14 @@ namespace LamiaSimulation
                 if (!inventory.ContainsKey(resourceCost.Key) || inventory[resourceCost.Key] < resourceCost.Value)
                     return false;
             return true;
-        }        
+        }
+
+        private void DoUnlockUpgrade(string upgradeId)
+        {
+            availableUpgrades.Remove(upgradeId);
+            unlockedUpgrades.Add(upgradeId);
+            DetermineAvailableUpgrades();
+        }
 
         private void UnlockUpgrade(string upgradeId)
         {
@@ -643,9 +680,12 @@ namespace LamiaSimulation
             var upgrade = Helpers.GetDataTypeById<UpgradeType>(upgradeId);
             foreach (var resourceCost in upgrade.cost)
                 inventory[resourceCost.Key] -= resourceCost.Value;
-            availableUpgrades.Remove(upgradeId);
-            unlockedUpgrades.Add(upgradeId);
-            DetermineAvailableUpgrades();
+            DoUnlockUpgrade(upgradeId);
+        }
+        
+        private void ForceUnlockUpgrade(string upgradeId)
+        {
+            DoUnlockUpgrade(upgradeId);
         }
 
         
@@ -961,6 +1001,7 @@ namespace LamiaSimulation
                     );
                     break;
             }
+            DetermineAvailableUpgrades();
         }
 
         public void OnSettlementSpawnedNewPopulationHandler(object sender, SettlementSpawnedNewPopulationEventArgs e)
@@ -974,6 +1015,7 @@ namespace LamiaSimulation
                     new ClientParameter<string>(T._("The last Lamia to join your settlement has some bright ideas."))
                 );
             }
+            DetermineAvailableUpgrades();
         }
 
         public void OnSettlementBuildingPurchasedHandler(object sender, SettlementBuildingPurchasedEventArgs e)
@@ -999,7 +1041,14 @@ namespace LamiaSimulation
                     );
                     break;
             }
+            DetermineAvailableUpgrades();
         }
 
+        public void OnUnlockedPageHandler(object sender, UnlockedPageEventArgs e)
+        {
+            if(e.PageId == "upgrades")
+                DetermineAvailableUpgrades();
+        }
+        
     }
 }
