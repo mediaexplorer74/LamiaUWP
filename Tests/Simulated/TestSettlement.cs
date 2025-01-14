@@ -87,22 +87,7 @@ namespace Tests
                 simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
             );
         }
-
-        [Test]
-        public void TestUnlockTask()
-        {
-            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
-            Assert.AreEqual(
-                new []{"idle", "forage"},
-                simulation.Query<string[], string>(ClientQuery.SettlementTasks, settlementUuid)
-            );
-            simulation.PerformAction(ClientAction.UnlockTask, settlementUuid,"cut_trees");
-            Assert.AreEqual(
-                new []{"idle", "forage", "cut_trees"},
-                simulation.Query<string[], string>(ClientQuery.SettlementTasks, settlementUuid)
-            );
-        }
-
+        
         [Test]
         public void TestRenameSettlement()
         {
@@ -456,27 +441,7 @@ namespace Tests
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
             var cutTrees = Helpers.GetDataTypeById<TaskType>("cut_trees");
-            Assert.AreEqual(
-                new []{"idle", "forage"},
-                simulation.Query<string[], string>(ClientQuery.SettlementTasks, settlementUuid)
-            );
-            Assert.AreEqual(
-                false,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "cut_trees")
-            );
-            simulation.PerformAction(ClientAction.UnlockTask, settlementUuid, "cut_trees");
-            Assert.AreEqual(
-                new []{"idle", "forage", "cut_trees"},
-                simulation.Query<string[], string>(ClientQuery.SettlementTasks, settlementUuid)
-            );
-            Assert.AreEqual(
-                true,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "cut_trees")
-            );
-            Assert.AreEqual(
-                "Cut Trees",
-                simulation.Query<string, string, string>(ClientQuery.SettlementTaskName, settlementUuid, "cut_trees")
-            );
+            simulation.PerformAction(ClientAction.UnlockTask, "cut_trees");
             Assert.AreEqual(
                 new []
                 {
@@ -614,12 +579,12 @@ namespace Tests
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             Assert.AreEqual(
                 false,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "cut_trees")
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "cut_trees")
             );
             simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "raw_food", 10f);
             Assert.AreEqual(
                 true,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "cut_trees")
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "cut_trees")
             );
         }
         
@@ -661,14 +626,14 @@ namespace Tests
             simulation.PerformAction(ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "forage");
             Assert.AreEqual(
                 false,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "research")
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "research")
             );
             foreach(var i in Enumerable.Range(0, Consts.UnlockResearchAtPopulationCount - 2))
                 simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "log_hut");
             SimulateSeconds(Consts.populationSpawnTime * (Consts.UnlockResearchAtPopulationCount + 1));
             Assert.AreEqual(
                 true,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, "research")
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "research")
             );
         }
 

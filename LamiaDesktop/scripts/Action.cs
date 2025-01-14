@@ -49,12 +49,9 @@ public partial class Action: Node
         Simulation.Instance.PerformAction(ClientAction.SendMessage, new ClientParameter<string>(message));
     }
     
-    public void UnlockTask(string settlementUuid, string taskId)
+    public void UnlockTask(string taskId)
     {
-        Simulation.Instance.PerformAction(
-            ClientAction.UnlockTask,
-            new ClientParameter<string>(settlementUuid), new ClientParameter<string>(taskId)
-        );
+        Simulation.Instance.PerformAction(ClientAction.UnlockTask, taskId);
     }
 
     public void PopulationAssignToTask(string settlementUuid, string populationUuid, string taskId)

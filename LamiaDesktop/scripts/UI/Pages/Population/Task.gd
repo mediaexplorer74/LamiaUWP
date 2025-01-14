@@ -21,7 +21,7 @@ func _ready():
 func _process(_delta):
     if not task_name:
         return
-    header_label.text = Query.SettlementTaskName(game_controller.currentSettlementUuid, task_name)
+    header_label.text = Query.TaskName(task_name)
     header_icon.texture = load("res://media/icons/icon_task_%s.png" % task_name)
     find_child("Info").get_node("TooltipShower").tooltip_label_text = "\n".join(Query.SettlementTaskDescription(game_controller.currentSettlementUuid, task_name))
     

@@ -343,29 +343,29 @@ public partial class Query: Node
     // TASKS
     // ----------------------
     
-    public string[] SettlementTasks(string uuid)
+    public string[] Tasks()
     {
-        return Simulation.Instance.Query<string[], string>(ClientQuery.SettlementTasks, uuid);
+        return Simulation.Instance.Query<string[]>(ClientQuery.Tasks);
     }
   
-    public bool SettlementTaskUnlocked(string settlementUuid, string taskId)
+    public bool TaskUnlocked(string taskId)
     {
-        return Simulation.Instance.Query<bool, string, string>(ClientQuery.SettlementTaskUnlocked, settlementUuid, taskId);
+        return Simulation.Instance.Query<bool, string>(ClientQuery.TaskUnlocked, taskId);
     }
     
+    public string TaskName(string taskId)
+    {
+        return Simulation.Instance.Query<string, string>(ClientQuery.TaskName, taskId);
+    }
+    
+    public string[] SettlementTaskDescription(string settlementId, string taskId)
+    {
+        return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementTaskDescription, settlementId, taskId);
+    }
+
     public string[] SettlementTaskAssignments(string settlementUuid, string taskId)
     {
         return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementTaskAssignments, settlementUuid, taskId);
-    }
-
-    public string SettlementTaskName(string settlementUuid, string taskId)
-    {
-        return Simulation.Instance.Query<string, string, string>(ClientQuery.SettlementTaskName, settlementUuid, taskId);
-    }
-    
-    public string[] SettlementTaskDescription(string settlementUuid, string taskId)
-    {
-        return Simulation.Instance.Query<string[], string, string>(ClientQuery.SettlementTaskDescription, settlementUuid, taskId);
     }
     
     public int SettlementTaskAssignedNum(string settlementUuid, string taskId)

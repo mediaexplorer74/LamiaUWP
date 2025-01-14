@@ -139,16 +139,9 @@ namespace Tests
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
+            simulation.PerformAction(ClientAction.UnlockTask, "cut_trees");
             simulation.PerformAction(
-                ClientAction.UnlockTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("cut_trees")
-            );
-            simulation.PerformAction(
-                ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("cut_trees")
+                ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "cut_trees"
             );
             var secondsToSimulate =
                 System.Math.Ceiling(NumberCutTreesToHungry() * Helpers.GetDataTypeById<TaskType>("cut_trees").timeToComplete) + (Consts.depositInventoryTime * 2);
@@ -179,16 +172,9 @@ namespace Tests
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
             var populationName =
                 simulation.Query<string, string, string>(ClientQuery.PopulationMemberName, settlementUuid, populationUuid);
+            simulation.PerformAction(ClientAction.UnlockTask, "cut_trees");
             simulation.PerformAction(
-                ClientAction.UnlockTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("cut_trees")
-            );
-            simulation.PerformAction(
-                ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("cut_trees")
+                ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "cut_trees"
             );
             var secondsToSimulate =
                 System.Math.Ceiling(NumberCutTreesToHungry() * Helpers.GetDataTypeById<TaskType>("cut_trees").timeToComplete) +
@@ -219,16 +205,9 @@ namespace Tests
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
+            simulation.PerformAction(ClientAction.UnlockTask, "cut_trees");
             simulation.PerformAction(
-                ClientAction.UnlockTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("cut_trees")
-            );
-            simulation.PerformAction(
-                ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("cut_trees")
+                ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "cut_trees"
             );
             var secondsToSimulate =
                 System.Math.Ceiling(NumberCutTreesToHungry() *
@@ -246,10 +225,7 @@ namespace Tests
                     populationUuid)
             );
             simulation.PerformAction(
-                ClientAction.AddResourceToSettlementInventory, 
-                new ClientParameter<string>(settlementUuid), 
-                new ClientParameter<string>("raw_food"),
-                new ClientParameter<float>(10f)
+                ClientAction.AddResourceToSettlementInventory, settlementUuid, "raw_food", 10f
             );
             simulation.Simulate(.5f);
             Assert.AreEqual(
@@ -272,16 +248,9 @@ namespace Tests
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
+            simulation.PerformAction(ClientAction.UnlockTask, "cut_trees");
             simulation.PerformAction(
-                ClientAction.UnlockTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("cut_trees")
-            );
-            simulation.PerformAction(
-                ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("cut_trees")
+                ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "cut_trees"
             );
             var secondsToSimulate =
                 System.Math.Ceiling(NumberCutTreesToHungry() *
@@ -300,10 +269,7 @@ namespace Tests
             );
             var numFoodPortionsRequired = System.MathF.Ceiling(1f / Helpers.GetDataTypeById<ResourceType>("raw_food").hungerRecoveryFactor);
             simulation.PerformAction(
-                ClientAction.AddResourceToSettlementInventory, 
-                new ClientParameter<string>(settlementUuid), 
-                new ClientParameter<string>("raw_food"),
-                new ClientParameter<float>(numFoodPortionsRequired)
+                ClientAction.AddResourceToSettlementInventory, settlementUuid, "raw_food", numFoodPortionsRequired
             );
             simulation.Simulate(.01f);
             Assert.AreEqual(
@@ -352,16 +318,12 @@ namespace Tests
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
-            simulation.PerformAction(
-                ClientAction.UnlockTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("cut_trees")
-            );
+            simulation.PerformAction(ClientAction.UnlockTask, "cut_trees");
             simulation.PerformAction(
                 ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("cut_trees")
+                settlementUuid,
+                populationUuid,
+                "cut_trees"
             );
             var secondsToSimulate =
                 System.Math.Ceiling(NumberCutTreesToHungry() *
@@ -382,10 +344,7 @@ namespace Tests
                 System.MathF.Ceiling(1f / Helpers.GetDataTypeById<ResourceType>("raw_food").hungerRecoveryFactor);
             var numFoodPortionsWereGetting = numFoodPortionsRequired / 2;
             simulation.PerformAction(
-                ClientAction.AddResourceToSettlementInventory,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("raw_food"),
-                new ClientParameter<float>(numFoodPortionsWereGetting)
+                ClientAction.AddResourceToSettlementInventory, settlementUuid, "raw_food", numFoodPortionsWereGetting
             );
             simulation.Simulate(.01f);
             Assert.AreEqual(
@@ -429,16 +388,13 @@ namespace Tests
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
             simulation.PerformAction(
-                ClientAction.AddResourceToSettlementInventory,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("raw_food"),
-                new ClientParameter<float>(Consts.InitialSettlementResourceCapacity["raw_food"])
+                ClientAction.AddResourceToSettlementInventory, 
+                settlementUuid, 
+                "raw_food",
+                Consts.InitialSettlementResourceCapacity["raw_food"]
             );
             simulation.PerformAction(
-                ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("forage")
+                ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "forage"
             );
             SimulateSeconds(SecondsToMaxInventoryWhenForaging());
             Assert.AreEqual(
@@ -466,16 +422,13 @@ namespace Tests
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
             simulation.PerformAction(
-                ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("forage")
+                ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "forage"
             );
             simulation.PerformAction(
                 ClientAction.AddResourceToSettlementInventory,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("raw_food"),
-                new ClientParameter<float>(Consts.InitialSettlementResourceCapacity["raw_food"])
+                settlementUuid,
+                "raw_food",
+                Consts.InitialSettlementResourceCapacity["raw_food"]
             );
             SimulateSeconds(.1f);
             Assert.AreEqual(
@@ -484,9 +437,9 @@ namespace Tests
             );
             simulation.PerformAction(
                 ClientAction.SubtractResourceFromSettlementInventory,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("raw_food"),
-                new ClientParameter<float>(Consts.InitialSettlementResourceCapacity["raw_food"])
+                settlementUuid,
+                "raw_food",
+                Consts.InitialSettlementResourceCapacity["raw_food"]
             );
             SimulateSeconds(.5f);
             Assert.AreEqual(
@@ -505,16 +458,9 @@ namespace Tests
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
+            simulation.PerformAction(ClientAction.UnlockTask, "research");
             simulation.PerformAction(
-                ClientAction.UnlockTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("research")
-                );
-            simulation.PerformAction(
-                ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("research")
+                ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "research"
             );
             Assert.AreEqual(
                 0f,
@@ -583,63 +529,31 @@ namespace Tests
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
-            simulation.PerformAction(
-                ClientAction.UnlockTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("cook")
-            );
-            simulation.PerformAction(
-                ClientAction.SettlementUnlockBuilding,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("stockpile")
-            );
+            simulation.PerformAction(ClientAction.UnlockTask, "cook");
+            simulation.PerformAction(ClientAction.SettlementUnlockBuilding, settlementUuid, "stockpile");
             for (var i = 0; i <= 2; i++)
             {
                 simulation.PerformAction(
-                    ClientAction.AddResourceToSettlementInventory,
-                    new ClientParameter<string>(settlementUuid),
-                    new ClientParameter<string>("logs"),
-                    new ClientParameter<float>(20f)
+                    ClientAction.AddResourceToSettlementInventory, settlementUuid, "logs", 20f
                 );
                 simulation.PerformAction(
-                    ClientAction.AddResourceToSettlementInventory,
-                    new ClientParameter<string>(settlementUuid),
-                    new ClientParameter<string>("raw_food"),
-                    new ClientParameter<float>(40f)
+                    ClientAction.AddResourceToSettlementInventory, settlementUuid, "raw_food", 40f
                 );
                 simulation.PerformAction(
-                    ClientAction.SettlementPurchaseBuilding,
-                    new ClientParameter<string>(settlementUuid),
-                    new ClientParameter<string>("stockpile")
+                    ClientAction.SettlementPurchaseBuilding, settlementUuid, "stockpile"
                 );
             }
+            simulation.PerformAction(ClientAction.SettlementUnlockBuilding, settlementUuid, "pantry");
+            var pantry = Helpers.GetDataTypeById<BuildingType>("pantry");
             simulation.PerformAction(
-                ClientAction.SettlementUnlockBuilding,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("pantry")
+                ClientAction.AddResourceToSettlementInventory, settlementUuid, "logs", pantry.cost["logs"]
             );
             simulation.PerformAction(
-                ClientAction.AddResourceToSettlementInventory,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("logs"),
-                new ClientParameter<float>(Helpers.GetDataTypeById<BuildingType>("pantry").cost["logs"])
+                ClientAction.AddResourceToSettlementInventory, settlementUuid, "raw_food", pantry.cost["raw_food"]
             );
+            simulation.PerformAction(ClientAction.SettlementPurchaseBuilding, settlementUuid, "pantry");
             simulation.PerformAction(
-                ClientAction.AddResourceToSettlementInventory,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("raw_food"),
-                new ClientParameter<float>(Helpers.GetDataTypeById<BuildingType>("pantry").cost["raw_food"])
-            );
-            simulation.PerformAction(
-                ClientAction.SettlementPurchaseBuilding,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>("pantry")
-            );
-            simulation.PerformAction(
-                ClientAction.PopulationAssignToTask,
-                new ClientParameter<string>(settlementUuid),
-                new ClientParameter<string>(populationUuid),
-                new ClientParameter<string>("cook")
+                ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, "cook"
             );
             SimulateSeconds(.1f);
             Assert.AreEqual(

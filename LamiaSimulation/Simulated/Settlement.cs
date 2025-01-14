@@ -12,7 +12,6 @@ namespace LamiaSimulation
         public string name { get; set; }
         public List<PopulationMember> populationMembers { get; set; }
         public int maxPopulationMember { get; set; }
-        public List<string> availableTasks { get; set; }
         public Dictionary<string, int> buildings { get; set; }
         public List<string> availableBuildings { get; set; }
         public Dictionary<string, float> inventory { get; set; }
@@ -47,7 +46,6 @@ namespace LamiaSimulation
             inventoryMemoryTime = 1.0f;
             resourceCapacity = new Dictionary<string, float>(Consts.InitialSettlementResourceCapacity);
             populationMembers = new List<PopulationMember>();
-            availableTasks = new List<string>();
             populationToRemove = new List<PopulationMember>();
             spawnTimer = Consts.populationSpawnTime;
             spawnEnabled = false;
@@ -56,8 +54,6 @@ namespace LamiaSimulation
             this.name = name;
             this.locationUuid = locationUuid;
             PostInitSetup();
-            UnlockTask("idle");
-            UnlockTask("forage");
         }
 
         ~Settlement()
@@ -79,6 +75,8 @@ namespace LamiaSimulation
         private void PostInitSetup()
         {
             SetUpEventHandlers();
+            if (Simulation.Instance.Query<bool, string>(ClientQuery.TaskUnlocked, "cut_trees"))
+                spawnEnabled = true;
         }
         
         // ---------------------------------------------------
@@ -113,10 +111,6 @@ namespace LamiaSimulation
                 return;
             switch(action)
             {
-                // Unlock task
-                case ClientAction.UnlockTask:
-                    UnlockTask(param2.Get as string);
-                    break;
                 // Rename
                 case ClientAction.RenameSettlement:
                     name = param2.Get as string;
@@ -167,8 +161,8 @@ namespace LamiaSimulation
                     var taskToAssignTo = param3.Get as string;
                     if(DataQuery<TaskType>.GetByID(taskToAssignTo) == null)
                         throw new ClientActionException(T._("Task does not exist."));
-                    if(!availableTasks.Contains(taskToAssignTo))
-                        throw new ClientActionException(T._("Task not unlocked in settlement."));
+                    if(!Simulation.Instance.Query<bool, string>(ClientQuery.TaskUnlocked, taskToAssignTo))
+                        throw new ClientActionException(T._("Task not unlocked."));
                     break;
                 // Add resource to inventory
                 case ClientAction.AddResourceToSettlementInventory:
@@ -251,10 +245,6 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementPopulationMembers:
                     result = new QueryResult<string[]>(GetSettlementPopulationMembers()) as QueryResult<T>;
                     break;
-                // Available tasks
-                case ClientQuery.SettlementTasks:
-                    result = new QueryResult<string[]>(GetAvailableTasks()) as QueryResult<T>;
-                    break;
                 // Inventory resource categories
                 case ClientQuery.SettlementInventoryCategories:
                     result = new QueryResult<string[]>(GetInventoryCategoryList()) as QueryResult<T>;
@@ -287,14 +277,6 @@ namespace LamiaSimulation
                 return;
             switch(query)
             {
-                // Task names
-                case ClientQuery.SettlementTaskName:
-                    result = new QueryResult<string>(GetTaskName(param2.Get as string)) as QueryResult<T>;
-                    break;
-                // Is task unlocked
-                case ClientQuery.SettlementTaskUnlocked:
-                    result = new QueryResult<bool>(HasTaskUnlocked(param2.Get as string)) as QueryResult<T>;
-                    break;
                 // Task descriptions
                 case ClientQuery.SettlementTaskDescription:
                     result = new QueryResult<string[]>(GetTaskDescription(param2.Get as string)) as QueryResult<T>;
@@ -497,16 +479,7 @@ namespace LamiaSimulation
         {
             populationMembers.Remove(population);
         }
-
-        private void UnlockTask(string taskID)
-        {
-            if(HasTaskUnlocked(taskID))
-                throw new ClientActionException(T._("Task already unlocked."));
-            if(DataQuery<TaskType>.GetByID(taskID) == null)
-                throw new ClientActionException(T._("Task does not exist."));
-            availableTasks.Add(taskID);
-        }
-
+        
         private void TakeNextAvailableFoodPortion()
         {
             var nextAvailableFood = GetNextAvailableFoodPortion();
@@ -692,11 +665,6 @@ namespace LamiaSimulation
         // ---------------------------------------------------
         // Query behaviours
         // ---------------------------------------------------
-
-        private bool HasTaskUnlocked(string taskID)
-        {
-            return availableTasks.Contains(taskID);
-        }
         
         private int GetNumPopulation()
         {
@@ -725,38 +693,18 @@ namespace LamiaSimulation
             var popIDs = populationMembers.Filter(pop => pop.populationSpeciesTypeName == speciesID).Select(pop => pop.ID).ToList();
             return popIDs.ToArray();
         }
-
-        private string[] GetAvailableTasks()
-        {
-            return availableTasks.ToArray();
-        }
-
+        
         private string[] GetTaskAssignments(string taskId)
         {
             var popIDs = populationMembers.Filter(pop => pop.taskAssigment == taskId).Select(pop => pop.ID).ToList();
             return popIDs.ToArray();
         }
-
-        private TaskType GetTaskById(string taskId)
-        {
-            var filtered = DataQuery<TaskType>.GetByID(taskId);
-            if(filtered == null)
-                throw new ClientActionException(T._("Task does not exist."));
-            if(!availableTasks.Contains(taskId))
-                throw new ClientActionException(T._("Task not unlocked."));
-            return filtered;
-        }
-
-        private string GetTaskName(string taskID)
-        {
-            return T._(GetTaskById(taskID).name);
-        }
-
+        
         private string[] GetTaskDescription(string taskID)
         {
-            return GetTaskById(taskID).GetDescriptionDisplay(ID);
+            return TaskType.GetTaskById(taskID).GetDescriptionDisplay(ID);
         }
-
+        
         private int GetTaskAssignedNum(string taskID)
         {
             return populationMembers.Filter(pop => pop.taskAssigment == taskID).Count();
@@ -954,18 +902,18 @@ namespace LamiaSimulation
             {
                 // Unlock cut tree task when getting raw food
                 case "raw_food":
-                    if (HasTaskUnlocked("cut_trees"))
-                        return;
-                    UnlockTask("cut_trees");
-                    Simulation.Instance.PerformAction(
-                        ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("With food available, it's time to find some better building materials."))
-                    );
-                    Simulation.Instance.PerformAction(
-                        ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("The trees around here will take some work to fell, but they are the only option."))
-                    );
                     spawnEnabled = true;
+                    if (Simulation.Instance.Query<bool, string>(ClientQuery.TaskUnlocked, "cut_trees"))
+                        return;
+                    Simulation.Instance.PerformAction(ClientAction.UnlockTask, "cut_trees");
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        T._("With food available, it's time to find some better building materials.")
+                    );
+                    Simulation.Instance.PerformAction(
+                        ClientAction.SendMessage,
+                        T._("The trees around here will take some work to fell, but they are the only option.")
+                    );
                     break;
                 // Unlock Buildings page when getting first logs
                 case "logs":
@@ -974,13 +922,9 @@ namespace LamiaSimulation
                     );
                     if (hasUnlockedBuildings)
                         return;
+                    Simulation.Instance.PerformAction(ClientAction.UnlockPage, Consts.Pages.Buildings);
                     Simulation.Instance.PerformAction(
-                        ClientAction.UnlockPage,
-                        new ClientParameter<string>(Consts.Pages.Buildings)
-                    );
-                    Simulation.Instance.PerformAction(
-                        ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("We can construct new buildings with wood."))
+                        ClientAction.SendMessage, T._("We can construct new buildings with wood.")
                     );
                     UnlockBuilding("log_hut");
                     break;
@@ -991,13 +935,10 @@ namespace LamiaSimulation
                     );
                     if (hasUnlockedResearch)
                         return;
-                    Simulation.Instance.PerformAction(
-                        ClientAction.UnlockPage,
-                        new ClientParameter<string>(Consts.Pages.Research)
-                    );
+                    Simulation.Instance.PerformAction(ClientAction.UnlockPage, Consts.Pages.Research);
                     Simulation.Instance.PerformAction(
                         ClientAction.SendMessage,
-                        new ClientParameter<string>(T._("Best apply some of those smart thinkings to new projects."))
+                        T._("Best apply some of those smart thinkings to new projects.")
                     );
                     break;
             }
@@ -1006,13 +947,14 @@ namespace LamiaSimulation
 
         public void OnSettlementSpawnedNewPopulationHandler(object sender, SettlementSpawnedNewPopulationEventArgs e)
         {
-            // Unlock research when hitting a population threshold
-            if (!HasTaskUnlocked("research") && GetNumPopulation() >= Consts.UnlockResearchAtPopulationCount)
+            // Unlock research task when hitting a population threshold
+            var hasResearch = Simulation.Instance.Query<bool, string>(ClientQuery.TaskUnlocked, "research");
+            if (!hasResearch && GetNumPopulation() >= Consts.UnlockResearchAtPopulationCount)
             {
-                UnlockTask("research");
+                Simulation.Instance.PerformAction(ClientAction.UnlockTask, "research");
                 Simulation.Instance.PerformAction(
                     ClientAction.SendMessage,
-                    new ClientParameter<string>(T._("The last Lamia to join your settlement has some bright ideas."))
+                    T._("The last Lamia to join your settlement has some bright ideas.")
                 );
             }
             DetermineAvailableUpgrades();
@@ -1029,15 +971,10 @@ namespace LamiaSimulation
                     );
                     if (hasUnlockedUpgrades)
                         return;
-                    Simulation.Instance.PerformAction(
-                        ClientAction.UnlockPage,
-                        new ClientParameter<string>(Consts.Pages.Upgrades)
-                    );
+                    Simulation.Instance.PerformAction(ClientAction.UnlockPage, Consts.Pages.Upgrades);
                     Simulation.Instance.PerformAction(
                         ClientAction.SendMessage,
-                        new ClientParameter<string>(
-                            T._("It's about time we applied all this accumulated knowledge to improving our existing stuff.")
-                            )
+                        T._("It's about time we applied all this accumulated knowledge to improving our existing stuff.")
                     );
                     break;
             }

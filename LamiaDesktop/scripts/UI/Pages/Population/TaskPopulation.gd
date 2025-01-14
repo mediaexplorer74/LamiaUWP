@@ -68,7 +68,7 @@ func _on_assign_task_button_pressed():
     task_list.clear()
     for task_name in get_available_tasks():
         task_list.add_item(
-            Query.SettlementTaskName(game_controller.currentSettlementUuid, task_name),
+            Query.TaskName(task_name),
             load("res://media/icons/icon_task_%s.png" % task_name)
         )
     assign_task_holder.position = assign_task_button.global_position
@@ -86,6 +86,6 @@ func _on_task_list_item_clicked(index, _at_position, _mouse_button_index):
 
 func get_available_tasks():
     var current_task = Query.PopulationMemberTask(game_controller.currentSettlementUuid, population_uuid)
-    var available_tasks = Array(Query.SettlementTasks(game_controller.currentSettlementUuid))
+    var available_tasks = Array(Query.Tasks())
     available_tasks.remove_at(available_tasks.find(current_task))
     return available_tasks    

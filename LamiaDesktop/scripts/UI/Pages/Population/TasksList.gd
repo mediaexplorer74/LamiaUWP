@@ -10,7 +10,7 @@ var current_task_list = []
 
 
 func _process(_delta):
-    var task_list = Array(Query.SettlementTasks(game_controller.currentSettlementUuid))
+    var task_list = Array(Query.Tasks())
     
     if task_list == current_task_list:
         return

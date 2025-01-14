@@ -28,6 +28,16 @@ namespace LamiaSimulation
         public float hungerReduction;
         public string actionText;
 
+        public static TaskType GetTaskById(string taskId)
+        {
+            var filtered = DataQuery<TaskType>.GetByID(taskId);
+            if(filtered == null)
+                throw new ClientActionException(T._("Task does not exist."));
+            if(!Simulation.Instance.Query<bool, string>(ClientQuery.TaskUnlocked, taskId))
+                throw new ClientActionException(T._("Task not unlocked."));
+            return filtered;
+        }
+        
         public string[] GetDescriptionDisplay(string settlementUuid)
         {
             var behaviourText = new List<string>{ T._(description), "" };

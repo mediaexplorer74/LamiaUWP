@@ -33,7 +33,6 @@ namespace LamiaSimulation
 
         // Unlocks a task so it's available for population assignment
         // params:
-        //   - string: uuid of settlement
         //   - string: id of task
         UnlockTask,
 

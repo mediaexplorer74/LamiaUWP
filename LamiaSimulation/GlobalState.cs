@@ -9,26 +9,15 @@ namespace LamiaSimulation
 
     internal class GlobalState: IActionReceiver, IQueryable, ISimulated
     {
-        public List<string> availablePages { get; set; }
-        public List<Location> locations { get; set; }
-        public List<Settlement> playerSettlements { get; set; }
-        public List<string> messageHistory { get; set; }
-        public List<string> unreadMessages { get; set; }
-        public List<string> currentlyDisplayedMessages { get; set; }
-        public List<string> availableResearch { get; set; }
-        public List<string> unlockedResearch { get; set; }
-        
-        public GlobalState()
-        {
-            locations = new List<Location>();
-            playerSettlements = new List<Settlement>();
-            messageHistory = new List<string>();
-            unreadMessages = new List<string>();
-            currentlyDisplayedMessages = new List<string>();
-            availablePages = new List<string>();
-            availableResearch = new List<string>();
-            unlockedResearch = new List<string>();
-        }
+        public List<string> availablePages { get; set; } = new();
+        public List<Location> locations { get; set; } = new();
+        public List<Settlement> playerSettlements { get; set; } = new();
+        public List<string> availableTasks { get; set; } = new();
+        public List<string> messageHistory { get; set; } = new();
+        public List<string> unreadMessages { get; set; } = new();
+        public List<string> currentlyDisplayedMessages { get; set; } = new();
+        public List<string> availableResearch { get; set; } = new();
+        public List<string> unlockedResearch { get; set; } = new();
 
         ~GlobalState()
         {
@@ -119,6 +108,10 @@ namespace LamiaSimulation
                     var newSettlement = new Settlement(Text._("Unnamed"), param1.Get.ToString());
                     playerSettlements.Add(newSettlement);
                     break;
+                // Unlock task
+                case ClientAction.UnlockTask:
+                    UnlockTask(param1.Get as string);
+                    break;
                 // Unlocks a research
                 case ClientAction.UnlockResearch:
                     UnlockResearch(param1.Get as string);
@@ -208,6 +201,10 @@ namespace LamiaSimulation
                 case ClientQuery.Settlements:
                     result = new QueryResult<string[]>(playerSettlements.Map(s => s.ID).ToArray()) as QueryResult<T>;
                     break;
+                // Available tasks
+                case ClientQuery.Tasks:
+                    result = new QueryResult<string[]>(GetAvailableTasks()) as QueryResult<T>;
+                    break;
                 // Research available
                 case ClientQuery.ResearchAvailable:
                     result = new QueryResult<string[]>(availableResearch.ToArray()) as QueryResult<T>;
@@ -255,6 +252,14 @@ namespace LamiaSimulation
                 // Resource description
                 case ClientQuery.ResourceDescription:
                     result = new QueryResult<string>(Text._(Helpers.GetResourceTypeById(param1.Get as string).description)) as QueryResult<T>;
+                    break;
+                // Task names
+                case ClientQuery.TaskName:
+                    result = new QueryResult<string>(GetTaskName(param1.Get as string)) as QueryResult<T>;
+                    break;
+                // Is task unlocked
+                case ClientQuery.TaskUnlocked:
+                    result = new QueryResult<bool>(availableTasks.Contains(param1.Get as string)) as QueryResult<T>;
                     break;
                 // Research name
                 case ClientQuery.ResearchDisplayName:
@@ -324,6 +329,15 @@ namespace LamiaSimulation
             unreadMessages.Add(message);
         }
 
+        private void UnlockTask(string taskID)
+        {
+            if(availableTasks.Contains(taskID))
+                throw new ClientActionException(T._("Task already unlocked."));
+            if(DataQuery<TaskType>.GetByID(taskID) == null)
+                throw new ClientActionException(T._("Task does not exist."));
+            availableTasks.Add(taskID);
+        }
+        
         private void DetermineAvailableResearch()
         {
             availableResearch.Clear();
@@ -418,22 +432,15 @@ namespace LamiaSimulation
                         foreach (var settlement in playerSettlements)
                         {
                             Simulation.Instance.PerformAction(
-                                ClientAction.SettlementUnlockBuilding,
-                                new ClientParameter<string>(settlement.ID),
-                                new ClientParameter<string>(behaviour.id)
+                                ClientAction.SettlementUnlockBuilding, 
+                                settlement.ID,
+                                behaviour.id
                             );
                         }
 
                         break;
                     case ResearchBehaviourMethod.UNLOCK_TASK:
-                        foreach (var settlement in playerSettlements)
-                        {
-                            Simulation.Instance.PerformAction(
-                                ClientAction.UnlockTask,
-                                new ClientParameter<string>(settlement.ID),
-                                new ClientParameter<string>(behaviour.id)
-                            );
-                        }
+                        Simulation.Instance.PerformAction(ClientAction.UnlockTask, behaviour.id);
                         break;
                     default:
                         throw new ClientActionException(Text._("Research behaviour not implemented"));
@@ -467,6 +474,16 @@ namespace LamiaSimulation
                     return T._("Upgrades");
             }
             throw new NotImplementedException("No specified page name");
+        }
+        
+        private string[] GetAvailableTasks()
+        {
+            return availableTasks.ToArray();
+        }
+
+        private string GetTaskName(string taskID)
+        {
+            return T._(TaskType.GetTaskById(taskID).name);
         }
         
         // ---------------------------------------------------

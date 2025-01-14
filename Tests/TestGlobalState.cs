@@ -103,6 +103,46 @@ namespace Tests
         }
 
         [Test]
+        public void TestUnlockTask()
+        {
+            Assert.AreEqual(
+                new []{"idle", "forage"},
+                simulation.Query<string[]>(ClientQuery.Tasks)
+            );
+            simulation.PerformAction(ClientAction.UnlockTask,"cut_trees");
+            Assert.AreEqual(
+                new []{"idle", "forage", "cut_trees"},
+                simulation.Query<string[]>(ClientQuery.Tasks)
+            );
+        }
+
+        [Test]
+        public void TestTaskQuerying()
+        {
+            Assert.AreEqual(
+                new[] { "idle", "forage" },
+                simulation.Query<string[]>(ClientQuery.Tasks)
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "cut_trees")
+            );
+            simulation.PerformAction(ClientAction.UnlockTask, "cut_trees");
+            Assert.AreEqual(
+                new[] { "idle", "forage", "cut_trees" },
+                simulation.Query<string[]>(ClientQuery.Tasks)
+            );
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "cut_trees")
+            );
+            Assert.AreEqual(
+                "Cut Trees",
+                simulation.Query<string, string>(ClientQuery.TaskName, "cut_trees")
+            );
+        }
+
+        [Test]
         public void TestResearch()
         {
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];

@@ -14,6 +14,13 @@ namespace Tests
             simulation.Reset();
             simulation.Start();
         }
+
+
+        [TearDown]
+        public void Cleanup()
+        {
+            simulation.Reset();
+        }        
         
         protected float NumberForagesToMaxInventory()
         {

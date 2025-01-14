@@ -55,25 +55,15 @@ namespace LamiaSimulation
             if (started)
                 return;
             globalState.Init();
-            globalState.PerformAction(ClientAction.UnlockPage,  new ClientParameter<string>(Consts.Pages.Population));
-            globalState.PerformAction(ClientAction.AddLocation,  new ClientParameter<string>("origin"));
-            globalState.PerformAction(
-                ClientAction.AddSettlementAtLocation, new ClientParameter<string>(LastID)
-            );
-            globalState.PerformAction(
-                ClientAction.RenameSettlement, new ClientParameter<string>(LastID),
-                new ClientParameter<string>(T._("A Quiet Clearing"))
-            );
-            globalState.PerformAction(
-                ClientAction.AddPopulation,
-                new ClientParameter<string>(LastID),
-                new ClientParameter<string>("lamia")
-            );
+            PerformAction(ClientAction.UnlockPage, Consts.Pages.Population);
+            PerformAction(ClientAction.UnlockTask, "idle");
+            PerformAction(ClientAction.UnlockTask, "forage");
+            PerformAction(ClientAction.AddLocation, "origin");
+            PerformAction(ClientAction.AddSettlementAtLocation, LastID);
+            PerformAction(ClientAction.RenameSettlement, lastID, T._("A Quiet Clearing"));
+            PerformAction(ClientAction.AddPopulation, LastID, "lamia");
             foreach (var msg in Consts.InitialMessages)
-                globalState.PerformAction(
-                    ClientAction.SendMessage, new ClientParameter<string>(
-                        T._(msg)
-                    ));
+                PerformAction(ClientAction.SendMessage, T._(msg));
             started = true;
         }
         

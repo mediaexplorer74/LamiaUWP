@@ -535,19 +535,33 @@ namespace LamiaSimulation
         /*
          * Available population tasks
          *   Result - string[]: ID of tasks
-         *   Params:
-         *     - string: uuid of settlement to query
          */
-        SettlementTasks,
+        Tasks,
         
         /*
          * If a task has been unlocked
          *   Result - bool
          *   Params:
-         *     - string: uuid of settlement to query
          *     - string: task ID to query
          */
-        SettlementTaskUnlocked,
+        TaskUnlocked,
+
+        /*
+         * Display name of task
+         *   Result - string: Displayable name for task
+         *   Params:
+         *     - string: id of task
+         */
+        TaskName,
+
+        /*
+         * Description of task for a settlement (shows extract rate etc)
+         *   Result - string[]: Lines of description
+         *   Params:
+         *     - string: uuid of settlement to query
+         *     - string: id of task
+         */
+        SettlementTaskDescription,
 
         /*
          * Ids of population members assigned to a task
@@ -557,25 +571,7 @@ namespace LamiaSimulation
          *     - string: id of task
          */
         SettlementTaskAssignments,
-
-        /*
-         * Display name of task
-         *   Result - string: Displayable name for task
-         *   Params:
-         *     - string: uuid of settlement to query
-         *     - string: id of task
-         */
-        SettlementTaskName,
-
-        /*
-         * Description of task
-         *   Result - string[]: Lines of description
-         *   Params:
-         *     - string: uuid of settlement to query
-         *     - string: id of task
-         */
-        SettlementTaskDescription,
-
+        
         /*
          * Number of population assigned to a task
          *   Result - int: Num of population assigned
