@@ -22,5 +22,6 @@ namespace LamiaSimulation
         public List<ResearchBehaviour> behaviour;
         public Dictionary<string, float> cost;
         public List<string> prerequisites;
+        public string unlockMessage;
     }
 }

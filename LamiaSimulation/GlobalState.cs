@@ -116,6 +116,10 @@ namespace LamiaSimulation
                 case ClientAction.UnlockResearch:
                     UnlockResearch(param1.Get as string);
                     break;
+                // Force unlocks a research
+                case ClientAction.ForceUnlockResearch:
+                    ForceUnlockResearch(param1.Get as string);
+                    break;
             }
 
             try
@@ -409,15 +413,29 @@ namespace LamiaSimulation
                     resourceLeftToPay -= amountToDeduct;
                     Simulation.Instance.PerformAction(
                         ClientAction.SubtractResourceFromSettlementInventory,
-                        new ClientParameter<string>(settlement.ID),
-                        new ClientParameter<string>(resourceCost.Key),
-                        new ClientParameter<float>(amountToDeduct)
+                        settlement.ID,
+                        resourceCost.Key,
+                        amountToDeduct
                     );
                 }
             }
-            availableResearch.Remove(researchId);
+            DoUnlockResearch(researchId);
+        }
+
+        private void ForceUnlockResearch(string researchId)
+        {
+            if(unlockedResearch.Contains(researchId))
+                return;
+            DoUnlockResearch(researchId);            
+        }
+        
+        private void DoUnlockResearch(string researchId)
+        {
             unlockedResearch.Add(researchId);
             DoResearchEffect(researchId);
+            var research = Helpers.GetDataTypeById<ResearchType>(researchId);
+            if(research.unlockMessage != null)
+                Simulation.Instance.PerformAction(ClientAction.SendMessage, research.unlockMessage);
             DetermineAvailableResearch();
         }
 
@@ -437,7 +455,6 @@ namespace LamiaSimulation
                                 behaviour.id
                             );
                         }
-
                         break;
                     case ResearchBehaviourMethod.UNLOCK_TASK:
                         Simulation.Instance.PerformAction(ClientAction.UnlockTask, behaviour.id);

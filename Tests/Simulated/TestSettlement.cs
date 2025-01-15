@@ -208,7 +208,7 @@ namespace Tests
                 simulation.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementUuid)
             );
             simulation.PerformAction(
-                ClientAction.SettlementForceAddBuilding, settlementUuid, "warehouse"
+                ClientAction.SettlementForceAddBuilding, settlementUuid, "woodshed"
             );
             simulation.PerformAction(
                 ClientAction.SettlementForceAddBuilding, settlementUuid, "archives"
@@ -416,7 +416,7 @@ namespace Tests
                 simulation.Query<bool, string, string>(ClientQuery.UpgradeCanAfford, settlementUuid, "stone_axe")
             );
             simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "archives");
-            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "warehouse");
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "woodshed");
             simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "logs", stoneAxe.cost["logs"]);
             simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, "research", stoneAxe.cost["research"]);
             Assert.AreEqual(
@@ -649,6 +649,17 @@ namespace Tests
             Assert.AreEqual(
                 true,
                 simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Upgrades)
+            );
+        }
+        
+        [Test]
+        public void TestUnlockUpgradeShowsUnlockMessage()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            simulation.PerformAction(ClientAction.ForceUnlockUpgrade, settlementUuid, "stone_axe");
+            Assert.Contains(
+                Helpers.GetDataTypeById<UpgradeType>("stone_axe").unlockMessage,
+                simulation.Query<string[]>(ClientQuery.UnreadMessages)
             );
         }
         

@@ -11,9 +11,9 @@
     },
     "costGrowth": 1.5
   },
-  "stockpile": {
-    "name": "Stockpile",
-    "description": "Just kind of, chuck it all in a heap, I'm sure it will be fine.",
+  "heap": {
+    "name": "Heap",
+    "description": "Just kind of, chuck it all in a pile, I'm sure it will be fine.",
     "category": "storage",
     "behaviour":  {
       "storageCapacity": {
@@ -57,8 +57,8 @@
     },
     "costGrowth": 1.5
   },
-  "warehouse": {
-    "name": "Warehouse",
+  "woodshed": {
+    "name": "Woodshed",
     "description": "TODO: fill in later",
     "category": "storage",
     "behaviour":  {

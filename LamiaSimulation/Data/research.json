@@ -1,17 +1,18 @@
 ﻿{
-  "stockpile": {
-    "name": "Stockpile",
+  "heap": {
+    "name": "Heap",
     "description": "Basically just a cleared out space for dumping stuff. Took a lot of pondering this one.",
     "behaviour": [
       {
         "method": "UNLOCK_BUILDING",
-        "id": "stockpile"
+        "id": "heap"
       }
     ],
     "cost": {
       "research": 20
     },
-    "prerequisites": null
+    "prerequisites": null,
+    "unlockMessage": "Let's push all the Wooden Logs and Raw Food into a big pile in the middle of the settlement - at least it's easy to find!"
   },
   "writing": {
     "name": "Writing",
@@ -26,7 +27,8 @@
       "research": 20,
       "logs": 15
     },
-    "prerequisites": null
+    "prerequisites": null,
+    "unlockMessage": "The Archives will be soon be full of lessons and teaching written down for future generations to learn from."
   },
   "meal_prep": {
     "name": "Meal Preparation",
@@ -45,21 +47,23 @@
       "research": 50,
       "raw_food": 50
     },
-    "prerequisites": ["writing", "stockpile"]
+    "prerequisites": ["writing", "heap"],
+    "unlockMessage": "We should assign Lamia to Cook the Raw Food we've harvested into Simple Rations and store them in a cool and dry Pantry. This is a much better source of food."
   },
-  "warehouse": {
-    "name": "Warehouse",
-    "description": "TODO: fill in later",
+  "woodshed": {
+    "name": "Woodshed",
+    "description": "A permanent place to store large amounts of Wooden Logs",
     "behaviour": [
       {
         "method": "UNLOCK_BUILDING",
-        "id": "warehouse"
+        "id": "woodshed"
       }
     ],
     "cost": {
       "research": 60,
       "logs": 40
     },
-    "prerequisites": ["stockpile"]
+    "prerequisites": ["heap"],
+    "unlockMessage": "Woodsheds are covered buildings for storing a lot of Wooden Logs, our future aspirations require a lot of resources."
   }
 }

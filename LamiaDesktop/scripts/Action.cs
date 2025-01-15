@@ -12,41 +12,32 @@ public partial class Action: Node
 
     public void UnlockPage(string pageId)
     {
-        Simulation.Instance.PerformAction(ClientAction.UnlockPage, new ClientParameter<string>(pageId));
+        Simulation.Instance.PerformAction(ClientAction.UnlockPage, pageId);
     }
     
     public void AddLocation(string locationType)
     {
-        Simulation.Instance.PerformAction(ClientAction.AddLocation, new ClientParameter<string>(locationType));
+        Simulation.Instance.PerformAction(ClientAction.AddLocation, locationType);
     }
 
     public void ConvertLocationToSettlement(string uuid)
     {
-        Simulation.Instance.PerformAction(
-            ClientAction.AddSettlementAtLocation, 
-            new ClientParameter<string>(uuid)
-            );
+        Simulation.Instance.PerformAction(ClientAction.AddSettlementAtLocation, uuid);
     }
 
     public void AddPopulation(string settlementUuid, string speciesId)
     {
-        Simulation.Instance.PerformAction(
-            ClientAction.AddPopulation,
-            new ClientParameter<string>(settlementUuid), new ClientParameter<string>(speciesId)
-            );
+        Simulation.Instance.PerformAction(ClientAction.AddPopulation, settlementUuid, speciesId);
     }
     
     public void RenameSettlement(string settlementUuid, string newName)
     {
-        Simulation.Instance.PerformAction(
-            ClientAction.RenameSettlement,
-            new ClientParameter<string>(settlementUuid), new ClientParameter<string>(newName)
-        );
+        Simulation.Instance.PerformAction(ClientAction.RenameSettlement, settlementUuid, newName);
     }
 
     public void SendMessage(string message)
     {
-        Simulation.Instance.PerformAction(ClientAction.SendMessage, new ClientParameter<string>(message));
+        Simulation.Instance.PerformAction(ClientAction.SendMessage, message);
     }
     
     public void UnlockTask(string taskId)
@@ -57,83 +48,68 @@ public partial class Action: Node
     public void PopulationAssignToTask(string settlementUuid, string populationUuid, string taskId)
     {
         Simulation.Instance.PerformAction(
-            ClientAction.PopulationAssignToTask,
-            new ClientParameter<string>(settlementUuid),
-            new ClientParameter<string>(populationUuid),
-            new ClientParameter<string>(taskId)
+            ClientAction.PopulationAssignToTask, settlementUuid, populationUuid, taskId
         );
     }
 
     public void AddResourceToSettlementInventory(string settlementUuid, string resourceId, float amount)
     {
         Simulation.Instance.PerformAction(
-            ClientAction.AddResourceToSettlementInventory,
-            new ClientParameter<string>(settlementUuid),
-            new ClientParameter<string>(resourceId),
-            new ClientParameter<System.Single>(amount)
+            ClientAction.AddResourceToSettlementInventory, settlementUuid, resourceId, amount
         );
     }
     
     public void SubtractResourceFromSettlementInventory(string settlementUuid, string resourceId, float amount)
     {
         Simulation.Instance.PerformAction(
-            ClientAction.SubtractResourceFromSettlementInventory,
-            new ClientParameter<string>(settlementUuid),
-            new ClientParameter<string>(resourceId),
-            new ClientParameter<System.Single>(amount)
+            ClientAction.SubtractResourceFromSettlementInventory, settlementUuid, resourceId, amount
         );
     }
 
     public void SettlementTakeAvailableFoodPortion(string settlementUuid)
     {
-        Simulation.Instance.PerformAction(
-            ClientAction.SettlementTakeAvailableFoodPortion,
-            new ClientParameter<string>(settlementUuid)
-        );
+        Simulation.Instance.PerformAction(ClientAction.SettlementTakeAvailableFoodPortion, settlementUuid);
     }
     
     public void SettlementRemovePopulation(string settlementUuid, string populationUuid)
     {
         Simulation.Instance.PerformAction(
-            ClientAction.SettlementRemovePopulation,
-            new ClientParameter<string>(settlementUuid),
-            new ClientParameter<string>(populationUuid)
+            ClientAction.SettlementRemovePopulation, settlementUuid, populationUuid
         );
     }
 
     public void SettlementUnlockBuilding(string settlementUuid, string buildingId)
     {
         Simulation.Instance.PerformAction(
-            ClientAction.SettlementUnlockBuilding,
-            new ClientParameter<string>(settlementUuid),
-            new ClientParameter<string>(buildingId)
+            ClientAction.SettlementUnlockBuilding, settlementUuid, buildingId
         );
     }
 
     public void SettlementPurchaseBuilding(string settlementUuid, string buildingId)
     {
         Simulation.Instance.PerformAction(
-            ClientAction.SettlementPurchaseBuilding,
-            new ClientParameter<string>(settlementUuid),
-            new ClientParameter<string>(buildingId)
+            ClientAction.SettlementPurchaseBuilding, settlementUuid, buildingId
         );
     }
 
     public void UnlockResearch(string researchId)
     {
-        Simulation.Instance.PerformAction(
-            ClientAction.UnlockResearch,
-            new ClientParameter<string>(researchId)
-        );
-    }
-
-    public void UnlockUpgrade(string settlementUuid, string researchId)
-    {
-        Simulation.Instance.PerformAction(
-            ClientAction.UnlockUpgrade,
-            new ClientParameter<string>(settlementUuid),
-            new ClientParameter<string>(researchId)
-        );
+        Simulation.Instance.PerformAction(ClientAction.UnlockResearch, researchId);
     }
     
+    public void ForceUnlockResearch(string researchId)
+    {
+        Simulation.Instance.PerformAction(ClientAction.ForceUnlockResearch, researchId);
+    }
+
+    public void UnlockUpgrade(string settlementUuid, string upgradeId)
+    {
+        Simulation.Instance.PerformAction(ClientAction.UnlockUpgrade, settlementUuid, upgradeId);
+    }
+
+    public void ForceUnlockUpgrade(string settlementUuid, string upgradeId)
+    {
+        Simulation.Instance.PerformAction(ClientAction.ForceUnlockUpgrade, settlementUuid, upgradeId);
+    }
+
 }

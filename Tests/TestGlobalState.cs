@@ -146,14 +146,14 @@ namespace Tests
         public void TestResearch()
         {
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
-            var stockpile = Helpers.GetDataTypeById<ResearchType>("stockpile");
+            var heap = Helpers.GetDataTypeById<ResearchType>("heap");
             Assert.AreEqual(
                 new string[]{},
                 simulation.Query<string[]>(ClientQuery.ResearchAvailable)
             );
             simulation.PerformAction(ClientAction.UnlockPage, Consts.Pages.Research);
             Assert.AreEqual(
-                new []{"stockpile", "writing"},
+                new []{"heap", "writing"},
                 simulation.Query<string[]>(ClientQuery.ResearchAvailable)
             );
             Assert.AreEqual(
@@ -161,39 +161,67 @@ namespace Tests
                 simulation.Query<string[]>(ClientQuery.ResearchUnlocked)
             );
             Assert.AreEqual(
-                stockpile.name,
-                simulation.Query<string, string>(ClientQuery.ResearchDisplayName, "stockpile")
+                heap.name,
+                simulation.Query<string, string>(ClientQuery.ResearchDisplayName, "heap")
             );
             Assert.AreEqual(
-                stockpile.description,
-                simulation.Query<string, string>(ClientQuery.ResearchDescription, "stockpile")
+                heap.description,
+                simulation.Query<string, string>(ClientQuery.ResearchDescription, "heap")
             );
             Assert.AreEqual(
-                stockpile.cost.Keys.ToArray(),
-                simulation.Query<string[], string>(ClientQuery.ResearchResourceList, "stockpile")
+                heap.cost.Keys.ToArray(),
+                simulation.Query<string[], string>(ClientQuery.ResearchResourceList, "heap")
             );
-            foreach(var cost in stockpile.cost)
+            foreach(var cost in heap.cost)
                 Assert.AreEqual(
                     cost.Value,
-                    simulation.Query<float, string, string>(ClientQuery.ResearchSingleResourceCost, "stockpile", cost.Key)
+                    simulation.Query<float, string, string>(ClientQuery.ResearchSingleResourceCost, "heap", cost.Key)
                 );
             Assert.AreEqual(
                 false,
-                simulation.Query<bool, string>(ClientQuery.ResearchCanAfford, "stockpile")
+                simulation.Query<bool, string>(ClientQuery.ResearchCanAfford, "heap")
             );
-            foreach(var cost in stockpile.cost)
+            foreach(var cost in heap.cost)
                 simulation.PerformAction(ClientAction.AddResourceToSettlementInventory, settlementUuid, cost.Key, cost.Value);
             Assert.AreEqual(
                 true,
-                simulation.Query<bool, string>(ClientQuery.ResearchCanAfford, "stockpile")
+                simulation.Query<bool, string>(ClientQuery.ResearchCanAfford, "heap")
             );
-            simulation.PerformAction(ClientAction.UnlockResearch, "stockpile");
+            simulation.PerformAction(ClientAction.UnlockResearch, "heap");
             Assert.AreEqual(
-                new []{"writing", "warehouse"},
+                new []{"writing", "woodshed"},
                 simulation.Query<string[]>(ClientQuery.ResearchAvailable)
             );
             Assert.AreEqual(
-                new []{"stockpile"},
+                new []{"heap"},
+                simulation.Query<string[]>(ClientQuery.ResearchUnlocked)
+            );
+        }
+
+        [Test]
+        public void TestForceUnlockResearch()
+        {
+            simulation.PerformAction(ClientAction.UnlockPage, Consts.Pages.Research);
+            Assert.AreEqual(
+                new []{"heap", "writing"},
+                simulation.Query<string[]>(ClientQuery.ResearchAvailable)
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.ResearchCanAfford, "heap")
+            );
+            simulation.PerformAction(ClientAction.ForceUnlockResearch, "heap");
+            Assert.AreEqual(
+                new []{"writing", "woodshed"},
+                simulation.Query<string[]>(ClientQuery.ResearchAvailable)
+            );
+            Assert.AreEqual(
+                new []{"heap"},
+                simulation.Query<string[]>(ClientQuery.ResearchUnlocked)
+            );
+            simulation.PerformAction(ClientAction.ForceUnlockResearch, "meal_prep");
+            Assert.AreEqual(
+                new []{"heap", "meal_prep"},
                 simulation.Query<string[]>(ClientQuery.ResearchUnlocked)
             );
         }
@@ -230,6 +258,46 @@ namespace Tests
                 Helpers.GetResourceTypeById("ration").description,
                 simulation.Query<string, string>(ClientQuery.ResourceDescription, "ration")
             );
+        }
+
+        [Test]
+        public void TestResearchBehaviourUnlockBuilding()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "archives")
+            );
+            simulation.PerformAction(ClientAction.ForceUnlockResearch, "writing");
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "archives")
+            );
+        }
+
+        [Test]
+        public void TestResearchBehaviourUnlockTask()
+        {
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "cook")
+            );
+            simulation.PerformAction(ClientAction.ForceUnlockResearch, "meal_prep");
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "cook")
+            );
+        }
+
+        [Test]
+        public void TestUnlockResearchShowsUnlockMessage()
+        {
+            simulation.PerformAction(ClientAction.ForceUnlockResearch, "writing");
+            Assert.Contains(
+                Helpers.GetDataTypeById<ResearchType>("writing").unlockMessage,
+                simulation.Query<string[]>(ClientQuery.UnreadMessages)
+            );
+            
         }
     }
 }

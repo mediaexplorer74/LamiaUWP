@@ -37,5 +37,6 @@ namespace LamiaSimulation
         public Dictionary<string, float> cost;
         public List<UpgradePrerequisite> prerequisites;
         public List<UpgradeBehaviour> behaviour;
+        public string unlockMessage;
     }
 }

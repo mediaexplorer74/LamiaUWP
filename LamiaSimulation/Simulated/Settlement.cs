@@ -637,6 +637,9 @@ namespace LamiaSimulation
         {
             availableUpgrades.Remove(upgradeId);
             unlockedUpgrades.Add(upgradeId);
+            var upgrade = Helpers.GetDataTypeById<UpgradeType>(upgradeId);
+            if(upgrade.unlockMessage != null)
+                Simulation.Instance.PerformAction(ClientAction.SendMessage, upgrade.unlockMessage);
             DetermineAvailableUpgrades();
         }
 

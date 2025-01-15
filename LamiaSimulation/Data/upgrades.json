@@ -18,6 +18,7 @@
         "id": "cut_trees",
         "value": 2.0
       }
-    ]
+    ],
+    "unlockMessage": "This simple tool will make felling trees far faster, massively increasing our deforestation efforts."
   }
 }

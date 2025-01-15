@@ -97,6 +97,11 @@ namespace LamiaSimulation
         // params:
         //   - string: id of research to unlock
         UnlockResearch,
+        
+        // Unlocks a research and applies it's effects, completely bypassing requirements and costs
+        // params:
+        //   - string: id of research to unlock
+        ForceUnlockResearch,
 
         // Unlocks an upgrade if have requirements and can be afforded and applies it's effects
         // params:
