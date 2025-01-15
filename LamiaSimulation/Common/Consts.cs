@@ -14,6 +14,10 @@ namespace LamiaSimulation
             public static string Upgrades = "upgrades";
         }
 
+        // Which of the pages are settlement-scoped versus global-scoped
+        public static readonly string[] SettlementPages = { Pages.Population, Pages.Buildings};
+        public static readonly string[] GlobalPages = { Pages.Research, Pages.Upgrades};
+
         // Number of pops that initial settlements can sustain
         public static int InitialSettlementPopulationCapacity = 2;
 

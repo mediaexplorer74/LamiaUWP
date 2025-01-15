@@ -36,6 +36,46 @@ namespace Tests
         }
 
         [Test]
+        public void TestGlobalPageUnlock()
+        {
+            Assert.AreEqual(
+                new []
+                {
+                    (Consts.Pages.Population, GlobalState.PageDisplayName(Consts.Pages.Population))
+                },
+                simulation.Query<(string, string)[]>(ClientQuery.AvailablePages)
+            );
+            Assert.AreEqual(
+                System.Array.Empty<object>(),
+                simulation.Query<(string, string)[]>(ClientQuery.AvailableGlobalPages)
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Upgrades)
+            );
+            simulation.PerformAction(ClientAction.UnlockPage, Consts.Pages.Upgrades);
+            Assert.AreEqual(
+                new []
+                {
+                    (Consts.Pages.Population, GlobalState.PageDisplayName(Consts.Pages.Population)),
+                    (Consts.Pages.Upgrades, GlobalState.PageDisplayName(Consts.Pages.Upgrades))
+                },
+                simulation.Query<(string, string)[]>(ClientQuery.AvailablePages)
+            );
+            Assert.AreEqual(
+                new []
+                {
+                    (Consts.Pages.Upgrades, GlobalState.PageDisplayName(Consts.Pages.Upgrades))
+                },
+                simulation.Query<(string, string)[]>(ClientQuery.AvailableGlobalPages)
+            );
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Upgrades)
+            );
+        }
+        
+        [Test]
         public void TestMessages()
         {
             Assert.AreEqual(

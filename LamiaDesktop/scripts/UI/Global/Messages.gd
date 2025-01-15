@@ -34,8 +34,3 @@ func _process(_delta):
             new_message_child.text = message
             message_list.add_child(new_message_child)
 
-
-func _gui_input(event):
-    if event is InputEventMouseMotion:
-        if event.button_mask == 1 and event.pressure == 1.00:
-            global_position += event.relative

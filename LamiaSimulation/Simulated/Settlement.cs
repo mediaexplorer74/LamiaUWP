@@ -206,6 +206,10 @@ namespace LamiaSimulation
                 return;
             switch(query)
             {
+                // Available settlement pages
+                case ClientQuery.AvailableSettlementPages:
+                    result = new QueryResult<(string, string)[]>(GetAvailableSettlementPages().ToArray()) as QueryResult<T>;
+                    break;
                 // Settlement location
                 case ClientQuery.SettlementLocation:
                     result = new QueryResult<string>(locationUuid) as QueryResult<T>;
@@ -528,6 +532,15 @@ namespace LamiaSimulation
         // ---------------------------------------------------
         // Query behaviours
         // ---------------------------------------------------
+        
+        public List<(string, string)> GetAvailableSettlementPages()
+        {
+            var pageList = new List<(string, string)>();
+            foreach (var (pageId, pageName) in Simulation.Instance.Query<(string, string)[]>(ClientQuery.AvailablePages))
+                if(Consts.SettlementPages.Contains(pageId))
+                    pageList.Add((pageId, GlobalState.PageDisplayName(pageId)));
+            return pageList;
+        }
         
         private int GetNumPopulation()
         {

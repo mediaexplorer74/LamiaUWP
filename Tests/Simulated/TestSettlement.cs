@@ -8,6 +8,51 @@ namespace Tests
     public class SettlementTest: BaseTest
     {
         [Test]
+        public void TestSettlementPageUnlock()
+        {
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            Assert.AreEqual(
+                new []
+                {
+                    (Consts.Pages.Population, GlobalState.PageDisplayName(Consts.Pages.Population))
+                },
+                simulation.Query<(string, string)[]>(ClientQuery.AvailablePages)
+            );
+            Assert.AreEqual(
+                new []
+                {
+                    (Consts.Pages.Population, GlobalState.PageDisplayName(Consts.Pages.Population))
+                },
+                simulation.Query<(string, string)[], string>(ClientQuery.AvailableSettlementPages, settlementUuid)
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Buildings)
+            );
+            simulation.PerformAction(ClientAction.UnlockPage, Consts.Pages.Buildings);
+            Assert.AreEqual(
+                new []
+                {
+                    (Consts.Pages.Population, GlobalState.PageDisplayName(Consts.Pages.Population)),
+                    (Consts.Pages.Buildings, GlobalState.PageDisplayName(Consts.Pages.Buildings))
+                },
+                simulation.Query<(string, string)[]>(ClientQuery.AvailablePages)
+            );
+            Assert.AreEqual(
+                new []
+                {
+                    (Consts.Pages.Population, GlobalState.PageDisplayName(Consts.Pages.Population)),
+                    (Consts.Pages.Buildings, GlobalState.PageDisplayName(Consts.Pages.Buildings))
+                },
+                simulation.Query<(string, string)[], string>(ClientQuery.AvailableSettlementPages, settlementUuid)
+            );
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedPage, Consts.Pages.Buildings)
+            );
+        }
+        
+        [Test]
         public void TestStartingSettlementIsCalledAQuietClearing()
         {
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];

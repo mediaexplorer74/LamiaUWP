@@ -9,6 +9,20 @@ namespace LamiaSimulation
         AvailablePages,
 
         /*
+         * Available globally-scoped pages 
+         *   Result - (string, string)[]: page id and display name
+         */
+        AvailableGlobalPages,
+
+        /*
+         * Available settlement-scoped pages
+         *   Params:
+         *     - string: settlement id querying the pages of 
+         *   Result - (string, string)[]: page id and display name
+         */
+        AvailableSettlementPages,
+        
+        /*
          * Already read messages, limits to 10
          *   Result - string[]: Messages to display
          */

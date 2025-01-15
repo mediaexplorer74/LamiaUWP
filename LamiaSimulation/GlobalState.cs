@@ -197,6 +197,10 @@ namespace LamiaSimulation
                 case ClientQuery.AvailablePages:
                     result = new QueryResult<(string, string)[]>(GetAvailablePages().ToArray()) as QueryResult<T>;
                     break;
+                // Available global pages
+                case ClientQuery.AvailableGlobalPages:
+                    result = new QueryResult<(string, string)[]>(GetAvailableGlobalPages().ToArray()) as QueryResult<T>;
+                    break;
                 // Message history
                 case ClientQuery.MessageHistory:
                     result = new QueryResult<string[]>(messageHistory.ToArray()) as QueryResult<T>;
@@ -668,6 +672,15 @@ namespace LamiaSimulation
             return pageList;
         }
 
+        public List<(string, string)> GetAvailableGlobalPages()
+        {
+            var pageList = new List<(string, string)>();
+            foreach (var pageId in availablePages)
+                if(Consts.GlobalPages.Contains(pageId))
+                    pageList.Add((pageId, PageDisplayName(pageId)));
+            return pageList;
+        }
+        
         public static string PageDisplayName(string pageId)
         {
             switch (pageId)

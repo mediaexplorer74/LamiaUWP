@@ -1,19 +1,26 @@
 extends HBoxContainer
 
-@onready var page_tabs_holder = self.find_child("PageTabs")
-@onready var page_holder = self.find_child("PageHolder")
-@onready var page_button_template = preload("res://scenes/UI/Global/page_button.tscn")
+@onready var page_tabs_holder = self.find_child("LocalPageTabs")
+@onready var page_button_template = preload("res://scenes/UI/Global/local_page_button.tscn")
+@onready var game_controller = $/root/GameController
+@onready var page_opener = $/root/GameController/PageOpener
+
 
 var current_available_pages = []
-var page_nodes = {}
+
+
+func get_pages():
+    if not game_controller.ready:
+        return []
+    return Query.AvailableSettlementPages(game_controller.currentSettlementUuid)
 
 
 func _ready():
-    create_tabs(Query.AvailablePages())
+    create_tabs(get_pages())
 
 
 func _process(_delta):
-    create_tabs(Query.AvailablePages())
+    create_tabs(get_pages())
 
 
 func create_tabs(tabs):
@@ -28,16 +35,7 @@ func create_tabs(tabs):
             var new_page_button = page_button_template.instantiate() as Button
             new_page_button.text = page_tuple[1]
             new_page_button.pressed.connect(
-                func(): open_page(page_tuple[0])
+                func(): page_opener.open_page(page_tuple[0])
                 )
             page_tabs_holder.add_child(new_page_button)
 
-
-func open_page(page_id):
-    for n in page_holder.get_children():
-        n.hide()
-    if not page_id in page_nodes:
-        page_nodes[page_id] = load("res://scenes/UI/Pages/"+page_id+"_page.tscn").instantiate()
-        page_holder.add_child(page_nodes[page_id])
-    page_nodes[page_id].show()
-    

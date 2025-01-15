@@ -1,13 +1,16 @@
-[gd_scene load_steps=17 format=3 uid="uid://e6wbtvxigtho"]
+[gd_scene load_steps=20 format=3 uid="uid://e6wbtvxigtho"]
 
 [ext_resource type="Script" path="res://scripts/GameController.cs" id="1_cfsw3"]
 [ext_resource type="Script" path="res://scripts/UI/Global/VersionText.gd" id="2_ohmy4"]
 [ext_resource type="Theme" uid="uid://bnv8uaqyik3sg" path="res://styles/main_theme.tres" id="2_v40hy"]
-[ext_resource type="Script" path="res://scripts/UI/Global/Pages.gd" id="3_fpc7b"]
+[ext_resource type="Script" path="res://scripts/UI/Global/PageOpener.gd" id="3_n3kha"]
 [ext_resource type="PackedScene" uid="uid://bt82ve604ccni" path="res://scenes/UI/Global/tooltip_shower.tscn" id="3_tuckq"]
 [ext_resource type="Script" path="res://scripts/UI/Global/Messages.gd" id="4_5vxlb"]
 [ext_resource type="StyleBox" uid="uid://xxd4m0jineq1" path="res://styles/panel1.tres" id="4_l5owv"]
-[ext_resource type="PackedScene" uid="uid://goa3xwhj1xkd" path="res://scenes/UI/Global/page_button.tscn" id="5_3j2ef"]
+[ext_resource type="PackedScene" uid="uid://goa3xwhj1xkd" path="res://scenes/UI/Global/local_page_button.tscn" id="5_3j2ef"]
+[ext_resource type="PackedScene" uid="uid://bew8svk56e5ug" path="res://scenes/UI/Global/global_page_button.tscn" id="5_4h3n8"]
+[ext_resource type="Script" path="res://scripts/UI/Global/SettlementPages.gd" id="5_m7htq"]
+[ext_resource type="Script" path="res://scripts/UI/Global/GlobalPages.gd" id="6_afytg"]
 [ext_resource type="PackedScene" uid="uid://cvgplnlsw8a5i" path="res://scenes/UI/Global/resource_category.tscn" id="7_80wkm"]
 [ext_resource type="Script" path="res://scripts/UI/Global/ResourceCategoryList.gd" id="7_ifjgw"]
 [ext_resource type="Script" path="res://scripts/UI/Global/ScrollToBottomContainer.gd" id="10_rtdk6"]
@@ -41,7 +44,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_cfsw3")
 
-[node name="TopLevelContainer" type="VBoxContainer" parent="."]
+[node name="PageOpener" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -49,12 +52,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_v40hy")
+script = ExtResource("3_n3kha")
 
-[node name="Header" type="Control" parent="TopLevelContainer"]
-custom_minimum_size = Vector2(0, 50)
+[node name="HeaderGlobalTabsContainer" type="HBoxContainer" parent="PageOpener"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
-[node name="MainMenuButton" type="Button" parent="TopLevelContainer/Header"]
+[node name="Header" type="Control" parent="PageOpener/HeaderGlobalTabsContainer"]
+custom_minimum_size = Vector2(255, 20)
+layout_mode = 2
+
+[node name="MainMenuButton" type="Button" parent="PageOpener/HeaderGlobalTabsContainer/Header"]
 layout_mode = 0
 offset_left = 13.0
 offset_top = 10.0
@@ -62,11 +70,11 @@ offset_right = 37.0
 offset_bottom = 36.0
 text = "M"
 
-[node name="MainMenuTooltipShower" parent="TopLevelContainer/Header" instance=ExtResource("3_tuckq")]
+[node name="MainMenuTooltipShower" parent="PageOpener/HeaderGlobalTabsContainer/Header" instance=ExtResource("3_tuckq")]
 layout_mode = 0
 tooltip_label_text = "Main menu"
 
-[node name="Title" type="Label" parent="TopLevelContainer/Header"]
+[node name="Title" type="Label" parent="PageOpener/HeaderGlobalTabsContainer/Header"]
 layout_mode = 2
 offset_left = 45.0
 offset_top = 5.0
@@ -75,7 +83,7 @@ offset_bottom = 50.0
 text = "Lamia"
 label_settings = SubResource("LabelSettings_1axur")
 
-[node name="Version" type="Label" parent="TopLevelContainer/Header"]
+[node name="Version" type="Label" parent="PageOpener/HeaderGlobalTabsContainer/Header"]
 layout_mode = 0
 offset_left = 145.0
 offset_top = 7.0
@@ -84,109 +92,115 @@ offset_bottom = 33.0
 text = "v 0.0.0"
 script = ExtResource("2_ohmy4")
 
-[node name="MarginContainer" type="MarginContainer" parent="TopLevelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="PageOpener/HeaderGlobalTabsContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+
+[node name="GlobalPages" type="HBoxContainer" parent="PageOpener/HeaderGlobalTabsContainer/MarginContainer"]
+layout_mode = 2
+script = ExtResource("6_afytg")
+
+[node name="LocalPageButton" parent="PageOpener/HeaderGlobalTabsContainer/MarginContainer/GlobalPages" instance=ExtResource("5_4h3n8")]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PageOpener"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 15
-theme_override_constants/margin_top = 15
+theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 15
-theme_override_constants/margin_bottom = 15
+theme_override_constants/margin_bottom = 5
 
-[node name="PagesWrapper" type="HBoxContainer" parent="TopLevelContainer/MarginContainer"]
+[node name="PrimaryPageWrapper" type="HBoxContainer" parent="PageOpener/MarginContainer"]
 layout_mode = 2
-script = ExtResource("3_fpc7b")
+script = ExtResource("5_m7htq")
 
-[node name="PageTabsResources" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper"]
+[node name="LocalPageTabsResources" type="VBoxContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper"]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="VSplitContainer" type="VSplitContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="PageTabsMargin" type="MarginContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer"]
-layout_mode = 2
-theme_override_constants/margin_right = 10
-
-[node name="PageTabs" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/PageTabsMargin"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="PageButton" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/PageTabsMargin/PageTabs" instance=ExtResource("5_3j2ef")]
-layout_mode = 2
-
-[node name="ResourcesScrollContainer" type="ScrollContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer"]
+[node name="ResourcesScrollContainer" type="ScrollContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper/LocalPageTabsResources"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper/LocalPageTabsResources/ResourcesScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
+size_flags_vertical = 2
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="ResourceCategoryList" type="VBoxContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer"]
+[node name="ResourceCategoryList" type="VBoxContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper/LocalPageTabsResources/ResourcesScrollContainer/MarginContainer"]
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 12
 script = ExtResource("7_ifjgw")
 
-[node name="ResourceCategory" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourceCategoryList" instance=ExtResource("7_80wkm")]
+[node name="ResourceCategory" parent="PageOpener/MarginContainer/PrimaryPageWrapper/LocalPageTabsResources/ResourcesScrollContainer/MarginContainer/ResourceCategoryList" instance=ExtResource("7_80wkm")]
 layout_mode = 2
 
-[node name="ResourceCategory2" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageTabsResources/VSplitContainer/ResourcesScrollContainer/MarginContainer/ResourceCategoryList" instance=ExtResource("7_80wkm")]
+[node name="ResourceCategory2" parent="PageOpener/MarginContainer/PrimaryPageWrapper/LocalPageTabsResources/ResourcesScrollContainer/MarginContainer/ResourceCategoryList" instance=ExtResource("7_80wkm")]
 layout_mode = 2
 
-[node name="PageContainer" type="ScrollContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper"]
+[node name="LocalPageTabsMargin" type="MarginContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper/LocalPageTabsResources"]
+layout_mode = 2
+
+[node name="LocalPageTabs" type="GridContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper/LocalPageTabsResources/LocalPageTabsMargin"]
+layout_mode = 2
+columns = 2
+
+[node name="LocalPageButton" parent="PageOpener/MarginContainer/PrimaryPageWrapper/LocalPageTabsResources/LocalPageTabsMargin/LocalPageTabs" instance=ExtResource("5_3j2ef")]
+layout_mode = 2
+
+[node name="PageContainer" type="ScrollContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PageContainerPanel" type="PanelContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageContainer"]
+[node name="PageContainerPanel" type="PanelContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper/PageContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_styles/panel = ExtResource("4_l5owv")
 
-[node name="PageHolder" type="MarginContainer" parent="TopLevelContainer/MarginContainer/PagesWrapper/PageContainer/PageContainerPanel"]
+[node name="PageHolder" type="MarginContainer" parent="PageOpener/MarginContainer/PrimaryPageWrapper/PageContainer/PageContainerPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="Messages" type="PanelContainer" parent="."]
+[node name="MarginContainer2" type="MarginContainer" parent="PageOpener"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="Messages" type="PanelContainer" parent="PageOpener/MarginContainer2"]
 custom_minimum_size = Vector2(300, 80)
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -222.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 36.0
-grow_horizontal = 0
-mouse_default_cursor_shape = 6
+layout_mode = 2
 theme_override_styles/panel = ExtResource("4_l5owv")
 script = ExtResource("4_5vxlb")
 metadata/_edit_use_anchors_ = true
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Messages"]
+[node name="ScrollContainer" type="ScrollContainer" parent="PageOpener/MarginContainer2/Messages"]
 layout_mode = 2
 horizontal_scroll_mode = 0
 script = ExtResource("10_rtdk6")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Messages/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PageOpener/MarginContainer2/Messages/ScrollContainer"]
 layout_mode = 2
 
-[node name="MessageHistoryList" type="VBoxContainer" parent="Messages/ScrollContainer/VBoxContainer"]
+[node name="MessageHistoryList" type="VBoxContainer" parent="PageOpener/MarginContainer2/Messages/ScrollContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_constants/separation = -3
 
-[node name="MessageList" type="VBoxContainer" parent="Messages/ScrollContainer/VBoxContainer"]
+[node name="MessageList" type="VBoxContainer" parent="PageOpener/MarginContainer2/Messages/ScrollContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
@@ -243,9 +257,9 @@ text = "Restart Game"
 layout_mode = 2
 text = "Quit"
 
-[connection signal="mouse_entered" from="TopLevelContainer/Header/MainMenuButton" to="TopLevelContainer/Header/MainMenuTooltipShower" method="_on_show_tooltip"]
-[connection signal="mouse_exited" from="TopLevelContainer/Header/MainMenuButton" to="TopLevelContainer/Header/MainMenuTooltipShower" method="_on_hide_tooltip"]
-[connection signal="pressed" from="TopLevelContainer/Header/MainMenuButton" to="MenuModal" method="_on_main_menu_button_pressed"]
+[connection signal="mouse_entered" from="PageOpener/HeaderGlobalTabsContainer/Header/MainMenuButton" to="PageOpener/HeaderGlobalTabsContainer/Header/MainMenuTooltipShower" method="_on_show_tooltip"]
+[connection signal="mouse_exited" from="PageOpener/HeaderGlobalTabsContainer/Header/MainMenuButton" to="PageOpener/HeaderGlobalTabsContainer/Header/MainMenuTooltipShower" method="_on_hide_tooltip"]
+[connection signal="pressed" from="PageOpener/HeaderGlobalTabsContainer/Header/MainMenuButton" to="MenuModal" method="_on_main_menu_button_pressed"]
 [connection signal="canceled" from="MenuModal/RestartGameConfirmDialog" to="MenuModal" method="_on_restart_game_confirm_dialog_canceled"]
 [connection signal="confirmed" from="MenuModal/RestartGameConfirmDialog" to="MenuModal" method="_on_restart_game_confirm_dialog_confirmed"]
 [connection signal="pressed" from="MenuModal/PanelContainer/VBoxContainer/BackToGameButton" to="MenuModal" method="_on_back_to_game_button_pressed"]

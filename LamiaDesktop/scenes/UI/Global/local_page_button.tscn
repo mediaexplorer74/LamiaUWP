@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://goa3xwhj1xkd"]
+
+[ext_resource type="Theme" uid="uid://bnv8uaqyik3sg" path="res://styles/main_theme.tres" id="1_rvk7h"]
+
+[node name="LocalPageButton" type="Button"]
+custom_minimum_size = Vector2(100, 30)
+size_flags_horizontal = 3
+focus_mode = 0
+theme = ExtResource("1_rvk7h")
+theme_override_font_sizes/font_size = 20
+text = "Hello"

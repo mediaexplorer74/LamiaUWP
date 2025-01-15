@@ -11,18 +11,32 @@ public partial class Query: Node
     public override void _Ready()
     {
     }
-    
-    public Godot.Collections.Array<Godot.Collections.Array<string> > AvailablePages()
+
+    private Godot.Collections.Array<Godot.Collections.Array<string>> ConstructPageArray((string, string)[] pages)
     {
-        var pages =  Simulation.Instance.Query<(string, string)[]>(ClientQuery.AvailablePages);
         var pageReturn = new Godot.Collections.Array<Godot.Collections.Array<string> >();
         foreach (var pageTuple in pages)
             pageReturn.Add(
                 new Godot.Collections.Array<string>(new [] { pageTuple.Item1, pageTuple.Item2 })
-                );
+            );
         return pageReturn;
     }
+    
+    public Godot.Collections.Array<Godot.Collections.Array<string> > AvailablePages()
+    {
+        return ConstructPageArray(Simulation.Instance.Query<(string, string)[]>(ClientQuery.AvailablePages));
+    }
 
+    public Godot.Collections.Array<Godot.Collections.Array<string> > AvailableGlobalPages()
+    {
+        return ConstructPageArray(Simulation.Instance.Query<(string, string)[]>(ClientQuery.AvailableGlobalPages));
+    }
+    
+    public Godot.Collections.Array<Godot.Collections.Array<string> > AvailableSettlementPages(string settlementUuid)
+    {
+        return ConstructPageArray(Simulation.Instance.Query<(string, string)[], string>(ClientQuery.AvailableSettlementPages, settlementUuid));
+    }
+    
     public string[] MessageHistory()
     {
         return Simulation.Instance.Query<string[]>(ClientQuery.MessageHistory);

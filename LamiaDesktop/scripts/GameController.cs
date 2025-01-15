@@ -7,6 +7,7 @@ public partial class GameController : Node
 	public Simulation simulation;
 
 	[Export] public string currentSettlementUuid;
+	[Export] public bool ready;
 	
 	public override void _Ready()
 	{
@@ -14,6 +15,7 @@ public partial class GameController : Node
 		simulation.LoadGame();
 		simulation.Start();
 		currentSettlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+		ready = true;
 	}
 	
 	public override void _Process(double delta)
