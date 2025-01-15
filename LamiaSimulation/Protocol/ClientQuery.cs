@@ -448,16 +448,12 @@ namespace LamiaSimulation
 
         /*
          * Upgrades available for unlocking
-         *   Params:
-         *     - string: uuid of settlement to query
          *   Result - string[]:  Upgrade IDs available
          */
         UpgradesAvailable,
 
         /*
          * Upgrades already completed
-         *   Params:
-         *     - string: uuid of settlement to query
          *   Result - string[]:  Upgrade IDs completed
          */
         UpgradesUnlocked,
@@ -466,7 +462,6 @@ namespace LamiaSimulation
          * Name of a upgrades to display to the player
          *   Result - string
          *   Params:
-         *     - string: uuid of settlement to query
          *     - string: upgrade id to query
          */
         UpgradeDisplayName,
@@ -475,7 +470,6 @@ namespace LamiaSimulation
          * Description of an upgrade
          *   Result - string[]: upgrade description
          *   Params:
-         *     - string: uuid of settlement to query
          *     - string: upgrade ID to query
          */
         UpgradeDescription,
@@ -484,7 +478,6 @@ namespace LamiaSimulation
          * Returns if an upgrade can be unlocked with the current available resources
          *   Result - bool
          *   Params:
-         *     - string: uuid of settlement to query
          *     - string: upgrade ID to query
          */
         UpgradeCanAfford,
@@ -493,7 +486,6 @@ namespace LamiaSimulation
          * Gives resource types that are required to unlock an upgrade
          *   Result - string[]: Array of resource IDs
          *   Params:
-         *     - string: uuid of settlement to query
          *     - string: upgrade ID to query
          */
         UpgradeResourceList,
@@ -502,7 +494,6 @@ namespace LamiaSimulation
          * Gives exactly how much of a particular resource is required to unlock an upgrade
          *   Result - float: how much of this resource is required
          *   Params:
-         *     - string: uuid of settlement to query
          *     - string: upgrade ID to query
          *     - string: resource ID to query
          */

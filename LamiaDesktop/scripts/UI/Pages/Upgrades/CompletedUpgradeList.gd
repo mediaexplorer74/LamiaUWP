@@ -14,7 +14,7 @@ func _ready():
         n.queue_free()
 
 func _process(_delta):
-    var upgrades_list = Array(Query.UpgradesUnlocked(game_controller.currentSettlementUuid))
+    var upgrades_list = Array(Query.UpgradesUnlocked())
     
     if upgrades_list == current_upgrades_list:
         return

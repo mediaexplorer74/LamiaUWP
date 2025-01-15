@@ -22,9 +22,6 @@ namespace LamiaSimulation
         public float spawnTimer { get; set; }
         public bool spawnEnabled { get; set; }
         public string locationUuid { get; set; }
-        public List<string> availableUpgrades { get; set; }
-        public List<string> unlockedUpgrades { get; set; }
-        
         
         public List<PopulationMember> populationToRemove;
         public static string simulatingSettlement;
@@ -49,8 +46,6 @@ namespace LamiaSimulation
             populationToRemove = new List<PopulationMember>();
             spawnTimer = Consts.populationSpawnTime;
             spawnEnabled = false;
-            availableUpgrades = new List<string>();
-            unlockedUpgrades = new List<string>();
             this.name = name;
             this.locationUuid = locationUuid;
             PostInitSetup();
@@ -61,7 +56,6 @@ namespace LamiaSimulation
             Simulation.Instance.events.SettlementHasNewResourceEvent -= OnSettlementHasNewResourceHandler;
             Simulation.Instance.events.SettlementSpawnedNewPopulationEvent -= OnSettlementSpawnedNewPopulationHandler;
             Simulation.Instance.events.SettlementBuildingPurchasedEvent -= OnSettlementBuildingPurchasedHandler;
-            Simulation.Instance.events.UnlockedPageEvent -= OnUnlockedPageHandler;
         }
 
         private void SetUpEventHandlers()
@@ -69,7 +63,6 @@ namespace LamiaSimulation
             Simulation.Instance.events.SettlementHasNewResourceEvent += OnSettlementHasNewResourceHandler;
             Simulation.Instance.events.SettlementSpawnedNewPopulationEvent += OnSettlementSpawnedNewPopulationHandler;
             Simulation.Instance.events.SettlementBuildingPurchasedEvent += OnSettlementBuildingPurchasedHandler;
-            Simulation.Instance.events.UnlockedPageEvent += OnUnlockedPageHandler;
         }
 
         private void PostInitSetup()
@@ -135,14 +128,6 @@ namespace LamiaSimulation
                 // Force add building
                 case ClientAction.SettlementForceAddBuilding:
                     ForceAddBuilding(param2.Get as string);
-                    break;
-                // Unlocks an upgrade
-                case ClientAction.UnlockUpgrade:
-                    UnlockUpgrade(param2.Get as string);
-                    break;
-                // Force unlocks an upgrade
-                case ClientAction.ForceUnlockUpgrade:
-                    ForceUnlockUpgrade(param2.Get as string);
                     break;
             }
             foreach(var pop in populationMembers)
@@ -257,14 +242,6 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementBuildings:
                     result = new QueryResult<string[]>(GetBuildingsList()) as QueryResult<T>;
                     break;
-                // Upgrades available
-                case ClientQuery.UpgradesAvailable:
-                    result = new QueryResult<string[]>(availableUpgrades.ToArray()) as QueryResult<T>;
-                    break;
-                // Upgrades unlocked
-                case ClientQuery.UpgradesUnlocked:
-                    result = new QueryResult<string[]>(unlockedUpgrades.ToArray()) as QueryResult<T>;
-                    break;
             }
             foreach(var pop in populationMembers)
                 pop.Query(ref result, query, param1);
@@ -351,23 +328,6 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementBuildingResourceList:                
                     result = new QueryResult<string[]>(GetBuildingResourceList(param2.Get as string)) as QueryResult<T>;
                     break;
-                // Upgrade name
-                case ClientQuery.UpgradeDisplayName:
-                    result = new QueryResult<string>(Text._(Helpers.GetDataTypeById<UpgradeType>(param2.Get as string).name)) as QueryResult<T>;
-                    break;
-                // Upgrade description
-                case ClientQuery.UpgradeDescription:
-                    result = new QueryResult<string>(Text._(Helpers.GetDataTypeById<UpgradeType>(param2.Get as string).description)) as QueryResult<T>;
-                    break;
-                // Upgrade can afford
-                case ClientQuery.UpgradeCanAfford:
-                    result = new QueryResult<bool>(CanAffordUpgrade(param2.Get as string)) as QueryResult<T>;
-                    break;
-                // Upgrade resource cost resource types
-                case ClientQuery.UpgradeResourceList:
-                    result = new QueryResult<string[]>(Helpers.GetDataTypeById<UpgradeType>(param2.Get as string).cost.Keys.ToArray()) as QueryResult<T>;
-                    break;
-                
             }
             foreach(var pop in populationMembers)
                 pop.Query(ref result, query, param1, param2);
@@ -383,10 +343,6 @@ namespace LamiaSimulation
                 // Single resource cost required for a building    
                 case ClientQuery.SettlementBuildingSingleResourceCost:
                     result = new QueryResult<float>(GetBuildingSingleResourceCost(param2.Get as string, param3.Get as string)) as QueryResult<T>;
-                    break;
-                // Upgrade single resource type cost 
-                case ClientQuery.UpgradeSingleResourceCost:
-                    result = new QueryResult<float>(Helpers.GetDataTypeById<UpgradeType>(param2.Get as string).cost[param3.Get as string]) as QueryResult<T>;
                     break;
             }
             foreach(var pop in populationMembers)
@@ -456,11 +412,8 @@ namespace LamiaSimulation
 
         public void LoadedFromSave()
         {
-            availableUpgrades ??= new List<string>();
-            unlockedUpgrades ??= new List<string>();
             RecalculatePopulationLimits();
             RecalculateResourceLimits();
-            DetermineAvailableUpgrades();
             populationMembers.Apply(pop => pop.LoadedFromSave());
         }
         
@@ -570,100 +523,7 @@ namespace LamiaSimulation
                 }
             }
         }
-
-        private void DetermineAvailableUpgrades()
-        {
-            availableUpgrades.Clear();
-            var hasUnlockedUpgrades = Simulation.Instance.Query<bool, string>(
-                ClientQuery.HasUnlockedPage, Consts.Pages.Upgrades
-            );
-            if(!hasUnlockedUpgrades)
-                return;
-            var allUpgrades = DataQuery<UpgradeType>.GetAll();
-            foreach (var upgrade in allUpgrades)
-            {
-                if (unlockedUpgrades.Contains(upgrade.Key))
-                    continue;
-                if (HavePrerequisitesForUpgrade(upgrade.Key))
-                    availableUpgrades.Add(upgrade.Key);
-            }
-        }
         
-        private bool HavePrerequisitesForUpgrade(string upgradeId)
-        {
-            var upgrade = Helpers.GetDataTypeById<UpgradeType>(upgradeId);
-            if (upgrade.prerequisites == null || upgrade.prerequisites.Count == 0)
-                return true;
-            foreach (var prerequisite in upgrade.prerequisites)
-            {
-                switch (prerequisite.method)
-                {
-                    case UpgradePrerequisiteMethod.HAS_BUILDING:
-                        if (!buildings.ContainsKey(prerequisite.id) || buildings[prerequisite.id] <= 0)
-                            return false;
-                        break;
-                    case UpgradePrerequisiteMethod.UPGRADE_UNLOCKED:
-                        if (!unlockedUpgrades.Contains(prerequisite.id))
-                            return false;
-                        break;
-                    case UpgradePrerequisiteMethod.HAS_RESOURCE:
-                        if (!inventory.ContainsKey(prerequisite.id) || inventory[prerequisite.id] <= 0f)
-                            return false;
-                        break;
-                    case UpgradePrerequisiteMethod.RESEARCH_UNLOCKED:
-                        var research = Simulation.Instance.Query<string[]>(ClientQuery.ResearchUnlocked);
-                        if (!research.Contains(prerequisite.id))
-                            return false;
-                        break;
-                    default:
-                        throw new ClientActionException(
-                            T._($"Unhandled upgrade prerequisite method {prerequisite.method}")
-                            );
-                }
-            }
-            return true;
-        }
-        
-        private bool CanAffordUpgrade(string upgradeId)
-        {
-            var upgrade = Helpers.GetDataTypeById<UpgradeType>(upgradeId);
-            foreach (var resourceCost in upgrade.cost)
-                if (!inventory.ContainsKey(resourceCost.Key) || inventory[resourceCost.Key] < resourceCost.Value)
-                    return false;
-            return true;
-        }
-
-        private void DoUnlockUpgrade(string upgradeId)
-        {
-            availableUpgrades.Remove(upgradeId);
-            unlockedUpgrades.Add(upgradeId);
-            var upgrade = Helpers.GetDataTypeById<UpgradeType>(upgradeId);
-            if(upgrade.unlockMessage != null)
-                Simulation.Instance.PerformAction(ClientAction.SendMessage, upgrade.unlockMessage);
-            DetermineAvailableUpgrades();
-        }
-
-        private void UnlockUpgrade(string upgradeId)
-        {
-            if (unlockedUpgrades.Contains(upgradeId))
-                return;
-            if (!availableUpgrades.Contains(upgradeId))
-                return;
-            if (!HavePrerequisitesForUpgrade(upgradeId))
-                return;
-            if (!CanAffordUpgrade(upgradeId))
-                return;
-            var upgrade = Helpers.GetDataTypeById<UpgradeType>(upgradeId);
-            foreach (var resourceCost in upgrade.cost)
-                inventory[resourceCost.Key] -= resourceCost.Value;
-            DoUnlockUpgrade(upgradeId);
-        }
-        
-        private void ForceUnlockUpgrade(string upgradeId)
-        {
-            DoUnlockUpgrade(upgradeId);
-        }
-
         
         // ---------------------------------------------------
         // Query behaviours
@@ -855,10 +715,8 @@ namespace LamiaSimulation
         public static float GetTimeToCompleteTask(string settlementUuid, string taskId)
         {
             var timeToComplete = Helpers.GetTaskTypeById(taskId).timeToComplete;            
-            var settlementUpgrades = Simulation.Instance.Query<string[], string>(
-                ClientQuery.UpgradesUnlocked, settlementUuid
-            );
-            foreach (var upgradeId in settlementUpgrades)
+            var unlockedUpgrades = Simulation.Instance.Query<string[]>(ClientQuery.UpgradesUnlocked);
+            foreach (var upgradeId in unlockedUpgrades)
             {
                 var upgrade = Helpers.GetDataTypeById<UpgradeType>(upgradeId);
                 foreach (var behaviour in upgrade.behaviour)
@@ -878,10 +736,8 @@ namespace LamiaSimulation
                 taskBehaviour.method != TaskTypeBehaviourMethod.RESEARCH)
                 return 0f;
             var amount = taskBehaviour.value;            
-            var settlementUpgrades = Simulation.Instance.Query<string[], string>(
-                ClientQuery.UpgradesUnlocked, settlementUuid
-            );
-            foreach (var upgradeId in settlementUpgrades)
+            var unlockedUpgrades = Simulation.Instance.Query<string[]>(ClientQuery.UpgradesUnlocked);
+            foreach (var upgradeId in unlockedUpgrades)
             {
                 var upgrade = Helpers.GetDataTypeById<UpgradeType>(upgradeId);
                 foreach (var behaviour in upgrade.behaviour)
@@ -945,7 +801,6 @@ namespace LamiaSimulation
                     );
                     break;
             }
-            DetermineAvailableUpgrades();
         }
 
         public void OnSettlementSpawnedNewPopulationHandler(object sender, SettlementSpawnedNewPopulationEventArgs e)
@@ -960,7 +815,6 @@ namespace LamiaSimulation
                     T._("The last Lamia to join your settlement has some bright ideas.")
                 );
             }
-            DetermineAvailableUpgrades();
         }
 
         public void OnSettlementBuildingPurchasedHandler(object sender, SettlementBuildingPurchasedEventArgs e)
@@ -981,14 +835,7 @@ namespace LamiaSimulation
                     );
                     break;
             }
-            DetermineAvailableUpgrades();
         }
 
-        public void OnUnlockedPageHandler(object sender, UnlockedPageEventArgs e)
-        {
-            if(e.PageId == "upgrades")
-                DetermineAvailableUpgrades();
-        }
-        
     }
 }

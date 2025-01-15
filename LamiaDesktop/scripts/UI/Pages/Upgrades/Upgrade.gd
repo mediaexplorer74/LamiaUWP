@@ -21,17 +21,17 @@ var current_resource_cost_list = []
 func _process(_delta):
     if not upgrade_id:
         return
-    name_text.text = Query.UpgradeDisplayName(game_controller.currentSettlementUuid, upgrade_id)
-    find_child("Info").get_node("TooltipShower").tooltip_label_text = Query.UpgradeDescription(game_controller.currentSettlementUuid, upgrade_id)
+    name_text.text = Query.UpgradeDisplayName(upgrade_id)
+    find_child("Info").get_node("TooltipShower").tooltip_label_text = Query.UpgradeDescription(upgrade_id)
 
-    unlock_button.set_disabled(not Query.UpgradeCanAfford(game_controller.currentSettlementUuid, upgrade_id))
+    unlock_button.set_disabled(not Query.UpgradeCanAfford(upgrade_id))
 
     if resource_cost_open:
         resource_cost_container.show()
     else:
         resource_cost_container.hide()
 
-    var resource_cost_list = Array(Query.UpgradeResourceList(game_controller.currentSettlementUuid, upgrade_id))
+    var resource_cost_list = Array(Query.UpgradeResourceList(upgrade_id))
     
     if resource_cost_list != current_resource_cost_list:
         current_resource_cost_list = resource_cost_list
@@ -45,7 +45,7 @@ func _process(_delta):
             var new_resource = upgrade_resource_cost_template.instantiate()
             resource_cost_list_container.add_child(new_resource)
             new_resource.get_node("ResourceNameLabel").text = Query.ResourceName(resource_id)
-            var amount = Query.UpgradeSingleResourceCost(game_controller.currentSettlementUuid, upgrade_id, resource_id)
+            var amount = Query.UpgradeSingleResourceCost(upgrade_id, resource_id)
             var format = "%.2f" if fmod(amount, 1.0) > 0 else "%d"
             new_resource.get_node("AmountLabel").text = format % amount
         resource_cost_dirty = false
@@ -59,5 +59,5 @@ func _on_open_cost_button_pressed():
 
 
 func _on_unlock_button_pressed():
-    Action.UnlockUpgrade(game_controller.currentSettlementUuid, upgrade_id)
+    Action.UnlockUpgrade(upgrade_id)
     resource_cost_dirty = true

@@ -105,13 +105,11 @@ namespace LamiaSimulation
 
         // Unlocks an upgrade if have requirements and can be afforded and applies it's effects
         // params:
-        //   - string: uuid of settlement
         //   - string: id of upgrade to unlock
         UnlockUpgrade,
         
         // Unlocks an upgrade and applies it's effects, completely bypassing requirements and costs
         // params:
-        //   - string: uuid of settlement
         //   - string: id of upgrade to unlock
         ForceUnlockUpgrade,
         

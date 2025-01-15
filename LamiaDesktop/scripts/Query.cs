@@ -289,39 +289,39 @@ public partial class Query: Node
     // UPGRADES
     // ----------------------
 
-    public string[] UpgradesAvailable(string settlementId)
+    public string[] UpgradesAvailable()
     {
-        return Simulation.Instance.Query<string[], string>(ClientQuery.UpgradesAvailable, settlementId);
+        return Simulation.Instance.Query<string[]>(ClientQuery.UpgradesAvailable);
     }
 
-    public string[] UpgradesUnlocked(string settlementId)
+    public string[] UpgradesUnlocked()
     {
-        return Simulation.Instance.Query<string[], string>(ClientQuery.UpgradesUnlocked, settlementId);
+        return Simulation.Instance.Query<string[]>(ClientQuery.UpgradesUnlocked);
     }
     
-    public string UpgradeDisplayName(string settlementId, string upgradeId)
+    public string UpgradeDisplayName(string upgradeId)
     {
-        return Simulation.Instance.Query<string, string, string>(ClientQuery.UpgradeDisplayName, settlementId, upgradeId);
+        return Simulation.Instance.Query<string, string>(ClientQuery.UpgradeDisplayName, upgradeId);
     }
 
-    public string UpgradeDescription(string settlementId, string upgradeId)
+    public string UpgradeDescription(string upgradeId)
     {
-        return Simulation.Instance.Query<string, string, string>(ClientQuery.UpgradeDescription, settlementId, upgradeId);
+        return Simulation.Instance.Query<string, string>(ClientQuery.UpgradeDescription, upgradeId);
     }
 
-    public bool UpgradeCanAfford(string settlementId, string upgradeId)
+    public bool UpgradeCanAfford(string upgradeId)
     {
-        return Simulation.Instance.Query<bool, string, string>(ClientQuery.UpgradeCanAfford, settlementId, upgradeId);
+        return Simulation.Instance.Query<bool, string>(ClientQuery.UpgradeCanAfford, upgradeId);
     }
 
-    public string[] UpgradeResourceList(string settlementId, string upgradeId)
+    public string[] UpgradeResourceList(string upgradeId)
     {
-        return Simulation.Instance.Query<string[], string, string>(ClientQuery.UpgradeResourceList, settlementId, upgradeId);
+        return Simulation.Instance.Query<string[], string>(ClientQuery.UpgradeResourceList, upgradeId);
     }
 
-    public float UpgradeSingleResourceCost(string settlementId, string researchId, string upgradeId)
+    public float UpgradeSingleResourceCost(string researchId, string upgradeId)
     {
-        return Simulation.Instance.Query<float, string, string, string>(ClientQuery.UpgradeSingleResourceCost, settlementId,researchId, upgradeId);
+        return Simulation.Instance.Query<float, string, string>(ClientQuery.UpgradeSingleResourceCost,researchId, upgradeId);
     }
 
     

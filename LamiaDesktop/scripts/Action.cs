@@ -102,14 +102,14 @@ public partial class Action: Node
         Simulation.Instance.PerformAction(ClientAction.ForceUnlockResearch, researchId);
     }
 
-    public void UnlockUpgrade(string settlementUuid, string upgradeId)
+    public void UnlockUpgrade(string upgradeId)
     {
-        Simulation.Instance.PerformAction(ClientAction.UnlockUpgrade, settlementUuid, upgradeId);
+        Simulation.Instance.PerformAction(ClientAction.UnlockUpgrade, upgradeId);
     }
 
-    public void ForceUnlockUpgrade(string settlementUuid, string upgradeId)
+    public void ForceUnlockUpgrade(string upgradeId)
     {
-        Simulation.Instance.PerformAction(ClientAction.ForceUnlockUpgrade, settlementUuid, upgradeId);
+        Simulation.Instance.PerformAction(ClientAction.ForceUnlockUpgrade, upgradeId);
     }
 
 }
