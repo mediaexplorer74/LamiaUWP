@@ -52,6 +52,11 @@ public partial class Query: Node
         return Simulation.Instance.Query<bool, string>(ClientQuery.HasUnlockedPage, pageId);
     }
 
+    public bool HasUnlockedBuilding(string buildingId)
+    {
+        return Simulation.Instance.Query<bool, string>(ClientQuery.HasUnlockedBuilding, buildingId);
+    }
+
     // ----------------------
     // RESEARCH
     // ----------------------

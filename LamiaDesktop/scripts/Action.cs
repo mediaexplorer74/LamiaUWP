@@ -45,6 +45,11 @@ public partial class Action: Node
         Simulation.Instance.PerformAction(ClientAction.UnlockTask, taskId);
     }
 
+    public void UnlockBuilding(string buildingId)
+    {
+        Simulation.Instance.PerformAction(ClientAction.UnlockBuilding, buildingId);
+    }
+    
     public void PopulationAssignToTask(string settlementUuid, string populationUuid, string taskId)
     {
         Simulation.Instance.PerformAction(
@@ -77,14 +82,7 @@ public partial class Action: Node
             ClientAction.SettlementRemovePopulation, settlementUuid, populationUuid
         );
     }
-
-    public void SettlementUnlockBuilding(string settlementUuid, string buildingId)
-    {
-        Simulation.Instance.PerformAction(
-            ClientAction.SettlementUnlockBuilding, settlementUuid, buildingId
-        );
-    }
-
+    
     public void SettlementPurchaseBuilding(string settlementUuid, string buildingId)
     {
         Simulation.Instance.PerformAction(

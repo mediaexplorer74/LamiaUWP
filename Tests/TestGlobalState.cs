@@ -306,12 +306,12 @@ namespace Tests
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             Assert.AreEqual(
                 false,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "archives")
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedBuilding, "archives")
             );
             simulation.PerformAction(ClientAction.ForceUnlockResearch, "writing");
             Assert.AreEqual(
                 true,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "archives")
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedBuilding, "archives")
             );
         }
 

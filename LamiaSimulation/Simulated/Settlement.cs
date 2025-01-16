@@ -13,7 +13,6 @@ namespace LamiaSimulation
         public List<PopulationMember> populationMembers { get; set; }
         public int maxPopulationMember { get; set; }
         public Dictionary<string, int> buildings { get; set; }
-        public List<string> availableBuildings { get; set; }
         public Dictionary<string, float> inventory { get; set; }
         public Dictionary<string, float> inventoryMemory { get; set; }
         public Dictionary<string, float> inventoryDelta { get; set; }
@@ -36,7 +35,6 @@ namespace LamiaSimulation
         {
             maxPopulationMember = Consts.InitialSettlementPopulationCapacity;
             buildings = new Dictionary<string, int>();
-            availableBuildings = new List<string>();
             inventory = new Dictionary<string, float>();
             inventoryMemory = new Dictionary<string, float>();
             inventoryDelta = new Dictionary<string, float>();
@@ -56,6 +54,7 @@ namespace LamiaSimulation
             Simulation.Instance.events.SettlementHasNewResourceEvent -= OnSettlementHasNewResourceHandler;
             Simulation.Instance.events.SettlementSpawnedNewPopulationEvent -= OnSettlementSpawnedNewPopulationHandler;
             Simulation.Instance.events.SettlementBuildingPurchasedEvent -= OnSettlementBuildingPurchasedHandler;
+            Simulation.Instance.events.UnlockedBuildingEvent -= OnBuildingUnlockedHandler;
         }
 
         private void SetUpEventHandlers()
@@ -63,6 +62,7 @@ namespace LamiaSimulation
             Simulation.Instance.events.SettlementHasNewResourceEvent += OnSettlementHasNewResourceHandler;
             Simulation.Instance.events.SettlementSpawnedNewPopulationEvent += OnSettlementSpawnedNewPopulationHandler;
             Simulation.Instance.events.SettlementBuildingPurchasedEvent += OnSettlementBuildingPurchasedHandler;
+            Simulation.Instance.events.UnlockedBuildingEvent += OnBuildingUnlockedHandler;
         }
 
         private void PostInitSetup()
@@ -116,10 +116,6 @@ namespace LamiaSimulation
                 // Remove population from settlement
                 case ClientAction.SettlementRemovePopulation:
                     populationToRemove.Add(GetPopulationMemberById(param2.Get as string));
-                    break;
-                // Unlock building
-                case ClientAction.SettlementUnlockBuilding:
-                    UnlockBuilding(param2.Get as string);
                     break;
                 // Purchase building
                 case ClientAction.SettlementPurchaseBuilding:
@@ -312,10 +308,6 @@ namespace LamiaSimulation
                 case ClientQuery.SettlementBuildingsAmount:
                     result = new QueryResult<int>(GetBuildingAmount(param2.Get as string)) as QueryResult<T>;
                     break;
-                // Building unlocked
-                case ClientQuery.SettlementHasBuildingUnlocked:
-                    result = new QueryResult<bool>(HasBuildingUnlocked(param2.Get as string)) as QueryResult<T>;
-                    break;
                 // Building names
                 case ClientQuery.SettlementBuildingDisplayName:
                     result = new QueryResult<string>(GetBuildingDisplayName(param2.Get as string)) as QueryResult<T>;
@@ -445,17 +437,6 @@ namespace LamiaSimulation
             inventory[nextAvailableFood.resourceType.ID] -= 1f;
         }
         
-        private void UnlockBuilding(string buildingID)
-        {
-            if(HasBuildingUnlocked(buildingID))
-                throw new ClientActionException(T._("Building already unlocked."));
-            var buildingType = DataQuery<BuildingType>.GetByID(buildingID);
-            if(buildingType == null)
-                throw new ClientActionException(T._("Building type does not exist."));
-            availableBuildings.Add(buildingID);
-            buildings[buildingID] = 0;
-        }
-
         private void DoPurchaseBuiding(string buildingID)
         {
             buildings.TryAdd(buildingID, 0);
@@ -474,7 +455,7 @@ namespace LamiaSimulation
         
         private void PurchaseBuilding(string buildingID)
         {
-            if (!HasBuildingUnlocked(buildingID))
+            if(!Simulation.Instance.Query<bool, string>(ClientQuery.HasUnlockedBuilding, buildingID))
                 throw new ClientActionException(T._("Building not unlocked yet."));
             var buildingType = DataQuery<BuildingType>.GetByID(buildingID);
             if(buildingType == null)
@@ -663,11 +644,6 @@ namespace LamiaSimulation
             return (highestFood, highestFactor);
         }
         
-        private bool HasBuildingUnlocked(string buildingID)
-        {
-            return availableBuildings.Contains(buildingID);
-        }
-        
         private string[] GetBuildingsList()
         {
             return buildings.Keys.ToArray();
@@ -798,7 +774,7 @@ namespace LamiaSimulation
                     Simulation.Instance.PerformAction(
                         ClientAction.SendMessage, T._("We can construct new buildings with wood.")
                     );
-                    UnlockBuilding("log_hut");
+                    Simulation.Instance.PerformAction(ClientAction.UnlockBuilding, "log_hut");
                     break;
                 // Unlock Research page when getting first research
                 case "research":
@@ -848,6 +824,11 @@ namespace LamiaSimulation
                     );
                     break;
             }
+        }
+
+        public void OnBuildingUnlockedHandler(object sender, UnlockedBuildingEventArgs e)
+        {
+            buildings.TryAdd(e.BuildingId, 0);
         }
 
     }

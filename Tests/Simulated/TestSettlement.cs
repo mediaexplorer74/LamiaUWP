@@ -177,10 +177,10 @@ namespace Tests
             );
             Assert.AreEqual(
                 false,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "archives")
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedBuilding, "archives")
             );
             simulation.PerformAction(
-                ClientAction.SettlementUnlockBuilding, settlementUuid, "archives"
+                ClientAction.UnlockBuilding, "archives"
             );
             Assert.AreEqual(
                 new []{"archives"},
@@ -188,7 +188,7 @@ namespace Tests
             );
             Assert.AreEqual(
                 true,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "archives")
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedBuilding, "archives")
             );
         }
         
@@ -197,7 +197,7 @@ namespace Tests
         {
             var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
             simulation.PerformAction(
-                ClientAction.SettlementUnlockBuilding, settlementUuid, "log_hut"
+                ClientAction.UnlockBuilding, "log_hut"
             );
             Assert.AreEqual(
                 0,
@@ -295,12 +295,12 @@ namespace Tests
             );
             Assert.AreEqual(
                 false,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "log_hut")
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedBuilding, "log_hut")
             );
-            simulation.PerformAction(ClientAction.SettlementUnlockBuilding, settlementUuid, "log_hut");
+            simulation.PerformAction(ClientAction.UnlockBuilding, "log_hut");
             Assert.AreEqual(
                 true,
-                simulation.Query<bool, string, string>(ClientQuery.SettlementHasBuildingUnlocked, settlementUuid, "log_hut")
+                simulation.Query<bool, string>(ClientQuery.HasUnlockedBuilding, "log_hut")
             );
             Assert.AreEqual(
                 "Log Hut",

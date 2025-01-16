@@ -530,7 +530,7 @@ namespace Tests
             var populationUuid =
                 simulation.Query<string[], string>(ClientQuery.SettlementPopulationMembers, settlementUuid)[0];
             simulation.PerformAction(ClientAction.UnlockTask, "cook");
-            simulation.PerformAction(ClientAction.SettlementUnlockBuilding, settlementUuid, "heap");
+            simulation.PerformAction(ClientAction.UnlockBuilding, "heap");
             for (var i = 0; i <= 2; i++)
             {
                 simulation.PerformAction(
@@ -543,7 +543,7 @@ namespace Tests
                     ClientAction.SettlementPurchaseBuilding, settlementUuid, "heap"
                 );
             }
-            simulation.PerformAction(ClientAction.SettlementUnlockBuilding, settlementUuid, "pantry");
+            simulation.PerformAction(ClientAction.UnlockBuilding, "pantry");
             var pantry = Helpers.GetDataTypeById<BuildingType>("pantry");
             simulation.PerformAction(
                 ClientAction.AddResourceToSettlementInventory, settlementUuid, "logs", pantry.cost["logs"]

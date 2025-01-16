@@ -13,6 +13,7 @@ namespace LamiaSimulation
         public List<Location> locations { get; set; } = new();
         public List<Settlement> playerSettlements { get; set; } = new();
         public List<string> availableTasks { get; set; } = new();
+        public List<string> availableBuildings { get; set; } = new();
         public List<string> messageHistory { get; set; } = new();
         public List<string> unreadMessages { get; set; } = new();
         public List<string> currentlyDisplayedMessages { get; set; } = new();
@@ -42,6 +43,7 @@ namespace LamiaSimulation
             unreadMessages = new List<string>(currentlyDisplayedMessages);
             availableUpgrades ??= new List<string>();
             unlockedUpgrades ??= new List<string>();
+            availableBuildings ??= new List<string>();
             currentlyDisplayedMessages.Clear();
             DetermineAvailableResearch();
             DetermineAvailableUpgrades();
@@ -122,6 +124,10 @@ namespace LamiaSimulation
                 // Unlock task
                 case ClientAction.UnlockTask:
                     UnlockTask(param1.Get as string);
+                    break;
+                // Unlock building
+                case ClientAction.UnlockBuilding:
+                    UnlockBuilding(param1.Get as string);
                     break;
                 // Unlocks a research
                 case ClientAction.UnlockResearch:
@@ -264,6 +270,10 @@ namespace LamiaSimulation
                 case ClientQuery.HasUnlockedPage:
                     result = new QueryResult<bool>(availablePages.Contains(param1.Get as string)) as QueryResult<T>;
                     break;
+                // Building unlocked
+                case ClientQuery.HasUnlockedBuilding:
+                    result = new QueryResult<bool>(HasBuildingUnlocked(param1.Get as string)) as QueryResult<T>;
+                    break;
                 // Species name
                 case ClientQuery.SpeciesName:
                     result = new QueryResult<string>(Text._(Helpers.GetSpeciesTypeById(param1.Get as string).name)) as QueryResult<T>;
@@ -393,6 +403,17 @@ namespace LamiaSimulation
             availableTasks.Add(taskID);
         }
         
+        private void UnlockBuilding(string buildingID)
+        {
+            if(HasBuildingUnlocked(buildingID))
+                throw new ClientActionException(T._("Building already unlocked."));
+            var buildingType = DataQuery<BuildingType>.GetByID(buildingID);
+            if(buildingType == null)
+                throw new ClientActionException(T._("Building type does not exist."));
+            availableBuildings.Add(buildingID);
+            Simulation.Instance.events.OnUnlockedBuilding(new UnlockedBuildingEventArgs{BuildingId = buildingID});
+        }
+        
         private void DetermineAvailableResearch()
         {
             availableResearch.Clear();
@@ -498,14 +519,7 @@ namespace LamiaSimulation
                 switch (behaviour.method)
                 {
                     case ResearchBehaviourMethod.UNLOCK_BUILDING:
-                        foreach (var settlement in playerSettlements)
-                        {
-                            Simulation.Instance.PerformAction(
-                                ClientAction.SettlementUnlockBuilding, 
-                                settlement.ID,
-                                behaviour.id
-                            );
-                        }
+                        Simulation.Instance.PerformAction(ClientAction.UnlockBuilding, behaviour.id);
                         break;
                     case ResearchBehaviourMethod.UNLOCK_TASK:
                         Simulation.Instance.PerformAction(ClientAction.UnlockTask, behaviour.id);
@@ -706,7 +720,12 @@ namespace LamiaSimulation
         {
             return T._(TaskType.GetTaskById(taskID).name);
         }
-        
+
+        private bool HasBuildingUnlocked(string buildingID)
+        {
+            return availableBuildings.Contains(buildingID);
+        }
+
         // ---------------------------------------------------
         // Event handlers
         // ---------------------------------------------------

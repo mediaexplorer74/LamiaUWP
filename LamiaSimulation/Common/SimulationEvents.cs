@@ -28,12 +28,18 @@ namespace LamiaSimulation
         public string PageId { get; set; }
     }
 
+    public class UnlockedBuildingEventArgs : EventArgs
+    {
+        public string BuildingId { get; set; }
+    }
+
     public class SimulationEvents
     {
         public event EventHandler<SettlementBuildingPurchasedEventArgs> SettlementBuildingPurchasedEvent; 
         public event EventHandler<SettlementHasNewResourceEventArgs> SettlementHasNewResourceEvent; 
         public event EventHandler<SettlementSpawnedNewPopulationEventArgs> SettlementSpawnedNewPopulationEvent; 
-        public event EventHandler<UnlockedPageEventArgs> UnlockedPageEvent; 
+        public event EventHandler<UnlockedPageEventArgs> UnlockedPageEvent;
+        public event EventHandler<UnlockedBuildingEventArgs> UnlockedBuildingEvent;
 
         public void OnBuildingPurchased(SettlementBuildingPurchasedEventArgs e)
         {
@@ -53,6 +59,11 @@ namespace LamiaSimulation
         public void OnUnlockedPage(UnlockedPageEventArgs e)
         {
             UnlockedPageEvent?.Invoke(this, e);
+        }
+
+        public void OnUnlockedBuilding(UnlockedBuildingEventArgs e)
+        {
+            UnlockedBuildingEvent?.Invoke(this, e);
         }
         
     }

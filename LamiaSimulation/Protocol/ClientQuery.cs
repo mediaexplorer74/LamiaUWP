@@ -42,6 +42,14 @@ namespace LamiaSimulation
          */
         HasUnlockedPage,
         
+        /*
+         * If a building has been unlocked and is available to construct
+         *   Result - bool
+         *   Params:
+         *     - string: building ID to query
+         */
+        HasUnlockedBuilding,
+
         // --------------------------------------------------------------------
         // RESEARCH
         // --------------------------------------------------------------------
@@ -297,15 +305,6 @@ namespace LamiaSimulation
          *     - string: building ID to query
          */
         SettlementBuildingsAmount,
-        
-        /*
-         * If a building has been unlocked and is available to construct
-         *   Result - bool
-         *   Params:
-         *     - string: uuid of settlement to query
-         *     - string: building ID to query
-         */
-        SettlementHasBuildingUnlocked,
 
         /*
          * Name to show to the user to refer to a building

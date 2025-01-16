@@ -35,7 +35,12 @@ namespace LamiaSimulation
         // params:
         //   - string: id of task
         UnlockTask,
-
+        
+        // Unlock building
+        // params:
+        //   - string: id of building type
+        UnlockBuilding,
+        
         // Assigns a population to a particular task
         // params:
         //   - string: uuid of settlement
@@ -75,12 +80,6 @@ namespace LamiaSimulation
         //   - string: uuid of population member
         SettlementRemovePopulation,
         
-        // Unlock building at a settlement
-        // params:
-        //   - string: uuid of settlement
-        //   - string: id of building type
-        SettlementUnlockBuilding,
-        
         // Purchases a building at a settlement if it can be afforded
         // params:
         //   - string: uuid of settlement
@@ -92,7 +91,7 @@ namespace LamiaSimulation
         //   - string: uuid of settlement
         //   - string: id of building type
         SettlementForceAddBuilding,
-
+        
         // Unlocks a research and applies it's effects
         // params:
         //   - string: id of research to unlock
