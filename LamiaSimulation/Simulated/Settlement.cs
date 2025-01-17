@@ -368,16 +368,6 @@ namespace LamiaSimulation
                         )
                     );
                     spawnTimer = Consts.populationSpawnTime;
-                    // Fire event
-                    Simulation.Instance.events.OnSettlementSpawnedNewPopulationEvent(
-                        new SettlementSpawnedNewPopulationEventArgs
-                        {
-                            SettlementUuid = ID,
-                            LocationUuid = locationUuid,
-                            PopulationName = newMember.name,
-                            SpeciesId = newMember.populationSpeciesTypeName
-                        }
-                    );
                 }
             }
             // Simulate pop
@@ -422,6 +412,16 @@ namespace LamiaSimulation
             if(GetNumPopulation() >= GetPopulationMemberCapacity())
                 throw new ClientActionException(T._("Population at capacity."));
             populationMembers.Add(newMember);
+            // Fire event
+            Simulation.Instance.events.OnSettlementSpawnedNewPopulationEvent(
+                new SettlementSpawnedNewPopulationEventArgs
+                {
+                    SettlementUuid = ID,
+                    LocationUuid = locationUuid,
+                    PopulationName = newMember.name,
+                    SpeciesId = newMember.populationSpeciesTypeName
+                }
+            );
         }
 
         private void RemoveFromPopulation(PopulationMember population)

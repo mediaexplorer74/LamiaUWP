@@ -558,6 +558,43 @@ namespace Tests
                 simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "research")
             );
         }
+
+        [Test]
+        public void TestResearchDoesntUnlockAfterResetAndGoingPastThreshold()
+        {
+            // This test exists because there was a bug where event handlers were sticking around 
+            // after resets.
+            var settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "log_hut");
+            simulation.PerformAction(ClientAction.SettlementForceAddBuilding, settlementUuid, "log_hut");
+            simulation.PerformAction(ClientAction.AddPopulation, settlementUuid, "lamia");
+            simulation.PerformAction(ClientAction.AddPopulation, settlementUuid, "lamia");
+            simulation.PerformAction(ClientAction.AddPopulation, settlementUuid, "lamia");
+            Assert.AreEqual(
+                4,
+                simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
+                );
+            Assert.AreEqual(
+                true,
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "research")
+            );
+            simulation.Reset();
+            simulation.Start();
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "research")
+            );
+            settlementUuid = simulation.Query<string[]>(ClientQuery.Settlements)[0];
+            simulation.PerformAction(ClientAction.AddPopulation, settlementUuid, "lamia");
+            Assert.AreEqual(
+                2,
+                simulation.Query<int, string>(ClientQuery.SettlementCurrentPopulation, settlementUuid)
+            );
+            Assert.AreEqual(
+                false,
+                simulation.Query<bool, string>(ClientQuery.TaskUnlocked, "research")
+            );
+        }
         
     }
 }

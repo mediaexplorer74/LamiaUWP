@@ -25,6 +25,11 @@ Globals="*res://scripts/Globals.gd"
 
 gdscript/warnings/unused_parameter=0
 
+[display]
+
+window/size/mode=2
+window/stretch/scale=1.5
+
 [dotnet]
 
 project/assembly_name="Lamia"

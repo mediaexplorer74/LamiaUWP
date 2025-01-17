@@ -41,6 +41,15 @@ namespace LamiaSimulation
         public event EventHandler<UnlockedPageEventArgs> UnlockedPageEvent;
         public event EventHandler<UnlockedBuildingEventArgs> UnlockedBuildingEvent;
 
+        public void DisconnectAllEventHandlers()
+        {
+            SettlementBuildingPurchasedEvent = null;
+            SettlementHasNewResourceEvent = null;
+            SettlementSpawnedNewPopulationEvent = null;
+            UnlockedPageEvent = null;
+            UnlockedBuildingEvent = null;
+        }
+        
         public void OnBuildingPurchased(SettlementBuildingPurchasedEventArgs e)
         {
             SettlementBuildingPurchasedEvent?.Invoke(this, e);

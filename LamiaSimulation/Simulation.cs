@@ -45,6 +45,7 @@ namespace LamiaSimulation
         public void Reset()
         {
             File.Delete(Consts.FilenameSaveFile);
+            events.DisconnectAllEventHandlers();
             globalState = new GlobalState();
             globalState.Init();
             started = false;

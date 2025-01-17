@@ -22,6 +22,14 @@ namespace LamiaSimulation
         public List<string> availableUpgrades { get; set; } = new();
         public List<string> unlockedUpgrades { get; set; } = new();
 
+        public GlobalState()
+        {
+            availableUpgrades = new List<string>();
+            unlockedUpgrades = new List<string>();
+            availableBuildings = new List<string>();
+            availableTasks = new List<string>();
+        }
+
         ~GlobalState()
         {
             Simulation.Instance.events.SettlementHasNewResourceEvent -= OnSettlementHasNewResourceHandler;
@@ -44,6 +52,7 @@ namespace LamiaSimulation
             availableUpgrades ??= new List<string>();
             unlockedUpgrades ??= new List<string>();
             availableBuildings ??= new List<string>();
+            availableTasks ??= new List<string>();
             currentlyDisplayedMessages.Clear();
             DetermineAvailableResearch();
             DetermineAvailableUpgrades();
