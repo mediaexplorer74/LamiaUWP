@@ -4,6 +4,8 @@ class_name Task
 @onready var header_icon = %HeaderIcon
 @onready var header_label = %HeaderLabel
 @onready var population_container = %PopulationContainer
+@onready var num_pop_label = %NumPopLabel
+@onready var capacity_label = %CapacityLabel
 @onready var game_controller = $/root/GameController
 @onready var task_population_template = preload("res://scenes/UI/Pages/Population/task_population.tscn")
 
@@ -24,6 +26,9 @@ func _process(_delta):
     header_label.text = Query.TaskName(task_name)
     header_icon.texture = load("res://media/icons/icon_task_%s.png" % task_name)
     find_child("Info").get_node("TooltipShower").tooltip_label_text = "\n".join(Query.SettlementTaskDescription(game_controller.currentSettlementUuid, task_name))
+    num_pop_label.text = str(Query.SettlementTaskAssignedNum(game_controller.currentSettlementUuid, task_name))
+    var cap = Query.SettlementTaskMaximumCapacity(game_controller.currentSettlementUuid, task_name)
+    capacity_label.text = "∞" if cap == -1 else str(cap)    
     
     var population_assigned_list = Array(Query.SettlementTaskAssignments(game_controller.currentSettlementUuid, task_name))
     

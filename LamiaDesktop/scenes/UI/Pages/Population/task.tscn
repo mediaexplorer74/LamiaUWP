@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dqnvx61s43lhh"]
+[gd_scene load_steps=11 format=3 uid="uid://dqnvx61s43lhh"]
 
 [ext_resource type="Texture2D" uid="uid://cejtorqjwaj7c" path="res://media/icons/icon_task_idle.png" id="1_0lfcf"]
 [ext_resource type="Script" path="res://scripts/UI/Pages/Population/Task.gd" id="1_fr1gb"]
@@ -6,8 +6,33 @@
 [ext_resource type="Texture2D" uid="uid://bmenrhu8088cv" path="res://media/icons/icon_question.png" id="2_53rbt"]
 [ext_resource type="PackedScene" uid="uid://cg5j857nshce0" path="res://scenes/UI/Pages/Population/task_population.tscn" id="3_gl8hu"]
 [ext_resource type="PackedScene" uid="uid://bt82ve604ccni" path="res://scenes/UI/Global/tooltip_shower.tscn" id="3_o4b4w"]
+[ext_resource type="FontFile" uid="uid://cnpqjrumbcm1x" path="res://media/fonts/Vera.ttf" id="6_l0m31"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7w4pf"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ft06v"]
+bg_color = Color(0.337255, 0.337255, 0.337255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.462745, 0.462745, 0.462745, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g5maj"]
+bg_color = Color(0.296875, 0.296875, 0.296875, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.462745, 0.462745, 0.462745, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [node name="Task" type="PanelContainer"]
 theme_override_styles/panel = SubResource("StyleBoxEmpty_7w4pf")
@@ -16,10 +41,33 @@ script = ExtResource("1_fr1gb")
 [node name="HeaderPopHolder" type="VBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="Header" type="HBoxContainer" parent="HeaderPopHolder"]
+[node name="MarginContainer" type="MarginContainer" parent="HeaderPopHolder"]
+layout_mode = 2
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="PanelContainer" type="PanelContainer" parent="HeaderPopHolder/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ft06v")
+
+[node name="MarginContainer" type="MarginContainer" parent="HeaderPopHolder/MarginContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="Header" type="HBoxContainer" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="Info" type="Button" parent="HeaderPopHolder/Header"]
+[node name="MarginContainer2" type="MarginContainer" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/margin_left = -5
+theme_override_constants/margin_right = 3
+
+[node name="Info" type="Button" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer2"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
@@ -32,7 +80,7 @@ text = " "
 icon = ExtResource("2_53rbt")
 icon_alignment = 1
 
-[node name="TooltipShower" parent="HeaderPopHolder/Header/Info" instance=ExtResource("3_o4b4w")]
+[node name="TooltipShower" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer2/Info" instance=ExtResource("3_o4b4w")]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -41,18 +89,61 @@ offset_left = -435.0
 offset_right = 0.0
 grow_horizontal = 0
 
-[node name="HeaderIcon" type="TextureRect" parent="HeaderPopHolder/Header"]
+[node name="HeaderIcon" type="TextureRect" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header"]
 unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("1_0lfcf")
 expand_mode = 3
 
-[node name="HeaderLabel" type="Label" parent="HeaderPopHolder/Header"]
+[node name="HeaderLabel" type="Label" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_3hm6w")
 theme_override_font_sizes/font_size = 24
 text = "Task Name"
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = -1
+
+[node name="CapacityContainer" type="PanelContainer" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_g5maj")
+
+[node name="MarginContainer" type="MarginContainer" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer/CapacityContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = -2
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = -5
+
+[node name="Capacity" type="HBoxContainer" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer/CapacityContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="NumPopLabel" type="Label" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer/CapacityContainer/MarginContainer/Capacity"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_l0m31")
+theme_override_font_sizes/font_size = 25
+text = "0"
+
+[node name="OutOf" type="Label" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer/CapacityContainer/MarginContainer/Capacity"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_l0m31")
+theme_override_font_sizes/font_size = 30
+text = "/"
+
+[node name="CapacityLabel" type="Label" parent="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer/CapacityContainer/MarginContainer/Capacity"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_l0m31")
+theme_override_font_sizes/font_size = 25
+text = "0"
 
 [node name="PopulationContainer" type="HFlowContainer" parent="HeaderPopHolder"]
 unique_name_in_owner = true
@@ -61,9 +152,5 @@ layout_mode = 2
 [node name="TaskPopulation" parent="HeaderPopHolder/PopulationContainer" instance=ExtResource("3_gl8hu")]
 layout_mode = 2
 
-[node name="HSeparator" type="HSeparator" parent="HeaderPopHolder"]
-layout_mode = 2
-mouse_filter = 2
-
-[connection signal="mouse_entered" from="HeaderPopHolder/Header/Info" to="HeaderPopHolder/Header/Info/TooltipShower" method="_on_show_tooltip"]
-[connection signal="mouse_exited" from="HeaderPopHolder/Header/Info" to="HeaderPopHolder/Header/Info/TooltipShower" method="_on_hide_tooltip"]
+[connection signal="mouse_entered" from="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer2/Info" to="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer2/Info/TooltipShower" method="_on_show_tooltip"]
+[connection signal="mouse_exited" from="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer2/Info" to="HeaderPopHolder/MarginContainer/PanelContainer/MarginContainer/Header/MarginContainer2/Info/TooltipShower" method="_on_hide_tooltip"]
