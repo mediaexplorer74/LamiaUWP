@@ -1,6 +1,6 @@
 namespace LamiaSimulation
 {
-    public enum ClientQuery
+    public enum ClientQuery1
     {
         /*
          * Available game pages
@@ -593,6 +593,16 @@ namespace LamiaSimulation
          *     - string: id of task
          */
         SettlementTaskMaximumCapacity,
+
+        // --------------------------------------------------------------------
+        // GAME STATE
+        // --------------------------------------------------------------------
+
+        /*
+         * Current game day
+         *   Result - int: Current day in the simulation
+         */
+        CurrentDay,
 
     }
 }

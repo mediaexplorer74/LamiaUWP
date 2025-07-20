@@ -1,0 +1,62 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Lamia Simulation\n"
+"POT-Creation-Date: 2020-09-21 19:10+0100\n"
+"PO-Revision-Date: 2020-09-20 10:33+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: GetString;GetPluralString:1,2;GetParticularString:1c,2;GetParticularPluralString:1c,2,3;_;_n:1,2;_p:1c,2;_pn:1c,2,3\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: Common/Consts.cs:36
+msgid "Just hanging out."
+msgstr ""
+
+#: Common/Consts.cs:44
+msgid "Wander around the surrounding area picking berries and other various bits of edible fauna."
+msgstr ""
+
+#: Common/Consts.cs:45
+#, csharp-format
+msgid "Produce: Raw Food {0}/s"
+msgstr ""
+
+#: GlobalState.cs:164
+msgid "Population"
+msgstr ""
+
+#: Simulated/Settlement.cs:136
+msgid "Population at capacity."
+msgstr ""
+
+#: Simulated/Settlement.cs:144
+msgid "Task already unlocked."
+msgstr ""
+
+#: Simulated/Settlement.cs:146 Simulated/Settlement.cs:187
+msgid "Task does not exist."
+msgstr ""
+
+#: Simulated/Settlement.cs:184
+msgid "Task not unlocked."
+msgstr ""
+
+#: Simulation.cs:25
+msgid "A Lamia is a six foot tall snek with arms."
+msgstr ""
+
+#: Simulation.cs:28
+msgid "There's one hanging out in a clearing on the outskirts of a forest."
+msgstr ""
+
+#: Simulation.cs:31
+msgid "It's hungry."
+msgstr ""

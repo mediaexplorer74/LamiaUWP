@@ -1,0 +1,69 @@
+﻿{
+  "heap": {
+    "name": "Heap",
+    "description": "Basically just a cleared out space for dumping stuff. Took a lot of pondering this one.",
+    "behaviour": [
+      {
+        "method": "UNLOCK_BUILDING",
+        "id": "heap"
+      }
+    ],
+    "cost": {
+      "research": 20
+    },
+    "prerequisites": null,
+    "unlockMessage": "Let's push all the Wooden Logs and Raw Food into a big pile in the middle of the settlement - at least it's easy to find!"
+  },
+  "writing": {
+    "name": "Writing",
+    "description": "Passing on knowledge by word-of-mouth is getting too much, we should write this stuff down.",
+    "behaviour": [
+      {
+        "method": "UNLOCK_BUILDING",
+        "id": "archives"
+      }
+    ],
+    "cost": {
+      "research": 20,
+      "logs": 15
+    },
+    "prerequisites": null,
+    "unlockMessage": "The Archives will be soon be full of lessons and teaching written down for future generations to learn from."
+  },
+  "meal_prep": {
+    "name": "Meal Preparation",
+    "description": "Turn some of these leaves and berries into more appetising and filling meals.",
+    "behaviour": [
+      {
+        "method": "UNLOCK_BUILDING",
+        "id": "pantry"
+      },
+      {
+        "method": "UNLOCK_TASK",
+        "id": "cook"
+      }
+    ],
+    "cost": {
+      "research": 50,
+      "raw_food": 50
+    },
+    "prerequisites": ["writing", "heap"],
+    "unlockMessage": "We should assign Lamia to Cook the Raw Food we've harvested into Simple Rations and store them in a cool and dry Pantry. This is a much better source of food."
+  },
+  "woodshed": {
+    "name": "Woodshed",
+    "description": "A permanent place to store large amounts of Wooden Logs",
+    "behaviour": [
+      {
+        "method": "UNLOCK_BUILDING",
+        "id": "woodshed"
+      }
+    ],
+    "cost": {
+      "research": 60,
+      "logs": 40
+    },
+    "prerequisites": ["heap"],
+    "unlockMessage": "Woodsheds are covered buildings for storing a lot of Wooden Logs, our future aspirations require a lot of resources."
+  }
+}

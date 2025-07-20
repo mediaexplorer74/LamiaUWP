@@ -1,0 +1,71 @@
+<Page
+    x:Class="LamiaUWP.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:LamiaUWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок приложения и управление игрой -->
+        <Grid Grid.Row="0" Background="#2C3E50" Padding="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0" Text="Lamia" FontSize="24" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            
+            <TextBlock x:Name="CurrentDayText" Grid.Column="1" Text="День: 1" FontSize="18" Foreground="White" 
+                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            
+            <Button x:Name="NextDayButton" Grid.Column="2" Content="Следующий день" Click="NextDayButton_Click" 
+                    Background="#3498DB" Foreground="White" Padding="12,6"/>
+        </Grid>
+        
+        <!-- Основное содержимое -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Боковая панель с меню -->
+            <ListView x:Name="MenuListView" Grid.Column="0" Background="#34495E" Foreground="White" 
+                      SelectionChanged="MenuListView_SelectionChanged">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="12,8"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListViewItem Tag="Overview">
+                    <TextBlock Text="Обзор" FontSize="16"/>
+                </ListViewItem>
+                <ListViewItem Tag="Messages">
+                    <TextBlock Text="Сообщения" FontSize="16"/>
+                </ListViewItem>
+                <ListViewItem Tag="Settlements">
+                    <TextBlock Text="Поселения" FontSize="16"/>
+                </ListViewItem>
+                <ListViewItem Tag="Research">
+                    <TextBlock Text="Исследования" FontSize="16"/>
+                </ListViewItem>
+                <ListViewItem Tag="Tasks">
+                    <TextBlock Text="Задачи" FontSize="16"/>
+                </ListViewItem>
+            </ListView>
+            
+            <!-- Основная область содержимого -->
+            <Frame x:Name="ContentFrame" Grid.Column="1" Padding="20"/>
+        </Grid>
+    </Grid>
+</Page>

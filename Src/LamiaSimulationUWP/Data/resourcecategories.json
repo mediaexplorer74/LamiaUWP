@@ -1,0 +1,14 @@
+﻿{
+  "special": {
+    "name": "Special",
+    "description": "Miscellaneous stuff"
+  },
+  "food": {
+    "name": "Food",
+    "description": "Nommables that your population can fill themselves with"
+  },
+  "construction": {
+    "name": "Construction",
+    "description": "Used for building structures"
+  }
+}
